@@ -1,0 +1,88 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Category/search grid swatches (stock renders an empty div filled by
+ * swatch-renderer JS). Data comes from getJsonSwatchConfig()/
+ * getAllowAttributes(), like the product-page renderer.
+ *
+ * - Real radio inputs styled as swatches (same CSS as the product page).
+ *   cart/add resolves the child SKU from `super_attribute[ID]`, so no
+ *   client-side SKU matching is needed.
+ * - The swatches sit outside the card's <form>, so `form="tocart-form-ID"`
+ *   associates them. Radio groups are scoped by name + form owner, so cards
+ *   don't interfere even with identical names.
+ * - Nothing is preselected; an incomplete selection gets cart/add's "You need
+ *   to choose options" redirect to the product page.
+ * - Not rebuilt: live price swap on selection and the "show more" overflow;
+ *   all swatches render.
+ *
+ * @var \Magento\Swatches\Block\Product\Renderer\Listing\Configurable $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$product = $block->getProduct();
+?>
+<?php if ($product && $product->isAvailable()) : ?>
+    <?php
+    $attributes = $block->getAllowAttributes();
+    $swatchConfig = json_decode($block->getJsonSwatchConfig(), true) ?: [];
+    $productId = (int) $product->getId();
+    $formId = 'tocart-form-' . $productId;
+    ?>
+    <?php if ($attributes && $swatchConfig) : ?>
+        <div class="swatch-opt-<?= $escaper->escapeHtmlAttr($productId) ?> swatch-opt-listing">
+            <?php foreach ($attributes as $attribute) : ?>
+                <?php
+                $attributeId = (int) $attribute->getAttributeId();
+                $options = (array) $attribute->getOptions();
+                $swatchOptions = $swatchConfig[$attributeId] ?? [];
+                if (!$attributeId || !$options || !$swatchOptions) {
+                    continue;
+                }
+                ?>
+                <fieldset class="swatch-attribute-options"
+                          role="radiogroup"
+                          aria-label="<?= $escaper->escapeHtmlAttr($attribute->getLabel()) ?>">
+                    <legend class="sr-only"><?= $escaper->escapeHtml($attribute->getLabel()) ?></legend>
+                    <?php foreach ($options as $option) : ?>
+                        <?php
+                        $valueIndex = $option['value_index'] ?? null;
+                        if (empty($valueIndex) || !isset($swatchOptions[$valueIndex])) {
+                            continue;
+                        }
+                        $swatch = $swatchOptions[$valueIndex];
+                        $swatchType = (string) ($swatch['type'] ?? '0');
+                        $swatchValue = $swatch['value'] ?? '';
+                        $optionLabel = $option['label'] ?? '';
+                        $inputId = 'grid-swatch-' . $productId . '-' . $attributeId . '-' . $valueIndex;
+                        ?>
+                        <span class="swatch-option-wrapper">
+                            <label for="<?= $escaper->escapeHtmlAttr($inputId) ?>"
+                                   title="<?= $escaper->escapeHtmlAttr($optionLabel) ?>"
+                                <?php if ($swatchType === '1') : ?>
+                                   class="swatch-option color"
+                                   style="background: <?= $escaper->escapeHtmlAttr($swatchValue) ?>;"
+                                <?php elseif ($swatchType === '2') : ?>
+                                   class="swatch-option image"
+                                   style="background-image: url('<?= $escaper->escapeUrl($swatchValue) ?>');"
+                                <?php else : ?>
+                                   class="swatch-option text"
+                                <?php endif; ?>
+                            ><input type="radio"
+                                       id="<?= $escaper->escapeHtmlAttr($inputId) ?>"
+                                       name="super_attribute[<?= /* @noEscape */ $attributeId ?>]"
+                                       value="<?= $escaper->escapeHtmlAttr((string) $valueIndex) ?>"
+                                       form="<?= $escaper->escapeHtmlAttr($formId) ?>"
+                                       aria-label="<?= $escaper->escapeHtmlAttr($optionLabel) ?>"
+                                       required
+                                       class="swatch-radio-input"><?= $swatchType === '0' ? $escaper->escapeHtml($optionLabel) : '' ?></label>
+                        </span>
+                    <?php endforeach; ?>
+                </fieldset>
+            <?php endforeach; ?>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>

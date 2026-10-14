@@ -1,0 +1,20 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Replaces stock's
+ * Magento_Catalog::category/widget/link/link_inline.phtml. See
+ * `link_block.phtml`'s own docblock (same widget, inline variant).
+ *
+ * @var \Magento\Catalog\Block\Category\Widget\Link $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<span class="widget block block-category-link-inline">
+    <a <?= /* @noEscape */ $block->getLinkAttributes() ?>>
+        <span><?= $escaper->escapeHtml($block->getLabel()) ?></span>
+    </a>
+</span>

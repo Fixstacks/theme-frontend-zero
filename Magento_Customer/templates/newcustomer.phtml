@@ -1,0 +1,36 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * "New Customers" on the login page. Stock renders "Create an Account" as an
+ * `.action.create.primary` link that this theme doesn't style, so it read as
+ * plain text; here it's a real button, the card's main action.
+ *
+ * @var \Magento\Customer\Block\Form\Login\Info $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->getRegistration()->isAllowed()): ?>
+<div class="block block-new-customer">
+    <div class="block-title">
+        <strong id="block-new-customer-heading" role="heading" aria-level="2"><?= $escaper->escapeHtml(__('New Customers')) ?></strong>
+    </div>
+    <div class="block-content flex flex-col gap-5" aria-labelledby="block-new-customer-heading">
+        <p class="text-sm text-base-content/80"><?= $escaper->escapeHtml(__('Creating an account has many benefits: check out faster, keep more than one address, track orders and more.')) ?></p>
+        <ul class="flex flex-col gap-2 text-sm">
+            <li class="flex items-center gap-2"><span aria-hidden="true" class="text-primary-content bg-primary w-5 h-5 inline-flex items-center justify-center text-xs">✓</span><?= $escaper->escapeHtml(__('Faster checkout with saved addresses')) ?></li>
+            <li class="flex items-center gap-2"><span aria-hidden="true" class="text-primary-content bg-primary w-5 h-5 inline-flex items-center justify-center text-xs">✓</span><?= $escaper->escapeHtml(__('Order history and tracking')) ?></li>
+            <li class="flex items-center gap-2"><span aria-hidden="true" class="text-primary-content bg-primary w-5 h-5 inline-flex items-center justify-center text-xs">✓</span><?= $escaper->escapeHtml(__('A wish list that follows you')) ?></li>
+        </ul>
+        <div class="actions-toolbar">
+            <a href="<?= $escaper->escapeUrl($block->getCreateAccountUrl()) ?>"
+               class="action create primary btn btn-neutral w-full sm:w-auto">
+                <span><?= $escaper->escapeHtml(__('Create an Account')) ?></span>
+            </a>
+        </div>
+    </div>
+</div>
+<?php endif; ?>

@@ -1,0 +1,30 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Merged over Magento/blank's view.xml: only the image sizes this theme
+ * changes. Related/upsell/cross-sell tiles are as wide as category tiles
+ * (2-4 per row), but blank renders them 140×140, so they sat small in their
+ * cards; 400×500 matches the 4:5 product photography.
+ */
+-->
+<view xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:Config/etc/view.xsd">
+    <media>
+        <images module="Magento_Catalog">
+            <image id="related_products_list" type="small_image">
+                <width>400</width>
+                <height>500</height>
+            </image>
+            <image id="upsell_products_list" type="small_image">
+                <width>400</width>
+                <height>500</height>
+            </image>
+            <image id="cart_cross_sell_products" type="small_image">
+                <width>400</width>
+                <height>500</height>
+            </image>
+        </images>
+    </media>
+</view>

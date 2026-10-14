@@ -1,0 +1,74 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Review summary (FULL_VIEW; product page, review list, "My Product Reviews").
+ *
+ * Adds the rating as "4.8 / 12 reviews" (round(summary / 100 * 5, 1)) to the
+ * existing reviews link. The 5-star `.rating-result` bar and its schema.org
+ * microdata are unchanged; CSS hides the bar only in the product page's
+ * `.product-info-price` row, where a single star is shown instead.
+ *
+ * @var \Magento\Review\Block\Product\ReviewRenderer $block
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+$url = $block->getReviewsUrl() . '#reviews';
+$urlForm = $block->getReviewsUrl() . '#review-form';
+?>
+<?php if ($block->isReviewEnabled() && $block->getReviewsCount()): ?>
+    <?php
+    $rating = $block->getRatingSummary();
+    $ratingOutOfFive = $rating ? round((float) $rating / 100 * 5, 1) : null;
+    ?>
+    <div class="product-reviews-summary<?= !$rating ? ' no-rating' : '' ?>" itemprop="aggregateRating" itemscope
+         itemtype="http://schema.org/AggregateRating">
+        <?php if ($rating):?>
+        <div class="rating-summary">
+             <span class="label"><span><?= $escaper->escapeHtml(__('Rating')) ?>:</span></span>
+             <div class="rating-result"
+                  id="rating-result_<?= $escaper->escapeHtmlAttr($block->getProduct()->getId()) ?>"
+                  title="<?= $escaper->escapeHtmlAttr($rating); ?>%">
+                 <span style="width: <?= $escaper->escapeHtmlAttr($rating); ?>%;">
+                     <span>
+                         <span itemprop="ratingValue"><?= $escaper->escapeHtml($rating); ?>
+                         </span>% of <span itemprop="bestRating">100</span>
+                     </span>
+                 </span>
+             </div>
+         </div>
+        <?php endif;?>
+        <div class="reviews-actions">
+            <a class="action view"
+               href="<?= $escaper->escapeUrl($url) ?>">
+                <?php if ($ratingOutOfFive !== null): ?>
+                    <span class="reviews-summary-star" aria-hidden="true">&#9733;</span>
+                    <span class="reviews-summary-decimal"><?= $escaper->escapeHtml((string) $ratingOutOfFive) ?></span>
+                    / <span itemprop="reviewCount"><?= $escaper->escapeHtml($block->getReviewsCount()) ?></span>&nbsp;<span><?= ($block->getReviewsCount() == 1) ? $escaper->escapeHtml(__('Review')) :
+                        $escaper->escapeHtml(__('Reviews')) ?>
+                    </span>
+                <?php else: ?>
+                    <span itemprop="reviewCount"><?= $escaper->escapeHtml($block->getReviewsCount()) ?></span>&nbsp;
+                    <span><?= ($block->getReviewsCount() == 1) ? $escaper->escapeHtml(__('Review')) :
+                        $escaper->escapeHtml(__('Reviews')) ?>
+                    </span>
+                <?php endif; ?>
+            </a>
+            <a class="action add" href="<?= $escaper->escapeUrl($urlForm) ?>">
+                <?= $escaper->escapeHtml(__('Add Your Review')) ?>
+            </a>
+        </div>
+    </div>
+<?php elseif ($block->isReviewEnabled() && $block->getDisplayIfEmpty()): ?>
+    <div class="product-reviews-summary empty">
+        <div class="reviews-actions">
+            <a class="action add" href="<?= $escaper->escapeUrl($urlForm) ?>">
+                <?= $escaper->escapeHtml(__('Be the first to review this product')) ?>
+            </a>
+        </div>
+    </div>
+<?php endif; ?>

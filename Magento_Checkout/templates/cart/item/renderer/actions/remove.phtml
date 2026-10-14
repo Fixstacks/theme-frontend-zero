@@ -1,0 +1,26 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Cart line "Remove item" (stock used data-post JS). It sits inside the cart's
+ * shared updatePost form, so it is a submit button with formaction = the
+ * delete URL and name="id"/value=item id (sent only when this button is
+ * clicked). A nested <form> gets dropped by the parser and its button posts
+ * to updatePost instead. The outer form provides the form_key.
+ *
+ * @var \Magento\Checkout\Block\Cart\Item\Renderer\Actions\Remove $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<button type="submit"
+        formaction="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/delete')) ?>"
+        formmethod="post"
+        name="id"
+        value="<?= (int) $block->getItem()->getId() ?>"
+        title="<?= $escaper->escapeHtmlAttr(__('Remove item')) ?>"
+        class="action action-delete link link-error text-sm no-underline hover:underline">
+    <span><?= $escaper->escapeHtml(__('Remove item')) ?></span>
+</button>

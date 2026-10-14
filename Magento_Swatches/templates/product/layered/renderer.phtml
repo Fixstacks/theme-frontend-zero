@@ -1,0 +1,108 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Layered-nav swatch filters. The filter links work as in stock. Stock sets
+ * each swatch's background with a small inline script; here it's a style
+ * attribute, as the product page swatches do (no inline scripts: strict
+ * CSP). The trailing `require([... swatch-renderer])` tooltip script is
+ * dropped: there is no RequireJS here. Each swatch's aria-label still names
+ * the option. Swatch links refresh #page-columns with HTMX, as the other
+ * filters do; chosen swatches (several at once with Zero_LayeredNavigation)
+ * are marked (aria-pressed, .is-chosen).
+ *
+ * @var \Magento\Swatches\Block\LayeredNavigation\RenderLayered $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php $swatchData = $block->getSwatchData(); ?>
+<?php
+// Several values at once (Zero_LayeredNavigation: ?color=49,50): which are chosen.
+$chosenOptions = array_map('strval', array_filter(explode(',', (string) $block->getRequest()->getParam($swatchData['attribute_code']))));
+?>
+<div class="swatch-attribute swatch-layered <?= $block->escapeHtmlAttr($swatchData['attribute_code']) ?>"
+     data-attribute-code="<?= $block->escapeHtmlAttr($swatchData['attribute_code']) ?>"
+     data-attribute-id="<?= $block->escapeHtmlAttr($swatchData['attribute_id']) ?>">
+    <div class="swatch-attribute-options clearfix">
+        <?php foreach ($swatchData['options'] as $option => $label): ?>
+            <?php $chosen = in_array((string) $option, $chosenOptions, true); ?>
+            <a href="<?= $block->escapeUrl($label['link']) ?>" rel="nofollow"
+               <?php if ($label['custom_style'] !== 'disabled'): ?>
+               hx-get="<?= $block->escapeUrl($label['link']) ?>"
+               hx-target="#page-columns" hx-select="#page-columns" hx-swap="outerHTML" hx-push-url="true"
+               <?php endif; ?>
+               aria-label="<?= $block->escapeHtmlAttr($label['label']) ?>"
+               aria-pressed="<?= $chosen ? 'true' : 'false' ?>"
+               class="swatch-option-link-layered<?= $chosen ? ' is-chosen' : '' ?>">
+                <?php if (isset($swatchData['swatches'][$option]['type'])): ?>
+                    <?php switch ($swatchData['swatches'][$option]['type']) {
+                        case '3':
+                            ?>
+                            <div class="swatch-option <?= $block->escapeHtmlAttr($label['custom_style']) ?>"
+                                 tabindex="-1"
+                                 data-option-type="3"
+                                 data-option-id="<?= $block->escapeHtmlAttr($option) ?>"
+                                 data-option-label="<?= $block->escapeHtmlAttr($label['label']) ?>"
+                                 data-option-tooltip-thumb=""
+                                 data-option-tooltip-value=""
+                                ></div>
+                            <?php break;
+                        case '2':
+                            ?>
+                            <?php $swatchThumbPath = $block->getSwatchPath(
+                                'swatch_thumb',
+                                $swatchData['swatches'][$option]['value']
+                            ); ?>
+                            <?php $swatchImagePath = $block->getSwatchPath(
+                                'swatch_image',
+                                $swatchData['swatches'][$option]['value']
+                            );
+                            $escapedUrl = $block->escapeUrl($swatchImagePath);
+                            ?>
+                            <div class="swatch-option image <?= $block->escapeHtmlAttr($label['custom_style']) ?>"
+                                 tabindex="-1"
+                                 data-option-type="2"
+                                 data-option-id="<?= $block->escapeHtmlAttr($option) ?>"
+                                 data-option-label="<?= $block->escapeHtmlAttr($label['label']) ?>"
+                                 data-option-tooltip-thumb="<?= $block->escapeUrl($swatchThumbPath) ?>"
+                                 data-option-tooltip-value=""
+                                 style="background: url('<?= /* @noEscape */ $escapedUrl ?>') no-repeat center; background-size: initial;">
+                            </div>
+                            <?php break;
+                        case '1':
+                            ?>
+                            <div class="swatch-option color <?= $block->escapeHtmlAttr($label['custom_style']) ?>"
+                                 tabindex="-1"
+                                 data-option-type="1"
+                                 data-option-id="<?= $block->escapeHtmlAttr($option) ?>"
+                                 data-option-label="<?= $block->escapeHtmlAttr($label['label']) ?>"
+                                 data-option-tooltip-thumb=""
+                                 data-option-tooltip-value="<?= $block->escapeHtmlAttr(
+                                     $swatchData['swatches'][$option]['value']
+                                 ) ?>"
+                                 style="background: <?= $block->escapeHtmlAttr(
+                                     $swatchData['swatches'][$option]['value'] ?? ''
+                                 ) ?> no-repeat center; background-size: initial;">
+                            </div>
+                            <?php break;
+                        case '0':
+                        default:
+                            ?>
+                            <div class="swatch-option text <?= $block->escapeHtmlAttr($label['custom_style']) ?>"
+                                 tabindex="-1"
+                                 data-option-type="0"
+                                 data-option-id="<?= $block->escapeHtmlAttr($option) ?>"
+                                 data-option-label="<?= $block->escapeHtmlAttr($label['label']) ?>"
+                                 data-option-tooltip-thumb=""
+                                 data-option-tooltip-value=""
+                                ><?= $block->escapeHtml($swatchData['swatches'][$option]['value']) ?></div>
+                        <?php break;
+                    } ?>
+                <?php endif; ?>
+            </a>
+        <?php endforeach; ?>
+    </div>
+</div>

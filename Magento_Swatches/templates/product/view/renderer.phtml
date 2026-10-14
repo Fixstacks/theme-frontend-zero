@@ -1,0 +1,116 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Configurable product options on the product page (stock renders an empty div
+ * for swatch-renderer JS, so options were invisible and unselectable).
+ *
+ * - Radio inputs named `super_attribute[ID]`, styled as color/image/text
+ *   swatches from getJsonSwatchConfig() (1=color, 2=image, 0=text); cart/add
+ *   resolves the child SKU. Attributes without swatch data use a <select>.
+ * - Preselects getPreconfiguredValues() (cart/wishlist "Edit"), so changing
+ *   only the qty doesn't fail the native `required` check.
+ * - The script at the end (from getJsonConfig(), the data stock's
+ *   SwatchRenderer uses) shows the chosen value next to each label ("Color:
+ *   Purple"), disables values with no salable variant for the other choices,
+ *   shows the variant's main image as the gallery's first image, and the
+ *   variant's price once every attribute is chosen. Display only: cart/add
+ *   resolves the child server-side.
+ *
+ * @var \Magento\Swatches\Block\Product\Renderer\Configurable $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$attributes = $block->getAllowAttributes();
+$product = $block->getProduct();
+$preconfiguredValues = $product->hasPreconfiguredValues() ? $product->getPreconfiguredValues() : null;
+$swatchConfig = json_decode($block->getJsonSwatchConfig(), true) ?: [];
+?>
+<?php if (count($attributes)) : ?>
+    <div class="swatch-opt" data-role="swatch-options">
+        <?php foreach ($attributes as $attribute) : ?>
+            <?php
+            $attributeId = (int) $attribute->getAttributeId();
+            $options = (array) $attribute->getOptions();
+            if (!$attributeId || !$options) {
+                continue;
+            }
+            $selectedValue = $preconfiguredValues
+                ? (string) $preconfiguredValues->getData('super_attribute/' . $attributeId)
+                : '';
+            $attributeCode = $attribute->getProductAttribute()->getAttributeCode();
+            $swatchOptions = $swatchConfig[$attributeId] ?? [];
+            ?>
+            <div class="swatch-attribute <?= $escaper->escapeHtmlAttr($attributeCode) ?>" data-attribute-code="<?= $escaper->escapeHtmlAttr($attributeCode) ?>">
+                <?php if ($swatchOptions) : ?>
+                    <label class="label swatch-attribute-label" for="attribute<?= /* @noEscape */ $attributeId ?>-fieldset">
+                        <span><?= $escaper->escapeHtml($attribute->getLabel()) ?></span><span
+                            class="swatch-attribute-selected-option" data-selected-label></span>
+                    </label>
+                    <fieldset id="attribute<?= /* @noEscape */ $attributeId ?>-fieldset" class="control swatch-attribute-options" role="radiogroup">
+                        <legend class="sr-only"><?= $escaper->escapeHtml($attribute->getLabel()) ?></legend>
+                        <?php foreach ($options as $option) : ?>
+                            <?php
+                            $valueIndex = $option['value_index'] ?? null;
+                            if (empty($valueIndex) || !isset($swatchOptions[$valueIndex])) {
+                                continue;
+                            }
+                            $swatch = $swatchOptions[$valueIndex];
+                            $swatchType = (string) ($swatch['type'] ?? '0');
+                            $swatchValue = $swatch['value'] ?? '';
+                            $optionLabel = $option['label'] ?? '';
+                            $inputId = 'swatch-' . $attributeId . '-' . $valueIndex;
+                            $isChecked = $selectedValue !== '' && $selectedValue === (string) $valueIndex;
+                            ?>
+                            <span class="swatch-option-wrapper">
+                                <label for="<?= $escaper->escapeHtmlAttr($inputId) ?>"
+                                       title="<?= $escaper->escapeHtmlAttr($optionLabel) ?>"
+                                    <?php if ($swatchType === '1') : ?>
+                                       class="swatch-option color"
+                                       style="background: <?= $escaper->escapeHtmlAttr($swatchValue) ?>;"
+                                    <?php elseif ($swatchType === '2') : ?>
+                                       class="swatch-option image"
+                                       style="background-image: url('<?= $escaper->escapeUrl($swatchValue) ?>');"
+                                    <?php else : ?>
+                                       class="swatch-option text"
+                                    <?php endif; ?>
+                                ><input type="radio"
+                                           id="<?= $escaper->escapeHtmlAttr($inputId) ?>"
+                                           name="super_attribute[<?= /* @noEscape */ $attributeId ?>]"
+                                           value="<?= $escaper->escapeHtmlAttr((string) $valueIndex) ?>"
+                                           class="swatch-radio-input"
+                                           data-option-label="<?= $escaper->escapeHtmlAttr($optionLabel) ?>"
+                                           aria-label="<?= $escaper->escapeHtmlAttr($optionLabel) ?>"
+                                           required
+                                        <?= $isChecked ? 'checked' : '' ?>><?= $swatchType === '0' ? $escaper->escapeHtml($optionLabel) : '' ?></label>
+                            </span>
+                        <?php endforeach; ?>
+                    </fieldset>
+                <?php else : ?>
+                    <label class="label" for="attribute<?= /* @noEscape */ $attributeId ?>">
+                        <span><?= $escaper->escapeHtml($attribute->getLabel()) ?></span>
+                    </label>
+                    <div class="control">
+                        <select name="super_attribute[<?= /* @noEscape */ $attributeId ?>]" id="attribute<?= /* @noEscape */ $attributeId ?>"
+                                class="super-attribute-select" required>
+                            <option value=""><?= $escaper->escapeHtml(__('Choose an Option...')) ?></option>
+                            <?php foreach ($options as $option) : ?>
+                                <?php if (empty($option['value_index'])) {
+                                    continue;
+                                } ?>
+                                <option value="<?= $escaper->escapeHtmlAttr($option['value_index']) ?>"
+                                    <?= $selectedValue !== '' && $selectedValue === (string) $option['value_index'] ? 'selected' : '' ?>>
+                                    <?= $escaper->escapeHtml($option['label'] ?? '') ?>
+                                </option>
+                            <?php endforeach; ?>
+                        </select>
+                    </div>
+                <?php endif; ?>
+            </div>
+        <?php endforeach; ?>
+    </div>
+    <script type="application/json" id="zero-swatches-config"><?= /* @noEscape */ '{"config":' . $block->getJsonConfig() . ',"currency":' . json_encode($product->getStore()->getCurrentCurrencyCode()) . '}' ?></script>
+    <script src="<?= $escaper->escapeUrl($block->getViewFileUrl('js/product/swatches.js')) ?>" defer></script>
+<?php endif; ?>

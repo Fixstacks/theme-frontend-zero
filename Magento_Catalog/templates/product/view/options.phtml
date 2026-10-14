@@ -1,0 +1,31 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Custom options on the product page. Stock markup, but stock's price update
+ * is the RequireJS `priceOptions` widget, which this theme doesn't load: the
+ * price stayed at the base price however many paid options were chosen (the
+ * cart then showed the real, higher total).
+ *
+ * The script below does that update from the same data stock uses
+ * (Options::getJsonConfig(): final price per option / per option value):
+ * base price + every chosen value, filled text field, picked date/time or
+ * attached file, written into the product's price box. Display only; the
+ * cart prices the options server-side.
+ *
+ * @var \Magento\Catalog\Block\Product\View\Options $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$_options = $block->decorateArray($block->getOptions());
+$_product = $block->getProduct();
+?>
+<?php if (count($_options)): ?>
+    <?php foreach ($_options as $_option): ?>
+        <?= $block->getOptionHtml($_option) ?>
+    <?php endforeach; ?>
+    <script type="application/json" id="zero-custom-options-config"><?= /* @noEscape */ '{"config":' . $block->getJsonConfig() . ',"productId":' . (int) $_product->getId() . ',"currency":' . json_encode($_product->getStore()->getCurrentCurrencyCode()) . '}' ?></script>
+    <script src="<?= $escaper->escapeUrl($block->getViewFileUrl('js/product/custom-options.js')) ?>" defer></script>
+<?php endif; ?>

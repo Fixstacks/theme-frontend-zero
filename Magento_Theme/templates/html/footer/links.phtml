@@ -1,0 +1,108 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Template for core's `footer_links` (Html\Links renders a flat <ul> without
+ * one): groups the links into headed columns.
+ *
+ * - Grouped by block name (getNameInLayout()), not label/href. Unknown links
+ *   fall into "Help" rather than disappearing. Each stock child keeps its own
+ *   visibility logic via renderLink().
+ * - Adds About Us, Customer Service, My Account and My Wish List as plain links.
+ * - `$linkClass` is also passed to the stock children via `attributes` in
+ *   Magento_Theme/layout/default.xml. It must stay identical here: Tailwind only
+ *   scans .phtml, so this copy is what gets the classes compiled.
+ * - Column headings are <h2>s in full primary-content with a rule underneath.
+ *
+ * If a new template= override here ever doesn't render, suspect stale
+ * var/cache first (seen once; a plain cache:flush wasn't enough).
+ *
+ * @var \Magento\Framework\View\Element\Html\Links $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$linkClass = 'text-primary-content hover:text-base-100 hover:underline underline-offset-2';
+// Column headings: real <h2>s, bolder than the links below them and set off by a rule, so they read
+// as headings at a glance (they used to be smaller and fainter than the links, mobile especially).
+$headingClass = 'block w-full text-sm font-bold uppercase tracking-wider text-primary-content pb-2 mb-3.5 border-b-2 border-primary-content';
+// A local variable, deliberately not a top-level `const`: `.phtml` files are `include`d (not
+// `include_once`) by Magento\Framework\View\Element\Template::fetchView() — a top-level `const`
+// here would fatal with "Cannot redeclare constant" the moment this template is ever rendered
+// twice in one request (block caching preview, an ESI/hole-punch context, a future layout change
+// that references this block twice), a real, avoidable risk for zero benefit over a local array.
+$categoryMap = [
+    'privacy-policy-link' => 'legal',
+    'zero-cookie-settings-link' => 'legal',
+    'sales-guest-form-link' => 'account',
+    'contact-us-link' => 'help',
+    'catalog-search-advanced-link' => 'help',
+    'search-term-popular-link' => 'help',
+];
+
+$groups = ['company' => [], 'account' => [], 'help' => [], 'legal' => []];
+foreach ($block->getLinks() as $link) {
+    $group = $categoryMap[$link->getNameInLayout()] ?? 'help';
+    $groups[$group][] = $block->renderLink($link);
+}
+?>
+<div class="grid grid-cols-2 sm:grid-cols-4 gap-8 w-full">
+    <div class="w-full">
+        <h2 class="<?= $escaper->escapeHtmlAttr($headingClass) ?>">
+            <?= $escaper->escapeHtml(__('Company')) ?>
+        </h2>
+        <ul class="flex flex-col gap-2.5 text-sm">
+            <li class="list-none">
+                <a href="<?= $escaper->escapeUrl($block->getUrl('about-us')) ?>" class="<?= $escaper->escapeHtmlAttr($linkClass) ?>">
+                    <?= $escaper->escapeHtml(__('About Us')) ?>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <div class="w-full">
+        <h2 class="<?= $escaper->escapeHtmlAttr($headingClass) ?>">
+            <?= $escaper->escapeHtml(__('My Account')) ?>
+        </h2>
+        <ul class="flex flex-col gap-2.5 text-sm">
+            <li class="list-none">
+                <a href="<?= $escaper->escapeUrl($block->getUrl('customer/account')) ?>" class="<?= $escaper->escapeHtmlAttr($linkClass) ?>">
+                    <?= $escaper->escapeHtml(__('My Account')) ?>
+                </a>
+            </li>
+            <li class="list-none">
+                <a href="<?= $escaper->escapeUrl($block->getUrl('wishlist')) ?>" class="<?= $escaper->escapeHtmlAttr($linkClass) ?>">
+                    <?= $escaper->escapeHtml(__('My Wish List')) ?>
+                </a>
+            </li>
+            <?php foreach ($groups['account'] as $linkHtml): ?>
+                <?= /* @noEscape */ $linkHtml ?>
+            <?php endforeach; ?>
+        </ul>
+    </div>
+    <div class="w-full">
+        <h2 class="<?= $escaper->escapeHtmlAttr($headingClass) ?>">
+            <?= $escaper->escapeHtml(__('Help')) ?>
+        </h2>
+        <ul class="flex flex-col gap-2.5 text-sm">
+            <?php foreach ($groups['help'] as $linkHtml): ?>
+                <?= /* @noEscape */ $linkHtml ?>
+            <?php endforeach; ?>
+            <li class="list-none">
+                <a href="<?= $escaper->escapeUrl($block->getUrl('customer-service')) ?>" class="<?= $escaper->escapeHtmlAttr($linkClass) ?>">
+                    <?= $escaper->escapeHtml(__('Customer Service')) ?>
+                </a>
+            </li>
+        </ul>
+    </div>
+    <?php if ($groups['legal']): ?>
+        <div class="w-full">
+            <h2 class="<?= $escaper->escapeHtmlAttr($headingClass) ?>">
+                <?= $escaper->escapeHtml(__('Legal')) ?>
+            </h2>
+            <ul class="flex flex-col gap-2.5 text-sm">
+                <?php foreach ($groups['legal'] as $linkHtml): ?>
+                    <?= /* @noEscape */ $linkHtml ?>
+                <?php endforeach; ?>
+            </ul>
+        </div>
+    <?php endif; ?>
+</div>

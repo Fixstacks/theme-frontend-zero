@@ -1,0 +1,72 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Terms checkboxes on the multishipping review step (this template, not
+ * multishipping_agreements.phtml, is what multishipping_checkout_overview.xml
+ * uses). Stock renders a Knockout placeholder, so the required checkbox never
+ * appeared and OverviewPost rejected every order.
+ *
+ * Renders getAgreements() directly: a checkbox `agreement[ID]` for manual
+ * agreements, plain text for automatic ones.
+ *
+ * @var \Magento\CheckoutAgreements\Block\Agreements $block
+ */
+use Magento\CheckoutAgreements\Model\AgreementModeOptions;
+
+if (!$block->getAgreements()) {
+    return;
+}
+?>
+<ol id="checkout-agreements" class="agreements checkout items">
+    <?php /** @var \Magento\CheckoutAgreements\Model\Agreement $agreement */ ?>
+    <?php foreach ($block->getAgreements() as $agreement) : ?>
+        <?php if (!$agreement->getIsActive()) {
+            continue;
+        } ?>
+        <li class="item">
+            <div class="checkout-agreement-item-content" id="<?= (int) $agreement->getAgreementId() ?>"<?= $agreement->getContentHeight()
+                ? ' style="height: ' . $block->escapeHtmlAttr($agreement->getContentHeight()) . '"' : '' ?>>
+                <?php if ($agreement->getIsHtml()) : ?>
+                    <?= /* @noEscape */ $agreement->getContent() ?>
+                <?php else : ?>
+                    <?= $block->escapeHtml(nl2br($agreement->getContent())) ?>
+                <?php endif; ?>
+            </div>
+            <?php if ((int) $agreement->getMode() === AgreementModeOptions::MODE_MANUAL) : ?>
+                <div id="checkout-agreements-form-<?= (int) $agreement->getAgreementId() ?>"
+                     class="field choice agree required">
+                    <input type="checkbox"
+                           id="agreement-<?= (int) $agreement->getAgreementId() ?>"
+                           name="agreement[<?= (int) $agreement->getAgreementId() ?>]"
+                           value="1"
+                           title="<?= $block->escapeHtmlAttr($agreement->getCheckboxText()) ?>"
+                           class="checkbox"
+                           required/>
+                    <label class="label" for="agreement-<?= (int) $agreement->getAgreementId() ?>">
+                        <span>
+                            <?php if ($agreement->getIsHtml()) : ?>
+                                <?= /* @noEscape */ $agreement->getCheckboxText() ?>
+                            <?php else : ?>
+                                <?= $block->escapeHtml($agreement->getCheckboxText()) ?>
+                            <?php endif; ?>
+                        </span>
+                    </label>
+                </div>
+            <?php elseif ((int) $agreement->getMode() === AgreementModeOptions::MODE_AUTO) : ?>
+                <div id="checkout-agreements-form-<?= (int) $agreement->getAgreementId() ?>" class="field choice agree">
+                    <span>
+                        <?php if ($agreement->getIsHtml()) : ?>
+                            <?= /* @noEscape */ $agreement->getCheckboxText() ?>
+                        <?php else : ?>
+                            <?= $block->escapeHtml($agreement->getCheckboxText()) ?>
+                        <?php endif; ?>
+                    </span>
+                </div>
+            <?php endif; ?>
+        </li>
+    <?php endforeach ?>
+</ol>

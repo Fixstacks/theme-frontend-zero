@@ -1,0 +1,30 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Generic collapsible block; its only consumer is the My Account sidebar
+ * (sidebar.main.account_nav). The toggleAdvanced widget is dropped.
+ *
+ * A native <details>: below desktop the sidebar sits above the page, and the
+ * full link list pushed every account page's content a screen down, so there
+ * it starts closed and its summary names the current page. From the desktop
+ * breakpoint (the same 64rem as the two-column grid) the script keeps it open
+ * and CSS hides the summary's toggle affordance.
+ */
+
+/** @var \Magento\Framework\View\Element\Template $block */
+
+$blockCss = $block->escapeHtmlAttr($block->getBlockCss());
+?>
+<details class="block <?= /* @noEscape */ $blockCss ?>" id="<?= /* @noEscape */ $blockCss ?>-details" data-collapsible-nav>
+    <summary class="title <?= /* @noEscape */ $blockCss ?>-title">
+        <strong><?= $block->escapeHtml(__($block->getBlockTitle())) ?></strong>
+        <span class="<?= /* @noEscape */ $blockCss ?>-current" data-current-label></span>
+    </summary>
+    <div class="content <?= /* @noEscape */ $blockCss ?>-content" id="<?= /* @noEscape */ $blockCss ?>">
+        <?= $block->getChildHtml() ?>
+    </div>
+</details>

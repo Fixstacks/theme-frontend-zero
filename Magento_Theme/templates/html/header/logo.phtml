@@ -1,0 +1,27 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * "0 zero." wordmark: a square neutral badge with a primary "0", then the
+ * store name in the sans face with a muted period, using theme tokens.
+ * Keeps stock's dynamic data (getUrl(''), getThemeName(), getLogoAlt()) and
+ * the "Toggle Nav" control stock expects before the logo (hidden by CSS).
+ *
+ * @var \Magento\Theme\Block\Html\Header\Logo $block
+ */
+$storeName = $block->getThemeName() ? $block->getThemeName() : $block->getLogoAlt();
+?>
+<span data-action="toggle-nav" class="action nav-toggle"><span><?= $block->escapeHtml(__('Toggle Nav')) ?></span></span>
+<a class="logo zero-logo group flex items-center gap-2"
+   href="<?= $block->escapeUrl($block->getUrl('')) ?>"
+   title="<?= $block->escapeHtmlAttr($storeName) ?>"
+   aria-label="<?= $block->escapeHtmlAttr($storeName) ?>">
+    <span class="zero-logo-mark grid size-8 place-items-center bg-neutral text-[17px] font-semibold
+                 tracking-[-0.12em] text-primary transition-transform duration-200 group-hover:rotate-[-8deg]"
+          aria-hidden="true">0</span>
+    <span class="zero-logo-word text-[22px] font-semibold tracking-[-0.08em] text-base-content">zero<span
+        class="zero-logo-dot">.</span></span>
+</a>

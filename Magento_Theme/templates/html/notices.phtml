@@ -1,0 +1,22 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Global notices (block global_notices, top of <body>). The demo-store notice
+ * (Content > Design > Configuration > HTML Head > Display Demo Store Notice)
+ * is a thin bar above the header. Stock's noscript notice is dropped (the
+ * storefront works without JavaScript) and so is the local-storage check, a
+ * require(['jquery']) script that can't run here.
+ *
+ * @var \Magento\Theme\Block\Html\Notices $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->displayDemoNotice()): ?>
+    <div class="demo-store-notice bg-neutral text-neutral-content text-center text-xs tracking-wide px-4 py-2" role="note">
+        <?= $escaper->escapeHtml(__('This is a demo store. No orders will be fulfilled.')) ?>
+    </div>
+<?php endif; ?>

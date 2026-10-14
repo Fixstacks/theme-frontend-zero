@@ -1,0 +1,25 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Cart "Proceed to Checkout" as a plain link (stock's button had no href and
+ * relied on proceed-to-checkout JS). Points at stock's checkout URL; Zero
+ * Checkout's RedirectLegacyCheckout plugin decides where it goes.
+ *
+ * @var \Magento\Checkout\Block\Onepage\Link $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->isPossibleOnepageCheckout()): ?>
+    <a href="<?= $escaper->escapeUrl($block->getUrl('checkout/index/index')) ?>"
+       title="<?= $escaper->escapeHtmlAttr(__('Proceed to Checkout')) ?>"
+       class="action primary checkout btn btn-primary hover:bg-neutral hover:text-neutral-content<?= ($block->isDisabled()) ? ' disabled' : '' ?>"
+        <?php if ($block->isDisabled()): ?>
+            aria-disabled="true" tabindex="-1"
+        <?php endif; ?>>
+        <span><?= $escaper->escapeHtml(__('Proceed to Checkout')) ?></span>
+    </a>
+<?php endif?>

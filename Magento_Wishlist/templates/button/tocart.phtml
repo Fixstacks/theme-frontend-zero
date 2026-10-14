@@ -1,0 +1,27 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Replaces stock's
+ * Magento_Wishlist::button/tocart.phtml ("Add All to Cart"). Same
+ * `formaction` fix as this theme's own item/column/cart.phtml and
+ * item/column/remove.phtml — Magento\Wishlist\Controller\Index\
+ * Allcart processes every item already in the shared form's own qty[]
+ * fields, so no extra per-button field is needed here, just the
+ * redirected submission target.
+ *
+ * @var \Magento\Wishlist\Block\Customer\Wishlist\Button $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+
+<?php if ($block->getWishlist()->getItemsCount() && $block->getWishlist()->isSalable()) : ?>
+    <button type="submit"
+            formaction="<?= $escaper->escapeUrl($block->getUrl('wishlist/index/allcart')) ?>"
+            data-role="all-tocart" title="<?= $escaper->escapeHtmlAttr(__('Add All to Cart')) ?>" class="action tocart btn btn-neutral hover:bg-primary hover:text-primary-content">
+        <span><?= $escaper->escapeHtml(__('Add All to Cart')) ?></span>
+    </button>
+<?php endif;?>

@@ -1,0 +1,28 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * RequireJS base URL, printed by the root template in <head> (the block must
+ * keep its name `require.js`). Zero pages load no RequireJS, and this inline
+ * script's CSP nonce doesn't survive the built-in page cache, so it prints
+ * only where RequireJS runs: the stock checkout (checkout_index_index, never
+ * cached). Elsewhere: nothing.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ * @var \Magento\Framework\Locale\LocaleFormatter $localeFormatter
+ */
+if ($block->getRequest()->getFullActionName() !== 'checkout_index_index') {
+    return;
+}
+$scriptString = '
+    var LOCALE = \'' . /* @noEscape */ $block->escapeJs($localeFormatter->getLocaleJs()) . '\';
+    var BASE_URL = \'' . /* @noEscape */ $block->escapeJs($block->getBaseUrl()) . '\';
+    var require = {
+        \'baseUrl\': \'' . /* @noEscape */ $block->escapeJs($block->getViewFileUrl('/')) . '\'
+    };';
+
+echo /* @noEscape */ $secureRenderer->renderTag('script', [], $scriptString, false);

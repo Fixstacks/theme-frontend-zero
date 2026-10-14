@@ -1,0 +1,50 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * "Create an account" for guests on the order success page, in one step: a
+ * password here, and Zero\Checkout\Controller\Checkout\CreateAccount makes
+ * the account from the order (name, email, addresses), attaches the order
+ * and signs the customer in. The block's toHtml() already decides whether to
+ * show it (guest order, email without an account, registration allowed).
+ * Posts with HTMX (errors come back in place); works as a plain form too.
+ *
+ * @var \Magento\Checkout\Block\Registration $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$error = (string) $block->getData('accountError');
+$action = $block->getUrl('zero/checkout/createaccount');
+?>
+<div id="registration" class="rounded-box border border-base-300 p-5 mt-6 max-w-md">
+    <h2 class="text-lg font-semibold mb-1"><?= $escaper->escapeHtml(__('Save your details for next time')) ?></h2>
+    <p class="text-sm mb-4">
+        <?= $escaper->escapeHtml(__('Choose a password to create an account for %1: track this order, check out faster, keep your addresses.', $block->getEmailAddress())) ?>
+    </p>
+    <form method="post" action="<?= $escaper->escapeUrl($action) ?>"
+          hx-post="<?= $escaper->escapeUrl($action) ?>" hx-target="#registration" hx-swap="outerHTML"
+          class="flex flex-col gap-3">
+        <?= /* @noEscape */ $block->getLayout()->createBlock(\Magento\Framework\View\Element\FormKey::class)->toHtml() ?>
+        <input type="text" name="username" autocomplete="username"
+               value="<?= $escaper->escapeHtmlAttr($block->getEmailAddress()) ?>" hidden aria-hidden="true" tabindex="-1">
+        <div class="field">
+            <label class="label" for="registration-password"><?= $escaper->escapeHtml(__('Password')) ?></label>
+            <input type="password" name="password" id="registration-password" required minlength="8"
+                   autocomplete="new-password" class="input input-bordered w-full"
+                   <?= $error !== '' ? 'aria-invalid="true" aria-describedby="registration-error"' : '' ?>>
+        </div>
+        <div class="field">
+            <label class="label" for="registration-password-confirmation"><?= $escaper->escapeHtml(__('Confirm Password')) ?></label>
+            <input type="password" name="password_confirmation" id="registration-password-confirmation" required
+                   minlength="8" autocomplete="new-password" class="input input-bordered w-full">
+        </div>
+        <?php if ($error !== ''): ?>
+            <p id="registration-error" class="text-error text-sm" role="alert"><?= $escaper->escapeHtml($error) ?></p>
+        <?php endif; ?>
+        <button type="submit" class="btn btn-primary self-start">
+            <?= $escaper->escapeHtml(__('Create an Account')) ?>
+        </button>
+    </form>
+</div>

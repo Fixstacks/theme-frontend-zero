@@ -1,0 +1,82 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * "Shop By" filter sidebar. Filter links/state are the stock child blocks.
+ *
+ * - One "SHOP BY / REFINE YOUR EDIT" heading (the second line only when there
+ *   are filterable attributes), plain uppercase rather than the display serif.
+ * - Each attribute group is a native <details>, closed by default (open while
+ *   it has a value chosen), styled as a bordered row with its own rotating
+ *   chevron class.
+ * - Mobile: the whole panel is wrapped in one more <details> ("SHOP BY" bar),
+ *   closed by default. Desktop forces it open and hides the toggle via the
+ *   `::details-content` override (as the mobile category nav does).
+ *
+ * @var \Magento\LayeredNavigation\Block\Navigation $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->canShowBlock()) : ?>
+    <div class="block filter">
+        <details class="filter-mobile-toggle">
+            <summary class="filter-mobile-toggle-title flex items-center justify-between gap-2 cursor-pointer text-sm font-semibold uppercase tracking-wide list-none [&::-webkit-details-marker]:hidden">
+                <?= $escaper->escapeHtml(__('Shop By')) ?>
+                <span class="filter-mobile-toggle-icon flex items-center justify-center shrink-0">
+                    <svg class="filter-mobile-toggle-chevron size-4 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                    </svg>
+                </span>
+            </summary>
+            <div class="block-content filter-content">
+                <?= $block->getChildHtml('state') ?>
+
+                <?php if ($block->getLayer()->getState()->getFilters()) : ?>
+                    <div class="block-actions filter-actions mb-4">
+                        <a href="<?= $escaper->escapeUrl($block->getClearUrl()) ?>" class="action clear filter-clear link link-neutral text-sm no-underline hover:underline">
+                            <span><?= $escaper->escapeHtml(__('Clear All')) ?></span>
+                        </a>
+                    </div>
+                <?php endif; ?>
+                <?php $wrapOptions = false; ?>
+                <?php foreach ($block->getFilters() as $filter) : ?>
+                    <?php if (!$wrapOptions) : ?>
+                        <div class="block-title filter-title mb-1.5 pb-3 border-b border-base-300">
+                            <strong class="text-sm font-semibold uppercase tracking-wide">
+                                <?= $escaper->escapeHtml(__('Shop By')) ?>
+                                <span class="text-base-content/60 font-normal"> / </span><span
+                                    class="text-base-content/60"><?= $escaper->escapeHtml(__('Refine Your Edit')) ?></span>
+                            </strong>
+                        </div>
+                        <div class="filter-options flex flex-col" id="narrow-by-list">
+                        <?php $wrapOptions = true;
+                    endif; ?>
+                        <?php if ($filter->getItemsCount()) : ?>
+                            <?php
+                            // A filter with something chosen stays open (several values at once: Zero_LayeredNavigation).
+                            $isChosen = (method_exists($filter, 'getChosenValues') && $filter->getChosenValues())
+                                || (method_exists($filter, 'getChosenRange') && $filter->getChosenRange());
+                            ?>
+                            <details class="filter-options-item border-b border-base-300"<?= $isChosen ? ' open' : '' ?>>
+                                <summary role="heading" aria-level="2" class="filter-options-title flex items-center justify-between gap-2 cursor-pointer py-3 text-sm font-semibold uppercase tracking-wide list-none [&::-webkit-details-marker]:hidden">
+                                    <?= $escaper->escapeHtml(__($filter->getName())) ?>
+                                    <svg class="filter-options-chevron size-4 shrink-0 text-base-content/60 transition-transform duration-200" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                                        <path stroke-linecap="round" stroke-linejoin="round" d="m19.5 8.25-7.5 7.5-7.5-7.5" />
+                                    </svg>
+                                </summary>
+                                <div class="filter-options-content pb-4">
+                                    <?= /* @noEscape */ $block->getChildBlock('renderer')->render($filter) ?>
+                                </div>
+                            </details>
+                        <?php endif; ?>
+                <?php endforeach; ?>
+                <?php if ($wrapOptions) : ?>
+                    </div>
+                <?php endif; ?>
+            </div>
+        </details>
+    </div>
+<?php endif; ?>

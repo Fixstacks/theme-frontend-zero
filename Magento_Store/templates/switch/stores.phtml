@@ -1,0 +1,41 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Footer store switcher. Switches store VIEWS (getStores(), as stock's
+ * switch/languages.phtml), not store groups (stock's getGroups()); there is
+ * no separate currency switcher because each store view has a fixed currency.
+ *
+ * A native <select> whose option values are getTargetStoreRedirectUrl()
+ * (SwitcherUrlProvider view model, keeps the current page); a small inline
+ * `change` listener navigates.
+ *
+ * @var \Magento\Store\Block\Switcher $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$stores = $block->getStores();
+$currentStoreId = $block->getCurrentStoreId();
+?>
+<?php if (count($stores) > 1) : ?>
+    <div class="store-view-switcher">
+        <div class="flex items-center gap-1.5">
+            <svg class="size-4 shrink-0 text-primary-content" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                <path stroke-linecap="round" stroke-linejoin="round" d="M12 21a9 9 0 1 0 0-18 9 9 0 0 0 0 18Zm0 0c1.657 0 3-4.03 3-9s-1.343-9-3-9-3 4.03-3 9 1.343 9 3 9Zm-9-9h18" />
+            </svg>
+            <label class="sr-only" for="store-view-select"><?= $escaper->escapeHtml(__('Store View')) ?></label>
+            <select id="store-view-select" class="select select-sm" data-navigate>
+                <?php foreach ($stores as $_store) : ?>
+                    <option value="<?= $_store->getId() == $currentStoreId
+                        ? ''
+                        : $escaper->escapeHtmlAttr($block->getViewModel()->getTargetStoreRedirectUrl($_store)) ?>"
+                        <?= $_store->getId() == $currentStoreId ? 'selected' : '' ?>>
+                        <?= $escaper->escapeHtml($_store->getName()) ?>
+                    </option>
+                <?php endforeach; ?>
+            </select>
+        </div>
+    </div>
+<?php endif; ?>

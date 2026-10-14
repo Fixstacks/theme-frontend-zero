@@ -1,0 +1,50 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * My Wish List page: stock minus the `wishlist` widget init, plus utility
+ * classes on the action/message elements. Per-item add-to-cart/remove are
+ * the item/column/cart.phtml and remove.phtml overrides; the form's own
+ * "Update Wish List" submit is unchanged. One pager, under the list, and only
+ * past one page (10 items): stock printed it above and below, even for one
+ * item. The widget's `form-tmpl` underscore template is dropped with it.
+ *
+ * @var \Magento\Wishlist\Block\Customer\Wishlist $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+
+<?php if ($this->helper(\Magento\Wishlist\Helper\Data::class)->isAllow()) : ?>
+    <?= ($block->getChildHtml('wishlist.rss.link')) ?>
+    <form class="form-wishlist-items" id="wishlist-view-form"
+          action="<?= $block->escapeUrl($block->getUrl('wishlist/index/update', ['wishlist_id' => $block->getWishlistInstance()->getId()])) ?>" method="post">
+        <?= $block->getChildHtml('top') ?>
+        <?php if ($block->hasWishlistItems()) : ?>
+            <?= $block->getBlockHtml('formkey') ?>
+            <?php $block->getChildBlock('items')->setItems($block->getWishlistItems()); ?>
+            <?= $block->getChildHtml('items') ?>
+        <?php else : ?>
+            <div class="message info empty alert alert-info alert-soft text-sm py-2">
+                <span><?= $block->escapeHtml(__('You have no items in your wish list.')) ?></span>
+            </div>
+        <?php endif ?>
+        <?= $block->getChildHtml('bottom') ?>
+        <div class="actions-toolbar">
+            <div class="primary">
+                <?= $block->getChildHtml('control_buttons') ?>
+            </div>
+            <div class="secondary">
+                <a href="<?= $block->escapeUrl($block->getBackUrl()) ?>"
+                   class="action back link link-neutral text-sm no-underline hover:underline">
+                    <span><?= $block->escapeHtml(__('Back')) ?></span>
+                </a>
+            </div>
+        </div>
+    </form>
+    <?php if ($block->hasWishlistItems() && $block->getWishlistItems()->getSize() > 10) : ?>
+        <div class="toolbar wishlist-toolbar mt-6"><?= $block->getChildHtml('wishlist_item_pager'); ?></div>
+    <?php endif ?>
+<?php endif ?>

@@ -1,0 +1,25 @@
+<?php
+/**
+ * Copyright 2016 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product grid "Add to Compare": a POST form (stock used data-post JS),
+ * icon-only with aria-label/title.
+ *
+ * @var Magento\Catalog\Block\Product\ProductList\Item\AddTo\Compare $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<form method="post"
+      action="<?= $escaper->escapeUrl($block->getCompareHelper()->getAddUrl()) ?>"
+      class="inline-block">
+    <?= $block->getBlockHtml('formkey') ?>
+    <input type="hidden" name="product" value="<?= (int) $block->getProduct()->getId() ?>" />
+    <button type="submit" class="action tocompare"
+            title="<?= $escaper->escapeHtmlAttr(__('Add to Compare')) ?>"
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Add to Compare')) ?>">
+        <span class="sr-only"><?= $escaper->escapeHtml(__('Add to Compare')) ?></span>
+    </button>
+</form>

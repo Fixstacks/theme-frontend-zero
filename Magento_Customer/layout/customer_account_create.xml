@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2013 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Registration page dead-script removals:
+ * - require-cookie (JS-only no-cookies redirect, as on the product page).
+ * - customer.form.register.newsletter: its whole output is the
+ *   newsletterSignUp init (AJAX pre-check of the subscribe box). The
+ *   checkbox itself is rendered separately and works.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="require-cookie" remove="true"/>
+        <referenceBlock name="customer.form.register.newsletter" remove="true"/>
+    </body>
+</page>

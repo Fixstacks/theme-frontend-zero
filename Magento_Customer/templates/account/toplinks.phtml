@@ -1,0 +1,37 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Header account menu (`top.links`). Cacheable shell: an icon-only <details>
+ * button plus an empty <ul> that the personalized links replace, with the
+ * other per-visitor fragments in one request (Zero_Core
+ * Controller\Session\Bootstrap; the links depend on the session, so they
+ * can't be in FPC-cached HTML).
+ *
+ * data-referer = currentUrlViewModel's encoded page URL, sent along as
+ * `referer`, so "Sign In" returns here instead of to the fragment URL.
+ *
+ * The dropdown is `right-0` at every width (the button sits at the right edge).
+ * The fragment replaces this <ul>, so keep its classes in sync with
+ * Zero_Core::customer/account-links.phtml.
+ *
+ * @var \Magento\Customer\Block\Account\Navigation $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Zero\Core\ViewModel\CurrentUrlEncoded $currentUrlViewModel
+ */
+$currentUrlViewModel = $block->getData('currentUrlViewModel');
+?>
+<details class="account-toplinks-menu relative">
+    <summary class="btn btn-ghost btn-sm gap-1.5 list-none [&::-webkit-details-marker]:hidden"
+             aria-label="<?= $escaper->escapeHtmlAttr(__('Account')) ?>">
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M17.982 18.725A7.488 7.488 0 0 0 12 15.75a7.488 7.488 0 0 0-5.982 2.975m11.963 0a9 9 0 1 0-11.963 0m11.963 0A8.966 8.966 0 0 1 12 21a8.966 8.966 0 0 1-5.982-2.275M15 9.75a3 3 0 1 1-6 0 3 3 0 0 1 6 0Z" />
+        </svg>
+        <span class="sr-only"><?= $escaper->escapeHtml(__('Account')) ?></span>
+    </summary>
+    <ul class="header links menu absolute end-0 top-full z-30 mt-1 w-52 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg"
+        data-zero-fragment="accountlinks"
+        data-referer="<?= $escaper->escapeHtmlAttr($currentUrlViewModel->getEncodedCurrentUrl()) ?>">
+    </ul>
+</details>

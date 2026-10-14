@@ -1,0 +1,30 @@
+<?php
+/**
+ * Copyright 2018 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Search-term logging beacon. For FPC-cacheable search results the controller
+ * doesn't record popularity itself; stock pings catalogsearch/searchTermsLog/save
+ * via jQuery, which never ran here, so search_query stopped updating (and the
+ * header suggestions had nothing new to learn from). The same GET is sent as
+ * a 1px <img>, under the same isPageCacheable() condition.
+ */
+
+/** @var \Magento\Framework\View\Element\Template $block */
+
+$queryText = (string) $block->getRequest()->getParam(\Magento\Search\Model\QueryFactory::QUERY_VAR_NAME);
+?>
+<?php if ($queryText !== '' && $block->getSearchTermsLog()->isPageCacheable()): ?>
+    <img
+        src="<?= $block->escapeUrl(
+            $block->getUrl('catalogsearch/searchTermsLog/save', ['_query' => ['q' => $queryText]])
+        ) ?>"
+        alt=""
+        width="1"
+        height="1"
+        loading="lazy"
+        style="position:absolute;width:1px;height:1px;overflow:hidden;clip:rect(0,0,0,0);"
+    />
+<?php endif; ?>

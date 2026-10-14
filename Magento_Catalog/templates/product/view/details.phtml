@@ -1,0 +1,52 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product page Details/More Information/Reviews. Stock's tabs widget hides
+ * every tab but the first with inline CSS until JS runs, so Reviews (and the
+ * review form) were invisible. Each section is a native <details open>,
+ * stacked.
+ *
+ * @var \Magento\Catalog\Block\Product\View\Details $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($detailedInfoGroup = $block->getGroupSortedChildNames('detailed_info', 'getChildHtml')) : ?>
+    <div class="product info detailed mt-8">
+        <?php $layout = $block->getLayout(); ?>
+        <div class="product data items flex flex-col">
+            <?php foreach ($detailedInfoGroup as $name) : ?>
+                <?php
+                $html = $layout->renderElement($name);
+                if (!$html || !trim($html)) {
+                    continue;
+                }
+                $alias = $layout->getElementAlias($name);
+                $label = $block->getChildData($alias, 'title');
+                ?>
+                <details class="data item border-t border-base-300 py-4 first:border-t-0 first:pt-0" open>
+                    <?php
+                    /*
+                     * Section headings use the same scale as `.block.related .block-title`
+                     * (1.75rem/500/-0.02em, arbitrary values: no named step matches), case
+                     * preserved; the lime disclosure marker stays.
+                     */
+                    ?>
+                    <summary class="data item title font-sans text-section-title font-medium
+                                     tracking-[-0.02em] cursor-pointer marker:text-primary"
+                             id="tab-label-<?= $escaper->escapeHtmlAttr($alias) ?>">
+                        <?= /* @noEscape */ $label ?>
+                    </summary>
+                    <div class="data item content mt-4"
+                         aria-labelledby="tab-label-<?= $escaper->escapeHtmlAttr($alias) ?>"
+                         id="<?= $escaper->escapeHtmlAttr($alias) ?>">
+                        <?= /* @noEscape */ $html ?>
+                    </div>
+                </details>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endif; ?>

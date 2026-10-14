@@ -1,0 +1,126 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Filter options: stock's plain links plus hx-get/hx-target/hx-select/
+ * hx-swap/hx-push-url, refreshing #page-columns (filters, grid and pager) in
+ * place. Same href without HTMX.
+ *
+ * With Zero_LayeredNavigation (its view model, zero_filters): options are
+ * checkboxes, several at once (each link adds or takes out its value), the
+ * ones past the first few under "Show more"; the price filter is a from/to
+ * form in the store view's currency with a two-handle slider over the
+ * products' prices.
+ *
+ * @var \Magento\LayeredNavigation\Block\Navigation\FilterRenderer $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Framework\Locale\LocaleFormatter $localeFormatter
+ * @var \Magento\LayeredNavigation\ViewModel\Layer\Filter $viewModel
+ */
+$viewModel = $block->getData('product_layer_view_model');
+/** @var \Zero\LayeredNavigation\ViewModel\Filters|null $zero */
+$zero = $block->getData('zero_filters');
+$filterItems = array_values($filterItems);
+$filter = $filterItems ? $filterItems[0]->getFilter() : null;
+// Checkboxes for the filters that take several values (attributes); categories stay single links.
+$multi = $zero && $filter && method_exists($filter, 'getChosenValues');
+$hx = 'hx-target="#page-columns" hx-select="#page-columns" hx-swap="outerHTML" hx-push-url="true"';
+?>
+<?php if ($zero && $zero->isPrice($filter)): ?>
+    <?php $form = $zero->priceForm(); ?>
+    <form class="filter-price flex flex-wrap items-end gap-2" method="get"
+          action="<?= $escaper->escapeUrl($form['action']) ?>"
+          hx-get="<?= $escaper->escapeUrl($form['action']) ?>" <?= /* @noEscape */ $hx ?>>
+        <?php foreach ($form['hidden'] as $name => $value): ?>
+            <input type="hidden" name="<?= $escaper->escapeHtmlAttr($name) ?>" value="<?= $escaper->escapeHtmlAttr($value) ?>">
+        <?php endforeach; ?>
+        <?php if ($form['min'] !== null): ?>
+            <?php // Two handles over the products' price span; shown and wired by Zero_LayeredNavigation's price-slider.js. ?>
+            <div class="price-slider w-full" data-zero-price-slider hidden>
+                <input type="range" data-low min="<?= (float) $form['min'] ?>" max="<?= (float) $form['max'] ?>" step="1"
+                       value="<?= (float) $form['low'] ?>" aria-label="<?= $escaper->escapeHtmlAttr(__('From')) ?>">
+                <input type="range" data-high min="<?= (float) $form['min'] ?>" max="<?= (float) $form['max'] ?>" step="1"
+                       value="<?= (float) $form['high'] ?>" aria-label="<?= $escaper->escapeHtmlAttr(__('To')) ?>">
+            </div>
+        <?php endif; ?>
+        <label class="flex flex-col gap-1 text-xs text-base-content/60 w-24">
+            <?= $escaper->escapeHtml(__('From')) ?>
+            <input type="number" name="price_from" min="0" step="any" inputmode="decimal"
+                   value="<?= $escaper->escapeHtmlAttr($form['from']) ?>"
+                   class="input input-sm w-full" placeholder="<?= $escaper->escapeHtmlAttr($form['min'] !== null ? (string) $form['min'] : $form['currency']) ?>">
+        </label>
+        <label class="flex flex-col gap-1 text-xs text-base-content/60 w-24">
+            <?= $escaper->escapeHtml(__('To')) ?>
+            <input type="number" name="price_to" min="0" step="any" inputmode="decimal"
+                   value="<?= $escaper->escapeHtmlAttr($form['to']) ?>"
+                   class="input input-sm w-full" placeholder="<?= $escaper->escapeHtmlAttr($form['max'] !== null ? (string) $form['max'] : $form['currency']) ?>">
+        </label>
+        <button type="submit" class="btn btn-sm btn-neutral"><?= $escaper->escapeHtml(__('Apply')) ?></button>
+    </form>
+<?php else: ?>
+    <?php
+    $visible = $multi ? \Zero\LayeredNavigation\ViewModel\Filters::VISIBLE_OPTIONS : PHP_INT_MAX;
+    $groups = [array_slice($filterItems, 0, $visible), array_slice($filterItems, $visible)];
+    $moreOpen = $multi && array_filter($groups[1], [$zero, 'isChosen']);
+    ?>
+    <?php foreach ($groups as $index => $group): ?>
+        <?php if (!$group) {
+            continue;
+        } ?>
+        <?php if ($index === 1): ?>
+            <details class="filter-more"<?= $moreOpen ? ' open' : '' ?>>
+                <summary class="link link-neutral text-sm cursor-pointer list-none [&::-webkit-details-marker]:hidden py-1">
+                    <?= $escaper->escapeHtml(__('Show more (%1)', count($group))) ?>
+                </summary>
+        <?php endif; ?>
+        <ol class="items menu menu-sm p-0 gap-0.5">
+            <?php foreach ($group as $filterItem): ?>
+                <?php $chosen = $multi && $zero->isChosen($filterItem); ?>
+                <li class="item">
+                    <?php if ($filterItem->getCount() > 0 || $chosen): ?>
+                        <a
+                            href="<?= $escaper->escapeUrl($filterItem->getUrl()) ?>"
+                            hx-get="<?= $escaper->escapeUrl($filterItem->getUrl()) ?>"
+                            <?= /* @noEscape */ $hx ?>
+                            rel="nofollow"
+                            <?php if ($multi): ?>role="checkbox" aria-checked="<?= $chosen ? 'true' : 'false' ?>"<?php endif; ?>
+                            class="flex items-center justify-between gap-2 rounded-field<?= $chosen ? ' font-semibold' : '' ?>"
+                        ><span class="flex items-center gap-2 min-w-0"><?php if ($multi): ?><span
+                                class="filter-check checkbox checkbox-xs pointer-events-none<?= $chosen ? ' checkbox-neutral' : '' ?>"
+                                aria-hidden="true"><?= $chosen ? '✓' : '' ?></span><?php endif; ?><span
+                                class="truncate"><?= /* @noEscape */ $filterItem->getLabel() ?></span></span><?php
+                        if ($viewModel->shouldDisplayProductCountOnLayer()): ?><span
+                                class="count badge badge-ghost badge-sm shrink-0">
+                                    <?= /* @noEscape */ $localeFormatter->formatNumber((int) $filterItem->getCount()) ?><span
+                                    class="filter-count-label sr-only"><?php
+                                    if ($filterItem->getCount() == 1): ?>
+                                        <?= $escaper->escapeHtml(__('item')) ?><?php
+                                    else:
+                                        ?><?= $escaper->escapeHtml(__('items')) ?><?php
+                                    endif;?></span></span>
+                            <?php endif; ?></a>
+                    <?php else: ?>
+                        <span class="flex items-center justify-between gap-2 text-base-content/60">
+                            <?= /* @noEscape */ $filterItem->getLabel() ?><?php
+                        if ($viewModel->shouldDisplayProductCountOnLayer()): ?><span
+                                class="count badge badge-ghost badge-sm">
+                                    <?= /* @noEscape */ $localeFormatter->formatNumber((int) $filterItem->getCount()) ?><span
+                                    class="filter-count-label sr-only"><?php
+                                    if ($filterItem->getCount() == 1): ?>
+                                        <?= $escaper->escapeHtml(__('item')) ?><?php
+                                    else:
+                                        ?><?= $escaper->escapeHtml(__('items')) ?><?php
+                                    endif;?></span></span>
+                        <?php endif; ?></span>
+                    <?php endif; ?>
+                </li>
+            <?php endforeach ?>
+        </ol>
+        <?php if ($index === 1): ?>
+            </details>
+        <?php endif; ?>
+    <?php endforeach; ?>
+<?php endif; ?>

@@ -1,0 +1,32 @@
+@layer base {
+    /*
+     * Safety net against accidental horizontal page overflow; internal scrollers
+     * are unaffected. (The related-products slider leak needed `contain: layout`,
+     * see utilities.css; overflow-x here doesn't stop that one.)
+     */
+    html,
+    body {
+        overflow-x: hidden;
+    }
+
+    /*
+     * Headings use DM Sans; Instrument Serif (`.font-display`) is only for an
+     * inline italic accent word, not applied to h1–h6.
+     */
+    body {
+        font-family: var(--font-sans);
+    }
+
+    h1, h2, h3, h4, h5, h6 {
+        font-family: var(--font-sans);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        text-wrap: balance;
+    }
+
+    .font-display {
+        font-family: var(--font-display);
+        font-style: italic;
+        font-weight: 400;
+    }
+}

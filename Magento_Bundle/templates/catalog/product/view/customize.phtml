@@ -1,0 +1,23 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Bundle "Customize and Add to Cart": a link to #bundle-options-fieldset
+ * (stock's button only triggered slide.js). The options fieldset is never
+ * hidden in this theme, so the link just jumps to it.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ */
+
+$product = $block->getProduct();
+?>
+<?php if ($product->isSaleable() && $block->hasOptions()) : ?>
+    <div class="bundle-actions">
+        <a href="#bundle-options-fieldset" id="bundle-slide" class="action primary customize btn btn-primary hover:bg-neutral hover:text-neutral-content">
+            <span><?= $block->escapeHtml(__('Customize and Add to Cart')) ?></span>
+        </a>
+    </div>
+<?php endif; ?>

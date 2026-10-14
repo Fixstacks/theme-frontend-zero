@@ -1,0 +1,43 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Per-page limiter as a DaisyUI `join` of links (stock's unnamed <select>
+ * needs productListToolbarForm JS); URLs via getPagerUrl().
+ *
+ * @var \Magento\Catalog\Block\Product\ProductList\Toolbar $block
+ * @var \Magento\Framework\Locale\LocaleFormatter $localeFormatter
+ */
+?>
+<div class="field limiter flex items-center gap-2">
+    <strong class="label text-sm text-base-content/60 font-normal" id="limiter-label">
+        <span><?= $block->escapeHtml(__('Show')) ?></span>
+    </strong>
+    <div class="control join">
+        <?php foreach ($block->getAvailableLimit() as $_key => $_limit):?>
+            <?php
+            $limitLabel = is_numeric($_limit) ? $localeFormatter->formatNumber((int) $_limit) : $_limit;
+            $isCurrent = $block->isLimitCurrent($_key);
+            ?>
+            <?php if ($isCurrent):?>
+                <span class="limiter-current btn btn-xs join-item btn-primary no-animation" aria-current="true">
+                    <?= $block->escapeHtml($limitLabel) ?>
+                </span>
+            <?php else:
+                $limitUrl = $block->getPagerUrl(['product_list_limit' => $_key]);
+                ?>
+                <a href="<?= $block->escapeUrl($limitUrl) ?>"
+                   hx-get="<?= $block->escapeUrl($limitUrl) ?>"
+                   hx-target="#page-columns" hx-select="#page-columns"
+                   hx-swap="outerHTML" hx-push-url="true"
+                   class="btn btn-xs join-item btn-ghost">
+                    <?= $block->escapeHtml($limitLabel) ?>
+                </a>
+            <?php endif ?>
+        <?php endforeach; ?>
+    </div>
+    <span class="limiter-text text-sm text-base-content/60"><?= $block->escapeHtml(__('per page')) ?></span>
+</div>

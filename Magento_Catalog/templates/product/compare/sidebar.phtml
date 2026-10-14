@@ -1,0 +1,69 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * "Compare Products" sidebar widget. Stock is Knockout `ko if`/`ko ifnot`
+ * bindings, so without Knockout both branches showed at once (an empty item
+ * row above "You have no items to compare."). Rendered with PHP from the
+ * Compare helper; Remove/Clear All are POST forms to the same URLs.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$compareHelper = $this->helper(\Magento\Catalog\Helper\Product\Compare::class);
+$items = $compareHelper->getItemCollection();
+$count = count($items);
+?>
+<div class="block block-compare" data-role="compare-products-sidebar">
+    <div class="block-title">
+        <strong id="block-compare-heading" role="heading" aria-level="2">
+            <?= $escaper->escapeHtml(__('Compare Products')) ?>
+        </strong>
+        <?php if ($count) : ?>
+            <span class="counter qty"><?= (int) $count ?></span>
+        <?php endif; ?>
+    </div>
+    <?php if ($count) : ?>
+        <div class="block-content" aria-labelledby="block-compare-heading">
+            <ol id="compare-items" class="product-items product-items-names">
+                <?php foreach ($items as $item) : ?>
+                    <li class="product-item">
+                        <strong class="product-item-name">
+                            <a href="<?= $escaper->escapeUrl($item->getProductUrl()) ?>" class="product-item-link">
+                                <?= $escaper->escapeHtml($item->getName()) ?>
+                            </a>
+                        </strong>
+                        <form method="post" action="<?= $escaper->escapeUrl($compareHelper->getRemoveUrl()) ?>" class="inline-block">
+                            <?= $block->getBlockHtml('formkey') ?>
+                            <input type="hidden" name="product" value="<?= (int) $item->getId() ?>" />
+                            <button type="submit" class="action delete link link-error text-sm no-underline hover:underline"
+                                    title="<?= $escaper->escapeHtmlAttr(__('Remove This Item')) ?>">
+                                <span><?= $escaper->escapeHtml(__('Remove This Item')) ?></span>
+                            </button>
+                        </form>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <a href="<?= $escaper->escapeUrl($compareHelper->getListUrl()) ?>" class="action compare primary btn btn-primary hover:bg-neutral hover:text-neutral-content">
+                        <span><?= $escaper->escapeHtml(__('Compare')) ?></span>
+                    </a>
+                </div>
+                <div class="secondary">
+                    <form method="post" action="<?= $escaper->escapeUrl($compareHelper->getClearListUrl()) ?>">
+                        <?= $block->getBlockHtml('formkey') ?>
+                        <button type="submit" id="compare-clear-all" class="action clear link link-neutral text-sm no-underline hover:underline">
+                            <span><?= $escaper->escapeHtml(__('Clear All')) ?></span>
+                        </button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    <?php else : ?>
+        <div class="empty"><?= $escaper->escapeHtml(__('You have no items to compare.')) ?></div>
+    <?php endif; ?>
+</div>

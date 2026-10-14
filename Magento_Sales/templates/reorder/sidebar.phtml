@@ -1,0 +1,78 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * "Recently Ordered" sidebar, server-rendered from
+ * Zero\Core\ViewModel\LastOrderedItems (stock is Knockout-only). The form
+ * posts to checkout/cart/addgroup, which rejects an empty selection with a
+ * message, so there is no client-side check.
+ *
+ * @var \Magento\Sales\Block\Reorder\Sidebar $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$viewModel = $block->getData('lastOrderedItemsViewModel');
+$items = $viewModel ? $viewModel->getItems() : [];
+?>
+<?php if (!empty($items)): ?>
+<div class="block block-reorder">
+    <div class="block-title">
+        <strong id="block-reorder-heading" role="heading" aria-level="2">
+            <?= $block->escapeHtml(__('Recently Ordered')) ?>
+        </strong>
+    </div>
+    <div class="block-content" aria-labelledby="block-reorder-heading">
+        <form method="post" class="form reorder"
+              action="<?= $block->escapeUrl($block->getFormActionUrl()) ?>" id="reorder-validate-detail">
+            <input name="form_key" type="hidden" value="<?= $block->escapeHtmlAttr($viewModel->getFormKey()) ?>" />
+            <strong class="subtitle"><?= $block->escapeHtml(__('Last Ordered Items')) ?></strong>
+            <ol id="cart-sidebar-reorder" class="product-items product-items-names">
+                <?php foreach ($items as $item): ?>
+                    <li class="product-item">
+                        <div class="field item choice">
+                            <label class="label" for="reorder-item-<?= $block->escapeHtmlAttr((string) $item['id']) ?>">
+                                <span><?= $block->escapeHtml(__('Add to Cart')) ?></span>
+                            </label>
+                            <div class="control">
+                                <input type="checkbox" name="order_items[]"
+                                       id="reorder-item-<?= $block->escapeHtmlAttr((string) $item['id']) ?>"
+                                       value="<?= $block->escapeHtmlAttr((string) $item['id']) ?>"
+                                       title="<?= $item['is_saleable']
+                                           ? $block->escapeHtmlAttr(__('Add to Cart'))
+                                           : $block->escapeHtmlAttr(__('Product is not salable.')) ?>"
+                                    <?= $item['is_saleable'] ? '' : ' disabled="disabled"' ?>
+                                       class="checkbox"/>
+                            </div>
+                        </div>
+                        <strong class="product-item-name">
+                            <?php if ($item['url']): ?>
+                                <a href="<?= $block->escapeUrl($item['url']) ?>" class="product-item-link">
+                                    <?= $block->escapeHtml($item['name']) ?>
+                                </a>
+                            <?php else: ?>
+                                <?= $block->escapeHtml($item['name']) ?>
+                            <?php endif; ?>
+                        </strong>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+            <div class="actions-toolbar">
+                <div class="primary">
+                    <button type="submit" title="<?= $block->escapeHtmlAttr(__('Add to Cart')) ?>"
+                            class="action tocart primary btn btn-neutral hover:bg-primary hover:text-primary-content">
+                        <span><?= $block->escapeHtml(__('Add to Cart')) ?></span>
+                    </button>
+                </div>
+                <div class="secondary">
+                    <a class="action view link link-neutral text-sm no-underline hover:underline"
+                       href="<?= $block->escapeUrl($block->getUrl('customer/account')) ?>#my-orders-table">
+                        <span><?= $block->escapeHtml(__('View All')) ?></span>
+                    </a>
+                </div>
+            </div>
+        </form>
+    </div>
+</div>
+<?php endif; ?>

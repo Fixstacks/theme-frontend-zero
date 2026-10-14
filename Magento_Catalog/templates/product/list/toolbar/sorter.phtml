@@ -1,0 +1,74 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Catalog sort control as a link list (stock's unnamed <select> and "#"
+ * direction link need productListToolbarForm JS). URLs come from
+ * getPagerUrl(), which keeps the current filters/page/limit; links also
+ * hx-get/hx-select #page-columns. Opened as a DaisyUI dropdown via tabindex +
+ * :focus-within.
+ *
+ * @var $block \Magento\Catalog\Block\Product\ProductList\Toolbar
+ */
+$currentDirection = $block->getCurrentDirection();
+$oppositeDirection = $currentDirection === 'desc' ? 'asc' : 'desc';
+$directionUrl = $block->getPagerUrl(['product_list_dir' => $oppositeDirection]);
+$currentOrderLabel = '';
+foreach ($block->getAvailableOrders() as $_key => $_order) {
+    if ($block->isOrderCurrent($_key)) {
+        $currentOrderLabel = $_order;
+    }
+}
+?>
+<div class="toolbar-sorter sorter dropdown dropdown-end">
+    <label tabindex="0" id="sorter-label" class="btn btn-ghost btn-sm gap-1.5">
+        <span class="text-base-content/60"><?= $block->escapeHtml(__('Sort By')) ?></span>
+        <strong class="sorter-current"><?= $block->escapeHtml(__($currentOrderLabel)) ?></strong>
+        <span aria-hidden="true"><?= $currentDirection === 'desc' ? '&darr;' : '&uarr;' ?></span>
+    </label>
+    <ul tabindex="0"
+        class="sorter-options items dropdown-content menu menu-sm z-10 mt-2 w-56 rounded-box border border-base-300 bg-base-100 p-2 shadow-lg"
+        aria-labelledby="sorter-label">
+        <?php foreach ($block->getAvailableOrders() as $_key => $_order) :?>
+            <li class="item">
+                <?php if ($block->isOrderCurrent($_key)) :?>
+                    <span class="active font-medium"><?= $block->escapeHtml(__($_order)) ?></span>
+                <?php else :
+                    $orderUrl = $block->getPagerUrl(['product_list_order' => $_key]);
+                    ?>
+                    <a href="<?= $block->escapeUrl($orderUrl) ?>"
+                       hx-get="<?= $block->escapeUrl($orderUrl) ?>"
+                       hx-target="#page-columns" hx-select="#page-columns"
+                       hx-swap="outerHTML" hx-push-url="true">
+                        <?= $block->escapeHtml(__($_order)) ?>
+                    </a>
+                <?php endif; ?>
+            </li>
+        <?php endforeach; ?>
+        <li class="menu-title mt-1 border-t border-base-300 pt-1"></li>
+        <li class="item">
+            <?php if ($currentDirection == 'desc') :?>
+                <a title="<?= $block->escapeHtmlAttr(__('Set Ascending Direction')) ?>"
+                   href="<?= $block->escapeUrl($directionUrl) ?>"
+                   hx-get="<?= $block->escapeUrl($directionUrl) ?>"
+                   hx-target="#page-columns" hx-select="#page-columns"
+                   hx-swap="outerHTML" hx-push-url="true"
+                   class="action sorter-action sort-desc">
+                    <?= $block->escapeHtml(__('Set Ascending Direction')) ?>
+                </a>
+            <?php else :?>
+                <a title="<?= $block->escapeHtmlAttr(__('Set Descending Direction')) ?>"
+                   href="<?= $block->escapeUrl($directionUrl) ?>"
+                   hx-get="<?= $block->escapeUrl($directionUrl) ?>"
+                   hx-target="#page-columns" hx-select="#page-columns"
+                   hx-swap="outerHTML" hx-push-url="true"
+                   class="action sorter-action sort-asc">
+                    <?= $block->escapeHtml(__('Set Descending Direction')) ?>
+                </a>
+            <?php endif; ?>
+        </li>
+    </ul>
+</div>

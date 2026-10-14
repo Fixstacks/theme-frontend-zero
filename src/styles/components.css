@@ -1,0 +1,1644 @@
+@layer components {
+    /*
+     * Required-field markers for stock's `.field.required` asterisk and
+     * `[data-hasrequired]` legend, which Blank/Luma's LESS used to draw. Covers
+     * every form using that convention (register, checkout, ...).
+     */
+    .field.required > label::after,
+    .field.required > .label::after {
+        content: "*";
+        color: var(--color-error);
+        margin-inline-start: 0.25rem;
+    }
+
+    [data-hasrequired]::before {
+        content: attr(data-hasrequired);
+        display: block;
+        font-size: var(--text-xs);
+        color: var(--color-base-content);
+        opacity: 0.6;
+        margin-bottom: 1rem;
+    }
+
+    /*
+     * Native CSS Anchor Positioning for the mini-cart's Popover-API
+     * panel — no JS needed to compute placement relative to the
+     * trigger. Unsupported browsers fall back to the Popover API's
+     * own default placement.
+     */
+    #minicart-trigger {
+        anchor-name: --minicart-trigger;
+    }
+
+    #minicart-popover {
+        position-anchor: --minicart-trigger;
+        position-try-fallbacks: flip-block;
+        inset: auto;
+        position-area: bottom span-left;
+        margin-top: 0.5rem;
+    }
+
+    /*
+     * Page shell. `#page-columns` (Magento_Theme::layout/default.xml)
+     * wraps `.column.main` and `.sidebar.sidebar-main` as DOM siblings
+     * in that order — plain CSS Grid replaces Blank's removed compiled
+     * CSS as the thing that actually places them side by side.
+     */
+    .page-wrapper {
+        max-width: 90rem;
+        margin-inline: auto;
+        display: flex;
+        min-height: 100vh;
+        flex-direction: column;
+    }
+
+    /*
+     * `.page-footer` inherits `.page-wrapper`'s max-width; this breaks it out to
+     * full viewport width (negative-margin trick), and `.footer.content`
+     * re-applies the max-width so content aligns with the header/main column.
+     */
+    .page-footer {
+        width: 100vw;
+        margin-left: calc(50% - 50vw);
+        margin-right: calc(50% - 50vw);
+    }
+
+    /*
+     * Sticky footer: `.page-wrapper` is a `min-height: 100vh` flex
+     * column, and `flex: 1 0 auto` here lets `.page-main` absorb any
+     * leftover space so the footer always sits flush with the bottom
+     * of the viewport, even on short pages (an empty cart, etc.).
+     */
+    .page-main {
+        padding-inline: 1rem;
+        flex: 1 0 auto;
+    }
+
+    @media (min-width: 48rem) {
+        .page-main {
+            padding-inline: 2rem;
+        }
+    }
+
+    /*
+     * The breadcrumbs wrapper is a child of `.page-wrapper`, not `.page-main`, so
+     * it repeats `.page-main`'s padding-inline.
+     */
+    .breadcrumbs {
+        padding-inline: 1rem;
+    }
+
+    @media (min-width: 48rem) {
+        .breadcrumbs {
+            padding-inline: 2rem;
+        }
+    }
+
+    #page-columns {
+        display: grid;
+        grid-template-columns: 1fr;
+        gap: 2rem;
+        padding-block: 1.5rem;
+    }
+
+    /*
+     * Grid items default to `min-width: auto` and won't shrink below their
+     * content; the homepage product slider made the page scroll sideways on
+     * mobile. `min-width: 0` keeps overflow inside the column.
+     */
+    .column.main {
+        min-width: 0;
+    }
+
+    /*
+     * Mobile: the filter sidebar visually renders above the product
+     * grid (`order: -1`) without changing DOM order — `order` is a
+     * no-op again once the desktop breakpoint below takes over with
+     * explicit `grid-column`/`grid-row` placement.
+     */
+    #page-columns > .sidebar-main {
+        order: -1;
+    }
+
+    @media (min-width: 64rem) {
+        /*
+         * `:has(> .sidebar-main)` / `:has(> .sidebar-additional)` limit the
+         * two-column grid to pages that have a sidebar; otherwise single-column pages
+         * got squeezed into the 15rem track. `.sidebar-additional` counts only once
+         * its HTMX fragment has content (compare/wish list): an empty category
+         * or search kept a blank 15rem column beside its "no products" notice.
+         * `.sidebar-additional` (2columns-left
+         * pages) is placed explicitly under `.sidebar-main`. All placements stay
+         * inside this one `:has()` block.
+         */
+        #page-columns:has(> .sidebar-main),
+        #page-columns:has(> .sidebar-additional > * > *) {
+            grid-template-columns: 15rem 1fr;
+            /*
+             * `.column.main` spans both rows; with two `auto` rows the browser
+             * spread its height over both, so row 1 grew and pushed
+             * `.sidebar-additional` halfway down the page. `auto 1fr` gives all
+             * the extra height to row 2: the additional sidebar sits right
+             * under the filters.
+             */
+            grid-template-rows: auto 1fr;
+            align-items: start;
+
+            > .sidebar-main {
+                grid-column: 1;
+                grid-row: 1;
+            }
+
+            > .sidebar-additional {
+                grid-column: 1;
+                grid-row: 2;
+            }
+
+            > .column.main {
+                grid-column: 2;
+                grid-row: 1 / span 2;
+            }
+        }
+    }
+
+    /*
+     * Header + category navigation — real layout for stock Luma/Blank
+     * class names (`.page-header`, `.header.links`, `.nav-sections`,
+     * `.navigation`, ...), no template overrides needed except
+     * `.nav-sections` itself (see `Magento_Theme::html/sections.phtml`
+     * for why that one needed a real markup change). Submenus that
+     * relied on `Magento_Ui/js/menu`'s dead JS widget are replaced with
+     * a native `:hover`/`:focus-within` reveal.
+     */
+    .action.skip {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        white-space: nowrap;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .action.skip:focus {
+        position: static;
+        width: auto;
+        height: auto;
+        overflow: visible;
+        white-space: normal;
+        clip: auto;
+    }
+
+    .page-header {
+        border-bottom: 1px solid var(--color-base-300);
+        background: var(--color-base-100);
+    }
+
+    /*
+     * `.panel.wrapper` holds a real accessibility skip-link and an
+     * empty language switcher (single-language install) — no visible
+     * content, so it stays a plain, unstyled, effectively zero-height
+     * container rather than a colored bar around nothing.
+     */
+    .panel.header {
+        max-width: 90rem;
+        margin-inline: auto;
+    }
+
+    .header.links {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: flex-end;
+        gap: 0.375rem 1.25rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .header.links > li {
+        list-style: none;
+        display: flex;
+        align-items: center;
+    }
+
+    .header.links > li > a {
+        color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
+        transition: color 0.15s ease;
+    }
+
+    /* Plain text links darken toward full-opacity black on hover; the accent color is reserved for flyout/dropdown sub-links and filled chip controls. */
+    .header.links > li > a:hover {
+        color: var(--color-base-content);
+    }
+
+    .header.content {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem 0;
+        max-width: 90rem;
+        margin-inline: auto;
+        padding: 1rem;
+    }
+
+    @media (min-width: 48rem) {
+        .header.content {
+            padding: 1.25rem 2rem;
+        }
+    }
+
+    .header.content .logo {
+        display: block;
+        order: -1;
+        margin: 0;
+    }
+
+    .header.content .logo img {
+        height: 2.25rem;
+        width: auto;
+    }
+
+    /*
+     * Stock's own hamburger (`.nav-toggle`) depends on `lib/web/mage/
+     * menu.js`'s jQuery-UI widget, dead without RequireJS. The real
+     * mobile menu toggle is `.nav-sections-item`'s own `<summary>`
+     * (native `<details>` disclosure) instead — this button stays
+     * hidden rather than wired to anything.
+     */
+    .nav-toggle {
+        display: none;
+    }
+
+    /* Short, right-aligned search field instead of a bar stretching the full header width. */
+    .block.block-search {
+        order: 1;
+        flex: 0 1 24rem;
+        min-width: 10rem;
+        margin-inline-start: auto;
+    }
+
+    /* Below desktop, search moves after the mini-cart/account pair in flex order so the hamburger/logo/cart/account all fit on one row above it. */
+    @media (max-width: 63.99rem) {
+        .block.block-search {
+            order: 5;
+        }
+    }
+
+    .block.block-search .block-title {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .form.minisearch {
+        /*
+         * Containing block for `.actions` below: it renders as a
+         * sibling of `.field.search`, not nested in `.control` — without
+         * a positioned ancestor its `position: absolute; height: 100%`
+         * resolves against the viewport, producing a full-page-height
+         * button.
+         */
+        position: relative;
+    }
+
+    .form.minisearch .field.search {
+        position: relative;
+    }
+
+    .form.minisearch .field.search .label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .form.minisearch .control {
+        position: relative;
+    }
+
+    .form.minisearch input.input-text {
+        width: 100%;
+        border: 1px solid var(--color-base-300);
+        border-radius: var(--radius-field, 0.5rem);
+        background: var(--color-base-100);
+        padding: 0.5rem 3rem 0.5rem 0.875rem;
+        font-size: var(--text-sm);
+    }
+
+    .form.minisearch input.input-text:focus {
+        outline: 2px solid var(--color-primary);
+        outline-offset: -1px;
+    }
+
+    /*
+     * Search-suggestions dropdown, zero JS: `:focus-within` on
+     * `.control` (not the input) keeps it open while tabbing/clicking
+     * into its own links; `:not(:empty)` renders an empty HTMX
+     * response as nothing rather than a blank bordered box.
+     *
+     * `visibility`/`opacity` with an asymmetric `transition-delay`
+     * (instant to appear, delayed to disappear) instead of `display`
+     * — real mobile Safari blurs the input a few ms before finishing a
+     * tap on a link inside the dropdown, and `display: none` on blur
+     * removes the target from hit-testing before that click lands.
+     * The delay keeps it clickable through that race window;
+     * `visibility: hidden` (not `pointer-events: none`) is what stops
+     * it intercepting taps once the delay elapses.
+     */
+    .form.minisearch .control #search_autocomplete {
+        position: absolute;
+        top: 100%;
+        left: 0;
+        right: 0;
+        z-index: 20;
+        margin-top: 0.375rem;
+        visibility: hidden;
+        opacity: 0;
+        transition: visibility 0s linear 200ms, opacity 150ms linear;
+    }
+
+    .form.minisearch .control:focus-within #search_autocomplete:not(:empty) {
+        visibility: visible;
+        opacity: 1;
+        transition-delay: 0s;
+    }
+
+    .form.minisearch .actions {
+        position: absolute;
+        top: 0;
+        inset-inline-end: 0;
+        height: 100%;
+    }
+
+    .form.minisearch .actions .action.search {
+        height: 100%;
+        padding-inline: 0.75rem;
+        color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+    }
+
+    /* Icon-only controls hover with a background tint + darken to black, never an accent color. Duplicated in `@layer utilities` below, where it actually wins the cascade. */
+    .form.minisearch .actions .action.search:hover {
+        background: color-mix(in oklch, var(--color-base-content) 7%, transparent);
+        color: var(--color-base-content);
+    }
+
+    .minicart-wrapper {
+        order: 2;
+        flex-shrink: 0;
+    }
+
+    /* Below desktop, once search wraps onto its own line, nothing else pushes the mini-cart/account pair to the right edge — this restores that. */
+    @media (max-width: 63.99rem) {
+        .minicart-wrapper {
+            margin-inline-start: auto;
+        }
+    }
+
+    /* `top.links` renders here (moved via layout XML) right after the mini-cart — needs an explicit `order` since its siblings already carry their own. */
+    .header.content .account-toplinks-menu {
+        order: 3;
+        flex-shrink: 0;
+    }
+
+    /*
+     * `navigation.sections` (the category-menu `<details>`) renders
+     * inside `.header.content` instead of its old full-width `page.top`
+     * position. Two things make that work without any extra JS:
+     *
+     * 1. `sections.phtml` still wraps the real `<details class="nav-
+     *    sections-item">` in two plain template-owned `<div>`s —
+     *    `display: contents` drops both from the box tree so the
+     *    `<details>` itself becomes the real flex child here.
+     * 2. `flex-basis: 100%` forces a flex item onto its own new line
+     *    once its container allows wrapping (`.header.content` does,
+     *    at every width) — so `[open]` claims a full row below
+     *    everything (`order: 10`), while `:not([open])` instead sizes
+     *    to a small icon button and slots in left of the logo.
+     */
+    .header.content .nav-sections,
+    .header.content .nav-sections-items {
+        display: contents;
+    }
+
+    .header.content .nav-sections-item {
+        order: 10;
+        flex-basis: 100%;
+    }
+
+    @media (max-width: 63.99rem) {
+        .header.content .nav-sections-item:not([open]) {
+            order: -2;
+            flex-basis: auto;
+            flex-shrink: 0;
+        }
+
+        /* Closed shape: a compact icon button matching the account/mini-cart controls, not the full-bleed open-state bar below. */
+        .header.content .nav-sections-item:not([open]) > .nav-sections-item-title {
+            display: inline-flex;
+            justify-content: center;
+            width: 2.5rem;
+            height: 2.5rem;
+            max-width: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .header.content .nav-sections-item:not([open]) > .nav-sections-item-title::after {
+            content: none;
+        }
+
+        /* Label stays real text for screen readers and the open panel's own header — just visually hidden while this is a closed icon button. */
+        .header.content .nav-sections-item-label {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+        }
+
+        .header.content .nav-sections-item[open] .nav-sections-item-label {
+            position: static;
+            width: auto;
+            height: auto;
+            overflow: visible;
+            clip: auto;
+        }
+
+        /*
+         * Open state is a full-screen overlay (position: fixed; inset: 0) rather than
+         * a row pushing the page down; its <summary> "MENU" bar serves as the header.
+         * z-index 40 clears the search dropdown (20) and desktop submenus (30).
+         */
+        .header.content .nav-sections-item[open] {
+            position: fixed;
+            inset: 0;
+            z-index: 40;
+            overflow-y: auto;
+            border-top: 1px solid var(--color-base-300);
+            background: var(--color-base-100);
+        }
+
+        /*
+         * Keeps the title bar's normal inline padding when open, so the hamburger and
+         * close icons don't touch the screen edges. The link list stays edge-to-edge.
+         */
+        .header.content .nav-sections-item[open] > .nav-sections-item-title {
+            padding-inline: 1rem;
+        }
+
+        .header.content .nav-sections-item[open] > .nav-sections-item-content {
+            padding-inline: 0;
+        }
+    }
+
+    /*
+     * Mobile: logo gets its own row (`flex-basis: 100%`, `order: -10`),
+     * with the hamburger/mini-cart/account trio on the row below —
+     * the hamburger's own `order: -2` above is overridden to `1` here
+     * to sit alongside them; search stays on its own separate row.
+     */
+    @media (max-width: 63.99rem) {
+        .header.content {
+            gap: 0.5rem 0.75rem;
+        }
+
+        .header.content .logo {
+            order: -10;
+            flex-basis: 100%;
+        }
+
+        .header.content .nav-sections-item:not([open]) {
+            order: 1;
+        }
+    }
+
+    /*
+     * Per-department collapsible mobile accordion — see
+     * `Magento_Theme::html/topmenu.phtml` for the markup shape (`<a>`
+     * plus a sibling `<details class="menu-toggle">` per node with
+     * children, nestable). Scoped below desktop only; native
+     * `<details>` is closed by default with no CSS needed for that.
+     */
+    @media (max-width: 63.99rem) {
+        .navigation ul {
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navigation > ul > li.level0 {
+            border-top: 1px solid var(--color-base-300);
+        }
+
+        .navigation > ul > li.level0:first-child {
+            border-top: none;
+        }
+
+        /*
+         * `.menu-toggle` is the whole `<details>` — chevron and its
+         * nested `.submenu` together — so it can't be a flex sibling of
+         * the label `<a>` without the opened submenu trying to render
+         * beside it instead of below. The chevron alone is pulled out
+         * via `position: absolute`; the label and (once open) the
+         * submenu stack normally below it.
+         */
+        .navigation li {
+            position: relative;
+        }
+
+        .navigation li > a {
+            display: block;
+            padding: 0.75rem 2.75rem 0.75rem 1rem;
+            font-size: var(--text-label);
+        }
+
+        .navigation li.level0 > a {
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+        }
+
+        /* Distinct icon-only tap target, overlaying the label row rather than sharing its flex layout — see the block comment above. */
+        .menu-toggle-summary {
+            position: absolute;
+            top: 0;
+            inset-inline-end: 0;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            width: 2.75rem;
+            height: 2.75rem;
+            cursor: pointer;
+            list-style: none;
+            color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+        }
+
+        .menu-toggle-summary::-webkit-details-marker {
+            display: none;
+        }
+
+        .menu-toggle-icon {
+            width: 1rem;
+            height: 1rem;
+            transition: transform 0.15s ease;
+        }
+
+        .menu-toggle[open] > .menu-toggle-summary .menu-toggle-icon {
+            transform: rotate(90deg);
+        }
+
+        /* Right-to-left: a closed item's chevron points left, toward the submenu (open stays pointing down). */
+        :root[dir="rtl"] .menu-toggle:not([open]) > .menu-toggle-summary .menu-toggle-icon {
+            transform: scaleX(-1);
+        }
+
+        .navigation .submenu {
+            padding-inline-start: 1rem;
+            border-top: 1px solid var(--color-base-300);
+        }
+
+        .navigation .submenu > li > a {
+            font-weight: 400;
+            text-transform: none;
+            letter-spacing: normal;
+        }
+    }
+
+    /* Desktop category nav — `.nav-sections-item` is the real `<details>` element; closed-by-default below desktop is exactly what's wanted. */
+    .nav-sections {
+        border-top: 1px solid var(--color-base-300);
+        background: var(--color-base-100);
+    }
+
+    .nav-sections-item + .nav-sections-item {
+        border-top: 1px solid var(--color-base-300);
+    }
+
+    .nav-sections-item-title {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.5rem;
+        max-width: 90rem;
+        margin-inline: auto;
+        padding: 0.75rem 1rem;
+        cursor: pointer;
+        list-style: none;
+        font-weight: 600;
+        font-size: var(--text-label);
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .nav-sections-item-title::-webkit-details-marker {
+        display: none;
+    }
+
+    .nav-sections-item-title::after {
+        content: "+";
+        font-size: var(--text-base);
+        font-weight: 400;
+        line-height: 1;
+        transition: transform 0.15s ease;
+    }
+
+    .nav-sections-item[open] > .nav-sections-item-title::after {
+        transform: rotate(45deg);
+    }
+
+    .nav-sections-item-content {
+        padding: 0 1rem 1rem;
+    }
+
+    @media (min-width: 48rem) {
+        .nav-sections-item-title {
+            padding-inline: 2rem;
+        }
+
+        .nav-sections-item-content {
+            padding-inline: 2rem;
+        }
+    }
+
+    @media (min-width: 64rem) {
+        .nav-sections-item + .nav-sections-item {
+            border-top: none;
+        }
+
+        .nav-sections-item-title {
+            display: none;
+        }
+
+        /*
+         * Forces the panel permanently open at desktop regardless of
+         * `<details>`'s own closed-by-default state. Chromium wraps
+         * everything but `<summary>` in an internal `::details-content`
+         * pseudo-element and hides IT via `content-visibility` — a
+         * plain `display` override on the content child alone doesn't
+         * reach that ancestor, so the override has to target
+         * `::details-content` directly. The `!important` `display`
+         * stays as a harmless fallback for engines using the simpler
+         * `display: none` UA rule instead.
+         */
+        .nav-sections-item::details-content {
+            content-visibility: visible;
+            block-size: auto;
+            overflow: visible;
+        }
+
+        .nav-sections-item-content {
+            display: block !important;
+            padding: 0;
+        }
+
+        .navigation {
+            max-width: 90rem;
+            margin-inline: auto;
+            padding-inline: 1rem;
+        }
+
+        .navigation ul {
+            display: flex;
+            align-items: center;
+            gap: 1.5rem;
+            list-style: none;
+            margin: 0;
+            padding: 0;
+        }
+
+        .navigation li.level0 {
+            position: relative;
+            list-style: none;
+        }
+
+        .navigation li.level0 > a {
+            display: block;
+            padding: 0.75rem 0;
+            font-size: var(--text-label);
+            font-weight: 600;
+            text-transform: uppercase;
+            letter-spacing: 0.06em;
+            color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
+            transition: color 0.15s ease;
+        }
+
+        /* Top-level nav rests at a muted opacity and darkens to full-opacity black on hover — no accent color at this level ("SALE" is a separate, more specific exception below). */
+        .navigation li.level0 > a:hover {
+            color: var(--color-base-content);
+        }
+
+        /*
+         * "Sale" is always highlighted in olive (`--color-secondary`, 5.2:1),
+         * matched by href suffix so reordering categories doesn't break it. The lime
+         * primary is ~1.1:1 on this background.
+         */
+        .navigation li.level0 > a[href$="/sale.html"] {
+            color: var(--color-secondary);
+        }
+
+        .navigation li.level0 .submenu {
+            display: none;
+            position: absolute;
+            top: 100%;
+            inset-inline-start: 0;
+            z-index: 30;
+            min-width: 14rem;
+            background: var(--color-base-100);
+            border: 1px solid var(--color-base-300);
+            border-radius: var(--radius-box, 0.75rem);
+            box-shadow: 0 12px 24px -8px color-mix(in oklch, var(--color-neutral) 20%, transparent);
+            padding: 0.5rem;
+            flex-direction: column;
+            align-items: stretch;
+            gap: 0;
+        }
+
+        /*
+         * `.submenu` sits inside `.menu-toggle` (the mobile accordion's <details>),
+         * which is `display: contents` on desktop. Selectors keep `> .menu-toggle` in
+         * the child-combinator chain; a descendant combinator would open level2+
+         * submenus on any ancestor hover.
+         */
+        .menu-toggle {
+            display: contents;
+        }
+
+        .menu-toggle::details-content {
+            content-visibility: visible;
+            block-size: auto;
+            overflow: visible;
+        }
+
+        .menu-toggle-summary {
+            display: none;
+        }
+
+        .navigation li:hover > .menu-toggle > .submenu,
+        .navigation li:focus-within > .menu-toggle > .submenu {
+            display: flex;
+        }
+
+        .navigation li.level0 .submenu li {
+            position: relative;
+            list-style: none;
+        }
+
+        .navigation li.level0 .submenu a {
+            display: block;
+            padding: 0.375rem 0.75rem;
+            border-radius: var(--radius-field, 0.5rem);
+            font-size: var(--text-label);
+            font-weight: 400;
+        }
+
+        /* Flyout/dropdown sub-links get the accent color on hover, unlike the top-level nav's plain darken — same muted-olive token as "Sale" above, not the primary lime. */
+        .navigation li.level0 .submenu a:hover {
+            background: var(--color-base-200);
+            color: var(--color-secondary);
+        }
+
+        /* Nested (level2+) submenus render indented in-flow under their level1 parent, not a second side-flyout — avoids extra edge-of-viewport positioning math. */
+        .navigation li.level0 .submenu .submenu {
+            display: none;
+            position: static;
+            border: none;
+            box-shadow: none;
+            background: transparent;
+            padding: 0 0 0 0.75rem;
+            margin-top: 0.125rem;
+            min-width: 0;
+        }
+
+        /* Needed as its own rule: this selector's higher specificity would otherwise always beat the generic `li:hover > .submenu` reveal above, keeping nested submenus hidden regardless of hover. */
+        .navigation li.level0 .submenu li:hover > .menu-toggle > .submenu,
+        .navigation li.level0 .submenu li:focus-within > .menu-toggle > .submenu {
+            display: flex;
+        }
+    }
+
+    /*
+     * Product page: `.product.media` and `.product-info-main` are
+     * plain DOM siblings under `.column.main`, alongside several other
+     * full-width siblings (description, related products, reviews).
+     * `.column.main` becomes a 2-column grid, every child defaults to
+     * spanning both columns, and only the gallery/info pair is pulled
+     * into row 1's two columns. Scoped to `body.catalog-product-view`.
+     */
+    @media (min-width: 48rem) {
+        body.catalog-product-view .column.main {
+            display: grid;
+            grid-template-columns: 1fr 1fr;
+            column-gap: 3rem;
+        }
+
+        body.catalog-product-view .column.main > * {
+            grid-column: 1 / -1;
+        }
+
+        body.catalog-product-view .column.main > .product.media {
+            grid-column: 1 / 2;
+            grid-row: 1;
+        }
+
+        body.catalog-product-view .column.main > .product-info-main {
+            grid-column: 2 / 3;
+            grid-row: 1;
+        }
+
+        /*
+         * Options shown "after the info column" (product attribute
+         * options_container = container2, e.g. downloadable links, custom
+         * options): the add-to-cart form is a direct child of `.column.main`,
+         * so it spanned both columns under the gallery and Add to Cart sat far
+         * below the price. It goes in the info column instead, under the
+         * price; the gallery spans both rows. `auto 1fr`: the extra height of
+         * the gallery goes to row 2, so the form starts right under the info.
+         * Bundles keep their own full-width section (.bundle-options-container).
+         */
+        body.catalog-product-view .column.main:has(> .product-add-form) {
+            grid-template-rows: auto 1fr;
+        }
+
+        body.catalog-product-view .column.main:has(> .product-add-form) > .product.media {
+            grid-row: 1 / span 2;
+        }
+
+        body.catalog-product-view .column.main > .product-add-form {
+            grid-column: 2 / 3;
+            grid-row: 2;
+        }
+
+        /*
+         * Bundle customization: options on the left, "Your Customization"
+         * (summary, price, Add to Cart) on the right and sticky, so the price
+         * and the button stay in view while choosing.
+         */
+        body.catalog-product-view .bundle-options-container #product_addtocart_form {
+            display: grid;
+            grid-template-columns: minmax(0, 1fr) minmax(0, 22rem);
+            column-gap: 3rem;
+            align-items: start;
+        }
+
+        body.catalog-product-view .bundle-options-container #bundleSummary {
+            position: sticky;
+            top: 1.5rem;
+            border: 1px solid var(--color-base-300);
+            background-color: var(--color-base-100);
+            padding: 1.5rem;
+        }
+    }
+
+    /*
+     * Product options, small fixes found reviewing every product type:
+     * - the file option's native input gets a button like the rest of the form;
+     * - bundles printed "* Required Fields" twice (fieldset + a <p>).
+     * (Date legends and the downloadable "Links" label: utilities.css, they
+     * have to beat DaisyUI's .legend/.label.)
+     */
+    .product-options-wrapper input[type="file"] {
+        font-size: var(--text-label);
+    }
+
+    .product-options-wrapper input[type="file"]::file-selector-button {
+        margin-inline-end: 0.75rem;
+        padding: 0.5rem 1rem;
+        border: 1px solid var(--color-base-content);
+        background: var(--color-base-100);
+        color: var(--color-base-content);
+        font-weight: 600;
+        cursor: pointer;
+    }
+
+    .bundle-options-wrapper p.required {
+        display: none;
+    }
+
+    /* Phones: the info column starts right under the thumbnails; give the eyebrow room. */
+    @media (max-width: 47.99rem) {
+        body.catalog-product-view .product-info-main {
+            margin-top: 1.5rem;
+        }
+    }
+
+    /*
+     * Large display-style product title, scoped to the PDP only — the
+     * sitewide `h1` base rule stays modest so it doesn't overpower a
+     * plain page like Contact Us. The bold/italic accent-word split
+     * lives in `product/view/page-title.phtml`; this `font-weight`
+     * only carries the plain-fallback case (a name judged unsafe to
+     * split), kept bolder since it has no italic/color contrast to
+     * lean on.
+     */
+    body.catalog-product-view .page-title-wrapper {
+        margin-bottom: 0.5rem;
+    }
+
+    body.catalog-product-view .page-title {
+        font-size: var(--text-product-title);
+        font-weight: 600;
+        letter-spacing: -0.02em;
+        line-height: 1.05;
+    }
+
+    @media (min-width: 48rem) {
+        body.catalog-product-view .page-title {
+            font-size: var(--text-product-title-lg);
+        }
+    }
+
+    /*
+     * `.product-info-price` groups three independent DOM siblings —
+     * `.product-info-stock-sku`, `.product-reviews-summary`,
+     * `.price-box` — stock stacks them as plain blocks. A wrapping
+     * flex row + `flex-basis: 100%` on the price box puts stock/SKU/
+     * review-count on one compact line and the price on its own line
+     * below, with no template change needed.
+     */
+    .product-info-price {
+        margin-bottom: 1.5rem;
+    }
+
+    /*
+     * `product.info.meta-row` wraps stock/SKU and the reviews summary in one shared
+     * border; separate borders split apart when the row wrapped below ~1024px.
+     */
+    .product-info-meta-row {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        column-gap: 1.5rem;
+        row-gap: 0.375rem;
+        padding-block: 1rem;
+        border-top: 1px solid color-mix(in oklch, var(--color-base-content) 12%, transparent);
+        border-bottom: 1px solid color-mix(in oklch, var(--color-base-content) 12%, transparent);
+        font-size: var(--text-3xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.17em;
+    }
+
+    .product-info-stock-sku {
+        display: flex;
+        align-items: center;
+        gap: 0.75rem;
+    }
+
+    .stock {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.5rem;
+        font-weight: 600;
+    }
+
+    /* Olive darkened toward the text colour: 4.5:1 at small sizes (WCAG AA), both themes. */
+    .stock.available {
+        color: color-mix(in srgb, var(--color-secondary) 85%, var(--color-base-content));
+    }
+
+    .stock.available::before {
+        content: "✓";
+        font-size: var(--text-sm);
+    }
+
+    .stock.unavailable {
+        color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+    }
+
+    .product-info-stock-sku .product.attribute.sku {
+        display: flex;
+        align-items: center;
+        color: color-mix(in oklch, var(--color-base-content) 48%, transparent);
+    }
+
+    .product-info-stock-sku .product.attribute.sku::before {
+        content: "\2022";
+        margin-inline-end: 0.75rem;
+        color: color-mix(in oklch, var(--color-base-content) 35%, transparent);
+        font-size: var(--text-sm);
+    }
+
+    /*
+     * `.type`/`.value` flow together as one "SKU sofa-meridian" string
+     * rather than bold-label-vs-value. `display: flex` on the parent
+     * collapses the normal whitespace between the two elements to
+     * zero; `margin-right` on `.type` restores the word-space.
+     */
+    .product-info-stock-sku .product.attribute.sku .type {
+        font-weight: inherit;
+        margin-inline-end: 0.25em;
+    }
+
+    .product-info-stock-sku .product.attribute.sku .value {
+        display: inline;
+    }
+
+    /*
+     * Scoped through `.product-info-price` (PDP-only): `.product-
+     * reviews-summary`/`.price-box`/`.price` are shared class names
+     * also used by the catalog grid/list, so a bare-class rule here
+     * would have resized every grid card's price too.
+     */
+    .product-info-price .product-reviews-summary {
+        margin-inline-start: auto;
+    }
+
+    /* One filled star + "4.8 / 12 reviews" instead of the 5-star clipped bar — PDP context only; the review-list page and account order history keep the real bar. */
+    .product-info-price .product-reviews-summary .rating-summary {
+        display: none;
+    }
+
+    .product-info-price .product-reviews-summary .reviews-actions {
+        margin-top: 0;
+        gap: 0.75rem;
+        font-size: inherit;
+    }
+
+    /* `color` deliberately left out — set in `@layer utilities`, the later layer, where it actually beats the bare `.product-reviews-summary .reviews-actions .action` rule regardless of this selector's higher specificity. */
+    .product-info-price .product-reviews-summary .reviews-actions .action {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.25rem;
+        text-decoration: none;
+    }
+
+    .product-info-price .product-reviews-summary .reviews-actions .action:hover {
+        text-decoration: underline;
+    }
+
+    .product-info-price .product-reviews-summary .reviews-summary-star {
+        color: color-mix(in oklch, var(--color-base-content) 48%, transparent);
+        font-size: var(--text-sm);
+        line-height: 1;
+    }
+
+    .product-info-price .price-box.price-final_price {
+        flex-basis: 100%;
+        order: 1;
+    }
+
+    .product-info-price .price-box .price {
+        font-size: var(--text-product-price);
+        font-weight: 700;
+        letter-spacing: -0.01em;
+    }
+
+    /*
+     * Text swatches (Size/Material) get a solid dark selected state,
+     * matching this theme's transactional/selection color — unlike
+     * color/image swatches, which stay a ring (a solid overlay would
+     * hide the photo/color it's meant to show).
+     */
+    .swatch-option.text.selected,
+    .swatch-attribute-options .swatch-option.text[data-selected="true"],
+    label.swatch-option.text:has(> .swatch-radio-input:checked) {
+        background: var(--color-neutral);
+        border-color: var(--color-neutral);
+        color: var(--color-neutral-content);
+        box-shadow: none;
+    }
+
+    .swatch-attribute .swatch-attribute-label {
+        text-transform: uppercase;
+        letter-spacing: 0.05em;
+        font-size: var(--text-xs);
+    }
+
+    /*
+     * Product gallery — thumbnail-click image switching, zero JS.
+     * Stock only ever renders one real `<img>`; the CSS `:target`
+     * pseudo-class lets each thumbnail `<a href="#gallery-image-N">`
+     * switch the visible photo via in-page anchors. All images stack
+     * in the same grid cell; the first one (real main image) shows by
+     * default, unless the `:has()` rule below detects some other image
+     * is the actual `:target` and suppresses it.
+     */
+    .product-gallery {
+        display: flex;
+        flex-direction: column;
+        gap: 0.75rem;
+    }
+
+    .gallery-main-images {
+        position: relative;
+        display: grid;
+        border-radius: var(--radius-box);
+        overflow: hidden;
+        background: var(--color-base-200);
+    }
+
+    .gallery-full-image {
+        position: relative;
+        grid-area: 1 / 1;
+        display: none;
+    }
+
+    .gallery-full-image:first-child {
+        display: block;
+    }
+
+    .product-gallery:has(.gallery-full-image:target) .gallery-full-image:first-child:not(:target) {
+        display: none;
+    }
+
+    .gallery-full-image:target {
+        display: block;
+    }
+
+    .gallery-full-image img {
+        display: block;
+        width: 100%;
+        height: auto;
+    }
+
+    /*
+     * Prev/next arrows, always visible (not hover-gated like the
+     * homepage banner — a touch visitor has no `:hover`). Both arrows
+     * sit together in `.gallery-nav-group`, the one positioned
+     * element; `.gallery-nav` itself carries only shared visual
+     * styling, spacing coming from flex `gap` on the group instead of
+     * hand-calculated per-button offsets.
+     */
+    .gallery-nav-group {
+        position: absolute;
+        bottom: 0.75rem;
+        inset-inline-end: 0.75rem;
+        display: flex;
+        gap: 0.5rem;
+    }
+
+    .gallery-nav {
+        background: var(--color-base-100);
+        box-shadow: 0 2px 8px -2px color-mix(in oklch, var(--color-neutral) 25%, transparent);
+    }
+
+    .gallery-thumbs {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+    }
+
+    /*
+     * Desktop: vertical thumbnail rail to the left of the main image.
+     * `flex-direction: row` + `order` moves the thumbs column first
+     * visually without touching DOM order (main image stays first in
+     * markup). Mobile keeps the existing stack — a rail would squeeze
+     * the product photo too narrow on a phone.
+     */
+    @media (min-width: 64rem) {
+        .product-gallery {
+            flex-direction: row;
+        }
+
+        .gallery-main-images {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .gallery-thumbs {
+            order: -1;
+            flex-direction: column;
+            flex-wrap: nowrap;
+            flex-shrink: 0;
+            width: 5.5rem;
+        }
+
+        .gallery-thumb {
+            width: 5.5rem;
+            height: 5.5rem;
+        }
+    }
+
+    .gallery-thumb {
+        display: block;
+        width: 4.5rem;
+        height: 4.5rem;
+        border-radius: var(--radius-field);
+        overflow: hidden;
+        border: 2px solid transparent;
+        flex-shrink: 0;
+    }
+
+    .gallery-thumb:focus-visible {
+        border-color: var(--color-primary);
+    }
+
+    .gallery-thumb img {
+        display: block;
+        width: 100%;
+        height: 100%;
+        object-fit: cover;
+    }
+
+    /* Full screen (web/js/product/gallery.js shows the button; hidden without JS). */
+    .gallery-expand {
+        position: absolute;
+        top: 0.75rem;
+        inset-inline-end: 0.75rem;
+        z-index: 2;
+        background: color-mix(in oklch, var(--color-base-100) 85%, transparent);
+    }
+
+    .gallery-expand svg {
+        width: 1.1rem;
+        height: 1.1rem;
+    }
+
+    /* Video items: a Play button over the poster; Play swaps in the player frame. */
+    .gallery-play {
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 4.5rem;
+        height: 4.5rem;
+        display: grid;
+        place-items: center;
+        border-radius: 9999px;
+        background: color-mix(in oklch, var(--color-neutral) 80%, transparent);
+        color: var(--color-neutral-content);
+        cursor: pointer;
+    }
+
+    .gallery-play svg {
+        width: 2rem;
+        height: 2rem;
+        margin-inline-start: 0.25rem;
+    }
+
+    .gallery-play:hover,
+    .gallery-play:focus-visible {
+        background: var(--color-neutral);
+    }
+
+    .gallery-play:focus-visible {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 3px;
+    }
+
+    .gallery-full-image.is-playing > picture,
+    .gallery-full-image.is-playing > img {
+        visibility: hidden;
+    }
+
+    .gallery-full-image .gallery-video,
+    .gallery-dialog .gallery-video {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        border: 0;
+        background: #000;
+    }
+
+    .gallery-thumb.is-video {
+        position: relative;
+    }
+
+    .gallery-thumb.is-video::after {
+        content: "";
+        position: absolute;
+        inset: 0;
+        margin: auto;
+        width: 1.5rem;
+        height: 1.5rem;
+        border-radius: 9999px;
+        background: color-mix(in oklch, var(--color-neutral) 80%, transparent)
+            url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Cpath fill='white' d='M9 6.5v11l9-5.5z'/%3E%3C/svg%3E") center / 70% no-repeat;
+    }
+
+    /* The full-screen dialog: the image as large as the screen allows. */
+    .gallery-dialog {
+        width: 100vw;
+        height: 100dvh;
+        max-width: none;
+        max-height: none;
+        margin: 0;
+        padding: 0;
+        border: 0;
+        background: var(--color-base-100);
+        color: var(--color-base-content);
+    }
+
+    .gallery-dialog[open] {
+        display: grid;
+        grid-template-rows: auto 1fr;
+    }
+
+    .gallery-dialog::backdrop {
+        background: color-mix(in oklch, var(--color-neutral) 60%, transparent);
+    }
+
+    .gallery-dialog-bar {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        padding: 0.5rem 0.75rem;
+        border-bottom: 1px solid var(--color-base-300);
+    }
+
+    .gallery-dialog-counter {
+        margin-inline-end: auto;
+        font-size: var(--text-sm);
+        font-variant-numeric: tabular-nums;
+    }
+
+    .gallery-dialog-stage {
+        position: relative;
+        overflow: hidden;
+        display: grid;
+        place-items: center;
+        touch-action: pan-y pinch-zoom;
+    }
+
+    .gallery-dialog-stage img {
+        max-width: 100%;
+        max-height: 100%;
+        object-fit: contain;
+        cursor: zoom-in;
+        transition: transform 0.2s ease-out;
+    }
+
+    .gallery-dialog-stage.is-zoomed {
+        touch-action: none;
+    }
+
+    .gallery-dialog-stage.is-zoomed img {
+        transform: scale(2.5);
+        cursor: zoom-out;
+    }
+
+    .gallery-dialog-nav {
+        position: absolute;
+        top: 50%;
+        transform: translateY(-50%);
+        font-size: 1.5rem;
+    }
+
+    .gallery-dialog-nav.is-prev {
+        inset-inline-start: 0.75rem;
+    }
+
+    .gallery-dialog-nav.is-next {
+        inset-inline-end: 0.75rem;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+        .gallery-dialog-stage img {
+            transition: none;
+        }
+    }
+
+    /*
+     * Hero prev/next center with `transform`, not Tailwind's `-translate-y-1/2`
+     * (bare `translate`): DaisyUI's `.btn:active` also sets `translate` and
+     * replaced the centering while pressed.
+     */
+    .zero-hero-nav {
+        transform: translateY(-50%);
+    }
+
+    /*
+     * Cart page: `.cart-summary` and `.form-cart` are plain DOM
+     * siblings under `.cart-container` (summary first in markup) —
+     * same "default every child full width, pull the two real columns
+     * into place, flip visual order" grid pattern as the product page
+     * gallery/info fix above.
+     */
+    @media (min-width: 64rem) {
+        .cart-container {
+            display: grid;
+            grid-template-columns: 1fr 20rem;
+            column-gap: 2.5rem;
+            align-items: start;
+        }
+
+        .cart-container > * {
+            grid-column: 1 / -1;
+        }
+
+        .cart-container > .form-cart {
+            grid-column: 1 / 2;
+            grid-row: 1;
+            order: 1;
+        }
+
+        .cart-container > .cart-summary {
+            grid-column: 2 / 3;
+            grid-row: 1;
+            order: 2;
+        }
+    }
+
+    /*
+     * Braintree Hosted Fields: each `.braintree-hosted-field` is an
+     * empty `<div>` Braintree's own JS SDK injects a same-origin
+     * `<iframe>` into. DaisyUI's `input input-bordered` already gives
+     * it the right border/radius/background; this only adds a fixed
+     * height (an empty div has no text-line metrics to size from) and
+     * full-size sizing for the injected iframe.
+     */
+    .braintree-hosted-field {
+        display: block;
+        height: 2.75rem;
+        padding: 0;
+    }
+
+    .braintree-hosted-field iframe {
+        display: block;
+        width: 100%;
+        height: 100%;
+    }
+
+    /*
+     * Pure-CSS show/hide for the card-fields panel based on which
+     * payment method radio is checked. `#braintree-card-fields` is
+     * `#payment-methods`'s sibling, not its child, hence `~` rather
+     * than a descendant selector.
+     */
+    #braintree-card-fields {
+        display: none;
+    }
+
+    #payment-methods:has(input[value="braintree"]:checked) ~ #braintree-card-fields {
+        display: flex;
+    }
+
+    /* Stripe: same sibling `:has()` toggle as Braintree above, one container instead of three — the Payment Element is a single mounted iframe that manages its own internal layout. */
+    #stripe-payment-element {
+        display: none;
+    }
+
+    #payment-methods:has(input[value="zero_stripe"]:checked) ~ #stripe-payment-element {
+        display: block;
+    }
+
+    /* Defensive width rule for Stripe's mounted iframes — belt-and-suspenders against a reported (not locally reproduced) narrow-rendering issue on mobile. */
+    #stripe-element-mount iframe,
+    #stripe-express-checkout iframe {
+        width: 100% !important;
+    }
+
+    /*
+     * The Express Checkout Element's wrapper/mount divs need a width limit too
+     * (the iframe rule above only sizes the iframe), or the Google Pay button
+     * overflows the narrow checkout column.
+     */
+    #stripe-express-checkout-wrap,
+    #stripe-express-checkout {
+        width: 100%;
+        max-width: 100%;
+        overflow: hidden;
+    }
+
+    /* Authorize.Net: same sibling `:has()` toggle as the other two methods. No sizing rules needed — Accept.js's Custom Checkout Form mode tokenizes plain `<input>` values directly. */
+    #authorizenet-card-fields {
+        display: none;
+    }
+
+    #payment-methods:has(input[value="zero_authorizenet"]:checked) ~ #authorizenet-card-fields {
+        display: flex;
+    }
+
+    /* Purchase Order: same sibling `:has()` toggle, a single PO-number field. */
+    #purchaseorder-fields {
+        display: none;
+    }
+
+    #payment-methods:has(input[value="purchaseorder"]:checked) ~ #purchaseorder-fields {
+        display: block;
+    }
+
+    /*
+     * Billing address fieldset: same real `:has()` toggle shape as the
+     * three payment-method card-fields above, inverted — hidden by
+     * default (the checkbox starts checked, "same as shipping"), and
+     * revealed only once it's unchecked. `#billing-fields` is
+     * `#billing-toggle`'s sibling, hence `~`.
+     */
+    #billing-fields {
+        display: none;
+    }
+
+    #billing-toggle:has(#billing-same-as-shipping:not(:checked)) ~ #billing-fields {
+        display: grid;
+    }
+
+    /*
+     * Simple link widgets (Product Link, Category Link, CMS Page Link)
+     * have no equivalent template to inherit styling from, and can't
+     * take a `class=""` written directly onto their own `<a>` (that
+     * attribute is already in `Html\Link`'s allow-list for widget
+     * data, and two `class` attributes on one element is invalid).
+     */
+    .block-product-link a,
+    .block-product-link-inline a,
+    .block-category-link a,
+    .block-category-link-inline a,
+    .block-cms-link a,
+    .block-cms-link-inline a {
+        color: var(--color-primary);
+        text-decoration: none;
+    }
+
+    .block-product-link a:hover,
+    .block-product-link-inline a:hover,
+    .block-category-link a:hover,
+    .block-category-link-inline a:hover,
+    .block-cms-link a:hover,
+    .block-cms-link-inline a:hover {
+        text-decoration: underline;
+    }
+
+    /*
+     * Stock checkout fallback (Zero Checkout disabled): recolors Blank's
+     * orange/blue to the theme's palette. Colors/fonts only — no markup/JS
+     * changes, so it stays a stock checkout.
+     *
+     * `#checkout.checkout-container` only exists on the stock checkout (Zero's
+     * root is `#checkout-form`), so no config check is needed.
+     *
+     * `!important` throughout: css/vendor/styles-{m,l}.css (restored only on
+     * this handle, see Zero_Core checkout_index_index.xml) loads after this file.
+     *
+     * Root font size: Blank's `html{font-size:62.5%}` was removed from those
+     * vendored files and their rem values divided by 1.6, so they render at
+     * Blank's intended sizes against the 16px root without affecting this theme.
+     */
+
+    #checkout.checkout-container {
+        font-family: var(--font-sans);
+    }
+
+    /*
+     * Stock's field tooltip is `.field-tooltip.toggle`, and DaisyUI's `.toggle`
+     * is its switch (40×24 border box + `::before` knob). Neutralized here; Blank's
+     * icon-font "?" (`.field-tooltip-action:before`) stays as Blank draws it.
+     */
+    #checkout .field-tooltip.toggle {
+        border: 0 !important;
+        background: none !important;
+        box-shadow: none !important;
+        width: auto !important;
+        height: auto !important;
+        appearance: none !important;
+    }
+
+    #checkout .field-tooltip.toggle::before {
+        content: none !important;
+    }
+
+    /* DaisyUI's switch also styles every child: `.toggle>:nth-child(3)` (the
+       popup text here) got `rotate:-15deg; opacity:0` and a near-white text
+       color — the tilted, unreadable box seen when the "?" was clicked. */
+    #checkout .field-tooltip.toggle > * {
+        rotate: none !important;
+        opacity: 1 !important;
+        color: var(--color-base-content) !important;
+        grid-column: auto !important;
+        grid-row-start: auto !important;
+        height: auto !important;
+    }
+
+    #checkout .field-tooltip-action {
+        border: 0 !important;
+    }
+
+    #checkout .opc-progress-bar-item:before,
+    #checkout .opc-progress-bar-item._active:before,
+    #checkout .opc-progress-bar-item._complete:before {
+        background: var(--color-primary) !important;
+    }
+
+    #checkout .opc-progress-bar-item > span:before,
+    #checkout .opc-progress-bar-item._active > span:before,
+    #checkout .opc-progress-bar-item._complete > span:before {
+        background: var(--color-primary) !important;
+    }
+
+    #checkout .opc-progress-bar-item._active > span,
+    #checkout .opc-progress-bar-item._complete > span {
+        color: var(--color-base-content) !important;
+    }
+
+    #checkout .action.primary,
+    #checkout button.action.primary {
+        background: var(--color-primary) !important;
+        border-color: var(--color-primary) !important;
+        color: var(--color-primary-content) !important;
+    }
+
+    #checkout .action.primary:hover,
+    #checkout button.action.primary:hover {
+        background: var(--color-primary) !important;
+        border-color: var(--color-primary) !important;
+        opacity: 0.85;
+    }
+
+    #checkout .step-title,
+    #checkout .opc-block-summary > .title {
+        font-family: var(--font-display) !important;
+    }
+}

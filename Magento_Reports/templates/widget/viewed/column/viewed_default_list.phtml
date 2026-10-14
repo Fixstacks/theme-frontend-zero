@@ -1,0 +1,86 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Replaces stock's
+ * Magento_Reports::widget/viewed/column/viewed_default_list.phtml
+ * (narrow sidebar-column template — image + name + price + Add to
+ * Cart). Same fix as `viewed_grid.phtml`'s own docblock. `.block
+ * .block-compare`-style sidebar block, same as this theme's own real
+ * `product/compare/sidebar.phtml`.
+ *
+ * @var \Magento\Reports\Block\Product\Viewed $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+use Magento\Catalog\Helper\Output as OutputHelper;
+use Magento\Catalog\Pricing\Price\FinalPrice;
+use Magento\Framework\Pricing\Render;
+
+?>
+<?php if ($exist = ($block->getRecentlyViewedProducts() && $block->getRecentlyViewedProducts()->getSize())): ?>
+    <?php $outputHelper = $this->helper(OutputHelper::class); ?>
+    <div class="block widget block-viewed-products">
+        <div class="block-title title">
+            <strong role="heading" aria-level="2"><?= $escaper->escapeHtml(__('Recently Viewed')) ?></strong>
+        </div>
+        <div class="block-content content">
+            <ol class="product-items">
+                <?php foreach ($block->getRecentlyViewedProducts() as $_product): ?>
+                    <li class="product-item">
+                        <a class="product-item-photo" href="<?= $escaper->escapeUrl($_product->getProductUrl()) ?>"
+                           title="<?= $escaper->escapeHtmlAttr($_product->getName()) ?>">
+                            <?= $block->getImage($_product, 'recently_viewed_products_images_names_widget')->toHtml() ?>
+                        </a>
+                        <div class="product-item-details">
+                            <strong class="product-item-name">
+                                <a href="<?= $escaper->escapeUrl($_product->getProductUrl()) ?>"
+                                   title="<?= $escaper->escapeHtmlAttr($_product->getName()) ?>"
+                                   class="product-item-link">
+                                    <?= /* @noEscape */ $outputHelper->productAttribute($_product, $_product->getName(), 'name') ?>
+                                </a>
+                            </strong>
+                            <?= $block->getProductPriceHtml(
+                                $_product,
+                                FinalPrice::PRICE_CODE,
+                                Render::ZONE_ITEM_LIST,
+                                ['price_id_suffix' => '-widget-viewed']
+                            ) ?>
+                            <?php if ($_product->isSaleable()): ?>
+                                <?php if (!$_product->getTypeInstance()->isPossibleBuyFromList($_product)): ?>
+                                    <a class="action tocart link link-primary text-sm no-underline hover:underline"
+                                       href="<?= $escaper->escapeUrl($block->getAddToCartUrl($_product)) ?>"
+                                       title="<?= $escaper->escapeHtmlAttr(__('Add to Cart')) ?>">
+                                        <?= $escaper->escapeHtml(__('Add to Cart')) ?>
+                                    </a>
+                                <?php else: ?>
+                                    <form data-role="tocart-form"
+                                          data-product-sku="<?= $escaper->escapeHtmlAttr($_product->getSku()) ?>"
+                                          action="<?= $escaper->escapeUrl($block->getAddToCartUrl($_product)) ?>"
+                                          method="post" class="inline-block">
+                                        <input type="hidden" name="product"
+                                               value="<?= (int) $_product->getEntityId() ?>">
+                                        <?= $block->getBlockHtml('formkey') ?>
+                                        <button type="submit"
+                                                title="<?= $escaper->escapeHtmlAttr(__('Add to Cart')) ?>"
+                                                class="action tocart link link-primary text-sm no-underline hover:underline">
+                                            <?= $escaper->escapeHtml(__('Add to Cart')) ?>
+                                        </button>
+                                    </form>
+                                <?php endif; ?>
+                            <?php elseif ($_product->isAvailable()): ?>
+                                <div class="stock available"><span><?= $escaper->escapeHtml(__('In stock')) ?></span></div>
+                            <?php else: ?>
+                                <div class="stock unavailable"><span><?= $escaper->escapeHtml(__('Out of stock')) ?></span></div>
+                            <?php endif; ?>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+            <?= $block->getPagerHtml() ?>
+        </div>
+    </div>
+<?php endif; ?>

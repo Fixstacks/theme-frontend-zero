@@ -1,0 +1,180 @@
+/**
+ * Zero theme: Tailwind v4 + DaisyUI entry point.
+ *
+ * `source(none)` + explicit @source lines: scan only the theme's and Zero
+ * modules' templates (a whole-repo scan picks up prose as class names).
+ *
+ * Design: warm off-white paper (base-100/200/300), black ink, a lime
+ * `primary` for CTAs/highlights, muted olive `secondary`/`accent`, near-black
+ * `neutral` (#151515) for dark bands. Sharp corners throughout. Type: DM Sans
+ * for UI/body; Instrument Serif italic (`.font-display`) only for inline
+ * accent words in headlines.
+ */
+@import "tailwindcss" source(none);
+@source "../../**/*.phtml";
+/*
+ * Module templates live outside the theme tree. Every enabled module that
+ * ships view/frontend/zero/tailwind.css (its @source lines and own styles)
+ * is imported here, generated before each build by
+ * scripts/collect-module-styles.mjs; see docs/extensions.md.
+ */
+@import "./generated/modules.css";
+/*
+ * Class names that come from markup Tailwind doesn't scan and that DaisyUI
+ * components style: core's footer container (class="footer content", layout
+ * XML) and stock multishipping templates (`progress` in checkout/state.phtml,
+ * `indicator` in checkout/overview.phtml).
+ */
+@source inline("footer progress indicator");
+/*
+ * Only the two custom themes: without a list DaisyUI includes its ~35 presets,
+ * and the built-in "dark" one would claim prefers-color-scheme: dark.
+ */
+@plugin "daisyui" {
+    themes: zero --default, zero-dark;
+}
+
+@plugin "daisyui/theme" {
+    name: "zero";
+    default: true;
+    prefersdark: false;
+    color-scheme: light;
+
+    --color-base-100: #f7f6f1;
+    --color-base-200: #eeede8;
+    --color-base-300: #e4e5dc;
+    --color-base-content: #000000;
+
+    --color-primary: #d6ff4b;
+    --color-primary-content: #151515;
+
+    --color-secondary: #606d33;
+    --color-secondary-content: #f7f6f1;
+
+    --color-accent: #95a655;
+    --color-accent-content: #151515;
+
+    --color-neutral: #151515;
+    --color-neutral-content: #f0efe9;
+
+    --color-info: #5b7189;
+    --color-info-content: #f7f6f1;
+    --color-success: #5c7a3a;
+    --color-success-content: #f7f6f1;
+    --color-warning: #8a7a1f;
+    --color-warning-content: #f7f6f1;
+    --color-error: #9c3b2e;
+    --color-error-content: #f7f6f1;
+
+    --radius-box: 0rem;
+    --radius-field: 0rem;
+    --radius-selector: 0rem;
+    --border: 1px;
+}
+
+/*
+ * `prefersdark: false`: the light design always shows, whatever the OS
+ * preference. zero-dark stays available via an explicit data-theme="zero-dark".
+ */
+@plugin "daisyui/theme" {
+    name: "zero-dark";
+    default: false;
+    prefersdark: false;
+    color-scheme: dark;
+
+    --color-base-100: #151515;
+    --color-base-200: #1e1e1c;
+    --color-base-300: #2a2a26;
+    --color-base-content: #f0efe9;
+
+    --color-primary: #d6ff4b;
+    --color-primary-content: #151515;
+
+    --color-secondary: #95a655;
+    --color-secondary-content: #151515;
+
+    --color-accent: #77844a;
+    --color-accent-content: #f0efe9;
+
+    --color-neutral: #f0efe9;
+    --color-neutral-content: #151515;
+
+    --color-info: #8fb3cc;
+    --color-info-content: #151515;
+    --color-success: #9bc17f;
+    --color-success-content: #151515;
+    --color-warning: #d9b563;
+    --color-warning-content: #151515;
+    --color-error: #d97b6b;
+    --color-error-content: #151515;
+
+    --radius-box: 0rem;
+    --radius-field: 0rem;
+    --radius-selector: 0rem;
+    --border: 1px;
+}
+
+/*
+ * Self-hosted fonts (no Google Fonts origin hop), latin subset only:
+ * - DM Sans: one variable file (wght 100–1000) covers 400/500/600/700.
+ * - Instrument Serif: italic 400 only, the one cut `.font-display` uses.
+ */
+@font-face {
+    font-family: "DM Sans";
+    font-style: normal;
+    font-weight: 100 1000;
+    font-display: swap;
+    src: url("../fonts/dm-sans-latin-400-700.woff2") format("woff2");
+}
+
+@font-face {
+    font-family: "Instrument Serif";
+    font-style: italic;
+    font-weight: 400;
+    font-display: swap;
+    src: url("../fonts/instrument-serif-italic-400.woff2") format("woff2");
+}
+
+/*
+ * Design tokens. Colors, radii and border width are the DaisyUI theme above;
+ * fonts and the type scale are here. Every hand-written rule in base/
+ * components/utilities.css reads these variables, so a child theme restyles
+ * the storefront by redefining them (web/css/theme-overrides.css, no build;
+ * see docs/child-themes.md). Tailwind's own scale (--text-xs … --text-9xl)
+ * stays; the tokens below add the in-between sizes and the named roles. Each
+ * also becomes a utility class (text-2xs, text-label, text-page-title, …).
+ */
+@theme {
+    --font-display: "Instrument Serif", ui-serif, Georgia, serif;
+    --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+
+    /* Scale steps between Tailwind's: eyebrows/badges, meta labels, body copy. */
+    --text-3xs: 0.625rem;
+    --text-2xs: 0.6875rem;
+    --text-label: 0.8125rem;
+    --text-md: 0.9375rem;
+
+    /* Roles. */
+    --text-card-name: 0.9rem;
+    --text-card-price: 1.05rem;
+    --text-section-title: 1.75rem;
+    --text-page-title: 1.875rem;
+    --text-page-title-md: 2.25rem;
+    --text-product-title: 2.5rem;
+    --text-product-title-lg: 3.5rem;
+    --text-product-price: 1.875rem;
+}
+
+/*
+ * Everything above (config, tokens, @source, @font-face, @theme) must stay in
+ * this entry file. Hand-written styles live in one file per layer:
+ * - base.css       — @layer base (element defaults)
+ * - components.css — @layer components (theme components and stock-markup fixes)
+ * - utilities.css  — @layer utilities (stock class touch-ups that must beat
+ *   DaisyUI's same-named classes; see that file's header)
+ * Imported files' @layer blocks hoist into the same named layers, so the
+ * split doesn't change the compiled CSS.
+ */
+@import './base.css';
+@import './components.css';
+@import './utilities.css';

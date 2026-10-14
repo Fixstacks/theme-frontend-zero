@@ -1,0 +1,37 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Replaces stock's
+ * Magento_Reports::widget/compared/column/compared_images_list.phtml
+ * (images-only sidebar template). Same fix as `Magento_Reports::
+ * widget/viewed/column/viewed_images_list.phtml`'s own docblock (the
+ * "Recently Compared" sibling widget).
+ *
+ * @var \Magento\Reports\Block\Product\Compared $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($exist = $block->getRecentlyComparedProducts()): ?>
+    <div class="block widget block-compared-products">
+        <div class="block-title title">
+            <strong role="heading" aria-level="2"><?= $escaper->escapeHtml(__('Recently Compared')) ?></strong>
+        </div>
+        <div class="block-content content">
+            <ol class="product-items product-items-images grid grid-cols-3 gap-2">
+                <?php foreach ($exist as $_product): ?>
+                    <li class="product-item">
+                        <a class="product-item-photo block" href="<?= $escaper->escapeUrl($_product->getProductUrl()) ?>"
+                           title="<?= $escaper->escapeHtmlAttr($_product->getName()) ?>">
+                            <?= $block->getImage($_product, 'recently_compared_products_images_only_widget')->toHtml() ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+            <?= $block->getPagerHtml() ?>
+        </div>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,16 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Cacheable shell for the
+ * "Recently Viewed Products" widget's Names Only template. See
+ * `shell/grid.phtml`'s own docblock (same widget, this variant).
+ *
+ * @var \Magento\Reports\Block\Product\Viewed $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div hx-get="<?= $escaper->escapeUrl($block->getUrl('zero/widget/viewed', ['template' => 'names_list', 'page_size' => $block->getPageSize()])) ?>"
+     hx-trigger="zero:session-ready from:body"
+     hx-swap="outerHTML"></div>

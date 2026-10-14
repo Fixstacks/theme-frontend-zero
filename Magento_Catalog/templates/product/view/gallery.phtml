@@ -1,0 +1,166 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product gallery without JS. Stock renders one <img> and leaves the other
+ * images in Fotorama's JSON, so alt/back photos were unreachable.
+ *
+ * - Every image renders in its own `#gallery-image-N` (N = media value_id);
+ *   thumbnails link to those anchors and CSS `:target` shows the selected one.
+ *   The main image (isMainImage()) is rendered first and shown by default;
+ *   `.product-gallery:has(.gallery-full-image:target)` hides that default once
+ *   another image is targeted.
+ * - Each image carries its own prev/next links (wrapped neighbors), grouped in `.gallery-nav-group` (bottom-right corner).
+ *   Always visible, since touch has no hover; thumbnails already act as the
+ *   position indicator, so there are no dots.
+ * - `scroll-mt-[9999px]` on each image stops fragment navigation from also
+ *   scrolling the page: a huge scroll-margin clamps that vertical scroll to
+ *   "stay put", while the horizontal snap still works.
+ * - Fullscreen (web/js/product/gallery.js): a native <dialog> with the large
+ *   images, prev/next, arrow keys, swipe, and click-to-zoom that follows the
+ *   pointer. Opened by the expand button or a click on the image. Without
+ *   JS the gallery above still works.
+ * - Videos (Images and Videos > Add Video): YouTube and Vimeo play in place
+ *   (ViewModel\Product\GalleryVideo gives the player URL; the frame is only
+ *   created on Play), any other URL is a link. The Fotorama/video init
+ *   scripts are dropped.
+ *
+ * @var \Magento\Catalog\Block\Product\View\Gallery $block
+ * @var \Magento\Framework\Escaper $escaper
+ *
+ * Main images are a <picture> (WebP first, 700/1400 px wide copies from
+ * Zero\Core\Model\Image\ProductPicture, given as the `zero_picture`
+ * argument in catalog_product_view.xml). The first one is the page's largest
+ * paint, so it loads at high priority; the others, hidden until picked, lazily.
+ */
+$imageWidth = $block->getImageAttribute('product_page_image_medium', 'width');
+$imageHeight = $block->getImageAttribute('product_page_image_medium', 'height');
+$images = $block->getGalleryImages();
+$images = $images instanceof \Magento\Framework\Data\Collection ? $images->getItems() : (array) $images;
+
+// Put the real main image first, so the CSS `:first-child` default fallback below shows the right shot.
+usort($images, function ($a, $b) use ($block) {
+    return $block->isMainImage($b) <=> $block->isMainImage($a);
+});
+$images = array_values($images);
+$imageCount = count($images);
+/** @var \Zero\Core\Model\Image\ProductPicture|null $picture */
+$picture = $block->getData('zero_picture');
+/** @var \Zero\Core\ViewModel\Product\GalleryVideo|null $videos */
+$videos = $block->getData('zero_video');
+$productName = (string) $block->getProduct()->getName();
+// The gallery is the page's left half from desktop up, full width below.
+$sizes = '(min-width: 1024px) 50vw, 100vw';
+?>
+<?php if (empty($images)) : ?>
+    <?php /* No images: the catalog placeholder (getViewModel()->getMainProductImage() gave an empty src). */ ?>
+    <div class="product media">
+        <img alt="<?= $escaper->escapeHtmlAttr($block->getProduct()->getName()) ?>"
+             class="gallery-placeholder__image"
+             src="<?= $escaper->escapeUrl($block->getImage($block->getProduct(), 'product_page_image_medium')->getImageUrl()) ?>"
+             <?= $imageWidth ? 'width="' . $escaper->escapeHtmlAttr($imageWidth) . '"' : '' ?>
+             <?= $imageHeight ? 'height="' . $escaper->escapeHtmlAttr($imageHeight) . '"' : '' ?>
+        />
+    </div>
+<?php else : ?>
+    <div class="product media product-gallery">
+        <div class="gallery-main-images">
+            <?php foreach ($images as $i => $image) : ?>
+                <?php
+                $prevImage = $images[($i - 1 + $imageCount) % $imageCount];
+                $nextImage = $images[($i + 1) % $imageCount];
+                ?>
+                <?php
+                $srcsets = $picture && $imageWidth && $imageHeight
+                    ? $picture->getSrcsets((string) $image->getData('medium_image_url'), (int) $imageWidth, (int) $imageHeight, [700, 1400])
+                    : null;
+                ?>
+                <?php
+                $videoUrl = $image->getMediaType() === 'external-video' ? (string) $image->getVideoUrl() : '';
+                $embedUrl = $videoUrl !== '' && $videos ? $videos->embedUrl($videoUrl) : null;
+                $label = (string) ($image->getLabel() ?: $image->getVideoTitle() ?: $productName);
+                ?>
+                <div class="gallery-full-image scroll-mt-[9999px]" id="gallery-image-<?= (int) $image->getId() ?>"
+                     data-full="<?= $escaper->escapeUrl($image->getData('large_image_url')) ?>"
+                     data-alt="<?= $escaper->escapeHtmlAttr($label) ?>"
+                     <?= $embedUrl ? 'data-video="' . $escaper->escapeUrl($embedUrl) . '"' : '' ?>>
+                    <?php if ($srcsets) : ?><picture>
+                        <source type="image/webp" srcset="<?= $escaper->escapeHtml($srcsets['webp']) ?>" sizes="<?= /* @noEscape */ $sizes ?>"><?php endif; ?>
+                    <img alt="<?= $escaper->escapeHtmlAttr($image->getLabel() ?: $block->getProduct()->getName()) ?>"
+                         src="<?= $escaper->escapeUrl($image->getData('medium_image_url')) ?>"
+                         <?php if ($srcsets) : ?>
+                         srcset="<?= $escaper->escapeHtml($srcsets['jpeg']) ?>"
+                         sizes="<?= /* @noEscape */ $sizes ?>"
+                         <?php endif; ?>
+                         <?= $i === 0 ? 'fetchpriority="high"' : 'loading="lazy"' ?>
+                         <?= $imageWidth ? 'width="' . $escaper->escapeHtmlAttr($imageWidth) . '"' : '' ?>
+                         <?= $imageHeight ? 'height="' . $escaper->escapeHtmlAttr($imageHeight) . '"' : '' ?>
+                    /><?php if ($srcsets) : ?></picture><?php endif; ?>
+                    <?php if ($embedUrl) : ?>
+                        <button type="button" class="gallery-play" data-gallery-play
+                                aria-label="<?= $escaper->escapeHtmlAttr(__('Play video: %1', $label)) ?>">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.14v13.72a1 1 0 0 0 1.52.85l10.8-6.86a1 1 0 0 0 0-1.7L9.52 4.29A1 1 0 0 0 8 5.14Z"/></svg>
+                        </button>
+                    <?php elseif ($videoUrl !== '') : ?>
+                        <a class="gallery-play" href="<?= $escaper->escapeUrl($videoUrl) ?>" target="_blank" rel="noopener noreferrer"
+                           aria-label="<?= $escaper->escapeHtmlAttr(__('Watch video: %1', $label)) ?>">
+                            <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="currentColor" d="M8 5.14v13.72a1 1 0 0 0 1.52.85l10.8-6.86a1 1 0 0 0 0-1.7L9.52 4.29A1 1 0 0 0 8 5.14Z"/></svg>
+                        </a>
+                    <?php endif; ?>
+                    <?php if ($block->isMainImage($image)) : ?>
+                        <link itemprop="image" href="<?= $escaper->escapeUrl($image->getData('large_image_url')) ?>">
+                    <?php endif; ?>
+                    <?php if ($imageCount > 1) : ?>
+                        <div class="gallery-nav-group">
+                            <a href="#gallery-image-<?= (int) $prevImage->getId() ?>"
+                               class="gallery-nav btn btn-circle btn-sm"
+                               aria-label="<?= $escaper->escapeHtmlAttr(__('Previous image')) ?>">&lsaquo;</a>
+                            <a href="#gallery-image-<?= (int) $nextImage->getId() ?>"
+                               class="gallery-nav btn btn-circle btn-sm"
+                               aria-label="<?= $escaper->escapeHtmlAttr(__('Next image')) ?>">&rsaquo;</a>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            <?php endforeach; ?>
+            <button type="button" class="gallery-expand btn btn-circle btn-sm" data-gallery-open hidden
+                    aria-haspopup="dialog" aria-label="<?= $escaper->escapeHtmlAttr(__('View images full screen')) ?>">
+                <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path stroke-linecap="round" stroke-linejoin="round" d="M4 9V4h5M20 9V4h-5M4 15v5h5M20 15v5h-5"/></svg>
+            </button>
+        </div>
+        <?php if (count($images) > 1) : ?>
+            <div class="gallery-thumbs">
+                <?php foreach ($images as $image) : ?>
+                    <a class="gallery-thumb<?= $image->getMediaType() === 'external-video' ? ' is-video' : '' ?>"
+                       href="#gallery-image-<?= (int) $image->getId() ?>"
+                       title="<?= $escaper->escapeHtmlAttr($image->getLabel() ?: $block->getProduct()->getName()) ?>">
+                        <img alt="<?= $escaper->escapeHtmlAttr($image->getLabel() ?: $block->getProduct()->getName()) ?>"
+                             src="<?= $escaper->escapeUrl($image->getData('small_image_url')) ?>"
+                             loading="lazy"/>
+                    </a>
+                <?php endforeach; ?>
+            </div>
+        <?php endif; ?>
+        <dialog class="gallery-dialog" data-gallery-dialog
+                aria-label="<?= $escaper->escapeHtmlAttr(__('%1: images', $productName)) ?>">
+            <div class="gallery-dialog-bar">
+                <span class="gallery-dialog-counter" data-gallery-counter></span>
+                <button type="button" class="btn btn-ghost btn-sm" data-gallery-zoom aria-pressed="false"><?= $escaper->escapeHtml(__('Zoom')) ?></button>
+                <button type="button" class="btn btn-ghost btn-sm btn-circle" data-gallery-close
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Close')) ?>">&times;</button>
+            </div>
+            <div class="gallery-dialog-stage" data-gallery-stage>
+                <img data-gallery-image alt="">
+            </div>
+            <?php if ($imageCount > 1) : ?>
+                <button type="button" class="gallery-dialog-nav is-prev btn btn-circle" data-gallery-prev
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Previous image')) ?>">&lsaquo;</button>
+                <button type="button" class="gallery-dialog-nav is-next btn btn-circle" data-gallery-next
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Next image')) ?>">&rsaquo;</button>
+            <?php endif; ?>
+        </dialog>
+        <script src="<?= $escaper->escapeUrl($block->getViewFileUrl('js/product/gallery.js')) ?>" defer></script>
+    </div>
+<?php endif; ?>

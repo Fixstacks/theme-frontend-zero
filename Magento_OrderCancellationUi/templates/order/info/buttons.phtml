@@ -1,0 +1,46 @@
+<?php
+/**
+ * Copyright 2023 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Customer order view buttons: Reorder as a POST form, Cancel Order via
+ * cancel-order-modal.phtml, Print as a link.
+ *
+ * @var \Magento\Sales\Block\Order\Info\Buttons $block
+ * @var $viewModel \Magento\OrderCancellationUi\ViewModel\Config
+ */
+$viewModel = $block->getViewModel();
+?>
+<div class="actions">
+    <?php $_order = $block->getOrder() ?>
+    <?php if ($this->helper(\Magento\Sales\Helper\Reorder::class)->canReorder($_order->getEntityId())): ?>
+        <form method="post" action="<?= $block->escapeUrl($block->getReorderUrl($_order)) ?>" class="inline-block">
+            <?= $block->getBlockHtml('formkey') ?>
+            <button type="submit" class="action order btn btn-primary hover:bg-neutral hover:text-neutral-content">
+                <span><?= $block->escapeHtml(__('Reorder')) ?></span>
+            </button>
+        </form>
+    <?php endif ?>
+    <?php if ($viewModel->canCancel($_order->getEntityId())): ?>
+        <a href="#" class="cancel-order" data-role="cancel-order-trigger"
+           data-target="cancel-order-modal-<?= (int) $_order->getId() ?>">
+            <span><?= $block->escapeHtml(__('Cancel Order')) ?></span>
+        </a>
+    <?php endif ?>
+    <a href="<?= $block->escapeUrl($block->getPrintUrl($_order)) ?>"
+       class="action print link link-neutral text-sm no-underline hover:underline"
+       target="_blank"
+       rel="noopener">
+        <span><?= $block->escapeHtml(__('Print Order')) ?></span>
+    </a>
+    <?= $block->getChildHtml() ?>
+</div>
+
+<?php if ($viewModel->canCancel($_order->getEntityId())): ?>
+    <?= $this->getLayout()->createBlock("Magento\Framework\View\Element\Template")->setOrder($_order)
+        ->setReasons($viewModel->getCancellationReasons($_order->getEntityId()))
+        ->setGraphqlUrl($block->getBaseUrl() . 'graphql')
+        ->setTemplate("Magento_OrderCancellationUi::cancel-order-modal.phtml")->toHtml() ?>
+<?php endif ?>

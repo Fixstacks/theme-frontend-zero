@@ -1,0 +1,37 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Replaces stock's
+ * Magento_Reports::widget/viewed/column/viewed_images_list.phtml
+ * (images-only sidebar template). Same fix as `viewed_grid.phtml`'s
+ * own docblock. No JS in the stock version either — this one's only
+ * real gap was the missing Tailwind grid/gap layout.
+ *
+ * @var \Magento\Reports\Block\Product\Viewed $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($exist = ($block->getRecentlyViewedProducts() && $block->getRecentlyViewedProducts()->getSize())): ?>
+    <div class="block widget block-viewed-products">
+        <div class="block-title title">
+            <strong role="heading" aria-level="2"><?= $escaper->escapeHtml(__('Recently Viewed')) ?></strong>
+        </div>
+        <div class="block-content content">
+            <ol class="product-items product-items-images grid grid-cols-3 gap-2">
+                <?php foreach ($block->getRecentlyViewedProducts() as $_product): ?>
+                    <li class="product-item">
+                        <a class="product-item-photo block" href="<?= $escaper->escapeUrl($_product->getProductUrl()) ?>"
+                           title="<?= $escaper->escapeHtmlAttr($_product->getName()) ?>">
+                            <?= $block->getImage($_product, 'recently_viewed_products_images_only_widget')->toHtml() ?>
+                        </a>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+            <?= $block->getPagerHtml() ?>
+        </div>
+    </div>
+<?php endif; ?>

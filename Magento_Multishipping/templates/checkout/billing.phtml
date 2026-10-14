@@ -1,0 +1,116 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Multishipping payment step.
+ *
+ * - Adds the missing form_key (Overview accepts POST).
+ * - "Go to Review Your Order" is type="submit"; stock's type="button" needed
+ *   Knockout to submit, so the flow dead-ended here. With a single active
+ *   method its radio is pre-checked server-side.
+ * - checkoutMessages and the require([...]) payment/validation/quote-seeding
+ *   scripts are dropped.
+ *
+ * @var \Magento\Multishipping\Block\Checkout\Billing $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<form action="<?= $escaper->escapeUrl($block->getPostActionUrl()); ?>"
+      method="post"
+      id="multishipping-billing-form"
+      class="form multicheckout billing">
+    <?= $block->getBlockHtml('formkey') ?>
+    <div class="block block-billing">
+        <div class="block-content">
+            <div class="box box-billing-address">
+                <strong class="box-title">
+                    <span><?= $escaper->escapeHtml(__('Billing Address')); ?></span>
+                    <a href="<?= $escaper->escapeUrl($block->getSelectAddressUrl()); ?>" class="action">
+                        <span><?= $escaper->escapeHtml(__('Change')); ?></span>
+                    </a>
+                </strong>
+                <div class="box-content">
+                    <address>
+                        <?= /* @noEscape */ $block->getCheckoutData()->getAddressHtml($block->getAddress()); ?>
+                    </address>
+                </div>
+            </div>
+            <div class="box box-billing-method">
+                <fieldset class="fieldset">
+                    <legend class="legend box-title">
+                        <span><?= $escaper->escapeHtml(__('Payment Method')); ?></span>
+                    </legend><br>
+                    <div class="box-content">
+                        <?= $block->getChildHtml('payment_methods_before') ?>
+                        <?php /* Payment methods forms list */ ?>
+                        <dl class="checkout-payment-method" id="payment-methods">
+                            <?php
+                            $methods = $block->getMethods();
+                            $methodsCount = count($methods);
+                            $methodsForms = $block->hasFormTemplates() ? $block->getFormTemplates(): [];
+
+                            foreach ($methods as $_method):
+                                    $code = $_method->getCode();
+                                    $checked = $block->getSelectedMethodCode() === $code;
+
+                                if (isset($methodsForms[$code])) {
+                                    $block->setMethodFormTemplate($code, $methodsForms[$code]);
+                                }
+                                ?>
+                                <div>
+                                    <dt class="item-title">
+                                        <?php if ($methodsCount > 1): ?>
+                                            <input type="radio"
+                                                   id="p_method_<?= $escaper->escapeHtml($code); ?>"
+                                                   value="<?= $escaper->escapeHtml($code); ?>"
+                                                   name="payment[method]"
+                                                   title="<?= $escaper->escapeHtml($_method->getTitle()) ?>"
+                                                <?php if ($checked): ?>
+                                                    checked="checked"
+                                                <?php endif; ?>
+                                                   class="radio"/>
+                                        <?php else: ?>
+                                            <input type="radio"
+                                                   id="p_method_<?= $escaper->escapeHtml($code); ?>"
+                                                   value="<?= $escaper->escapeHtml($code); ?>"
+                                                   name="payment[method]"
+                                                   checked="checked"
+                                                   class="radio solo method" />
+                                        <?php endif; ?>
+                                        <label for="p_method_<?= $escaper->escapeHtml($code); ?>">
+                                            <?= $escaper->escapeHtml($_method->getTitle()) ?>
+                                        </label>
+                                    </dt>
+                                    <?php if ($html = $block->getChildHtml('payment.method.' . $code)): ?>
+                                        <dd class="item-content <?= $checked ? '' : 'no-display'; ?>">
+                                            <?= /* @noEscape */ $html; ?>
+                                        </dd>
+                                    <?php endif; ?>
+                                </div>
+                            <?php endforeach; ?>
+                        </dl>
+                        <?= $block->getChildHtml('payment_methods_after') ?>
+                        <?= $block->getChildHtml('checkout_billing_items') ?>
+                    </div>
+                </fieldset>
+            </div>
+        </div>
+    </div>
+    <div class="actions-toolbar">
+        <div class="primary" id="parent-payment-continue">
+            <button id="payment-continue"
+                    type="submit"
+                    class="action primary continue btn btn-primary hover:bg-neutral hover:text-neutral-content">
+                <span><?= $escaper->escapeHtml(__('Go to Review Your Order')); ?></span>
+            </button>
+        </div>
+        <div class="secondary">
+            <a href="<?= $escaper->escapeUrl($block->getBackUrl()); ?>" class="action back link link-neutral text-sm no-underline hover:underline">
+                <span><?= $escaper->escapeHtml(__('Back to Shipping Information')); ?></span>
+            </a>
+        </div>
+    </div>
+</form>

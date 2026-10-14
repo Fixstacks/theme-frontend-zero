@@ -1,0 +1,2328 @@
+/*
+ * Structural styling for stock Luma/Blank markup this theme reuses
+ * as-is (product grid, filter sidebar chrome, generic buttons, form
+ * fields, data tables) — targets the stock class names directly, no
+ * template overrides needed.
+ *
+ * Lives in `@layer utilities`, not `@layer components`: DaisyUI
+ * defines several single-word classes (`.list`, `.label`, `.status`,
+ * `.block`, ...) across both its own utilities layer and a later
+ * `@layer daisyui`. Cascade layers rank by layer order first —
+ * specificity only breaks ties within the same layer — so a rule
+ * here needs to sit in as late a layer as DaisyUI's own component
+ * definitions, or use `!important` (which inverts layer order), to
+ * reliably win against them.
+ */
+@layer utilities {
+    /* Full-width header row for pages with no sidebar (order confirmation, generic page titles). */
+    .page-title-wrapper {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        flex-wrap: wrap;
+        gap: 0.5rem 1rem;
+        margin-bottom: 1.5rem;
+    }
+
+    /*
+     * Page titles (the <h1> from Magento_Theme::html/title.phtml). The h1 base
+     * rule sets no size, so titles rendered at body size (16px) and read as
+     * plain text: "Customer Login", category names, CMS pages. The product page
+     * keeps its own larger display size (components.css).
+     */
+    .page-title-wrapper:has(> .page-title) {
+        padding-top: 1rem;
+    }
+
+    .page-title {
+        font-size: var(--text-page-title);
+        font-weight: 600;
+        line-height: 1.15;
+    }
+
+    @media (min-width: 48rem) {
+        .page-title {
+            font-size: var(--text-page-title-md);
+        }
+    }
+
+    /* Homepage: the hero is the visible headline; the CMS page title stays for search engines and screen readers. */
+    .cms-index-index .page-title-wrapper {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+        white-space: nowrap;
+    }
+
+    /*
+     * Login page: "Registered Customers" and "New Customers" as two cards side by
+     * side from md (stacked on phones), so creating an account is a visible
+     * choice next to signing in, not a line of text under the form.
+     */
+    .login-container {
+        display: grid;
+        gap: 1.5rem;
+        align-items: start;
+    }
+
+    @media (min-width: 48rem) {
+        .login-container {
+            grid-template-columns: 1fr 1fr;
+            gap: 2rem;
+        }
+    }
+
+    .login-container > .block {
+        border: 1px solid var(--color-base-300);
+        background-color: var(--color-base-100);
+        padding: 1.5rem;
+    }
+
+    @media (min-width: 48rem) {
+        .login-container > .block {
+            padding: 2rem;
+        }
+    }
+
+    .checkout-success p {
+        margin-bottom: 0.75rem;
+        max-width: 40rem;
+    }
+
+    .checkout-success .order-number {
+        color: var(--color-primary);
+        font-weight: 600;
+    }
+
+    .checkout-success .actions-toolbar {
+        margin-top: 1.5rem;
+    }
+
+    /* Chevron rotation on `[open]` — no Tailwind utility reaches a sibling through a parent attribute selector. */
+    .filter-options-item[open] > summary .filter-options-chevron {
+        transform: rotate(180deg);
+    }
+
+    /* Mobile filter panel: collapsed `<details>` wrapper around the whole sidebar, closed by default. */
+    .filter-mobile-toggle {
+        border: 1px solid var(--color-base-300);
+        border-radius: var(--radius-box, 0.75rem);
+        background: var(--color-base-200);
+    }
+
+    .filter-mobile-toggle-title {
+        padding: 1rem 1.25rem;
+    }
+
+    .filter-mobile-toggle[open] > .filter-mobile-toggle-title {
+        border-bottom: 1px solid var(--color-base-300);
+    }
+
+    .filter-mobile-toggle-icon {
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 1px solid var(--color-base-300);
+        border-radius: var(--radius-field, 0.5rem);
+        background: var(--color-base-100);
+    }
+
+    .filter-mobile-toggle[open] > .filter-mobile-toggle-title .filter-mobile-toggle-chevron {
+        transform: rotate(180deg);
+    }
+
+    .filter-mobile-toggle .filter-content {
+        padding: 1.25rem;
+    }
+
+    /* Avoids a duplicate "Shop By" label under the mobile toggle's own title; restored at desktop below. */
+    .filter-mobile-toggle .filter-title {
+        display: none;
+    }
+
+    /*
+     * Desktop: the toggle wrapper disappears and the panel stays
+     * permanently open, forced via the same `::details-content`
+     * override the mobile category nav uses.
+     */
+    @media (min-width: 64rem) {
+        .filter-mobile-toggle {
+            border: 0;
+            border-radius: 0;
+            background: transparent;
+        }
+
+        .filter-mobile-toggle-title {
+            display: none;
+        }
+
+        .filter-mobile-toggle::details-content {
+            content-visibility: visible;
+            block-size: auto;
+            overflow: visible;
+        }
+
+        .filter-mobile-toggle .filter-content {
+            display: block !important;
+            padding: 0;
+        }
+
+        .filter-mobile-toggle .filter-title {
+            display: block;
+        }
+    }
+
+    /*
+     * Grid mode only — List mode shares this same `<ol class="products
+     * list items product-items">` element and gets its own row layout
+     * under `.products-list` below, scoped through the `.products-grid`
+     * wrapper class so the two never collide.
+     */
+    /*
+     * `minmax(0, 1fr)`: a bare `1fr` track can't shrink below its content,
+     * and Magento's per-product inline style fixes each image container to
+     * 240px, so the four columns ran 22px past the main column.
+     */
+    .products-grid .products.list.items.product-items {
+        display: grid;
+        grid-template-columns: repeat(2, minmax(0, 1fr));
+        gap: 1.5rem;
+    }
+
+    @media (min-width: 48rem) {
+        .products-grid .products.list.items.product-items {
+            grid-template-columns: repeat(3, minmax(0, 1fr));
+        }
+    }
+
+    @media (min-width: 90rem) {
+        .products-grid .products.list.items.product-items {
+            grid-template-columns: repeat(4, minmax(0, 1fr));
+        }
+    }
+
+    /*
+     * Related/upsell/crosssell/new-products rows: a horizontal
+     * scroll-snap slider instead of the wrapping grid above, scoped
+     * through each block's own class so the main catalog grid (same
+     * `.products-grid` wrapper) is untouched. Prev/next controls use
+     * `::scroll-button()` (CSS Overflow Module 5) — a native
+     * mechanism, not the anchor-link technique the hero/gallery use,
+     * since those only work for a single "current slide" and this row
+     * shows several items at once. Progressive enhancement: an
+     * unsupported pseudo-element makes the whole rule inert, so the
+     * row stays natively swipe-scrollable everywhere regardless.
+     */
+    :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .products.list.items.product-items {
+        display: flex !important;
+        flex-direction: row !important;
+        overflow-x: auto;
+        scroll-snap-type: x mandatory;
+        gap: 1.5rem;
+        padding-block-end: 0.25rem;
+        anchor-name: --product-slider;
+        /*
+         * Mobile Chromium's shrink-to-fit viewport pass reads this
+         * row's full unscrolled content width even through
+         * `overflow-x: auto`, widening the whole page. `contain:
+         * layout` stops that internal layout from leaking out.
+         */
+        contain: layout;
+    }
+
+    :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .products.list.items.product-items > .product-item {
+        flex: 0 0 calc((100% - 1.5rem) / 2);
+        scroll-snap-align: start;
+    }
+
+    /*
+     * The photo fills the tile. Magento prints a per-product inline <style>
+     * fixing `.product-image-container-<id>` to the image's pixel width (it was
+     * 140px), which beats any layered rule; hence !important.
+     */
+    :is(.block.related, .block.upsell, .block.crosssell)
+        .product-item .product-image-container {
+        width: 100% !important;
+    }
+
+    :is(.block.related, .block.upsell, .block.crosssell)
+        .product-item .product-image-photo {
+        width: 100%;
+        height: auto;
+    }
+
+    @media (min-width: 48rem) {
+        :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
+            .products.list.items.product-items > .product-item {
+            flex-basis: calc((100% - 3rem) / 3);
+        }
+    }
+
+    @media (min-width: 90rem) {
+        :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
+            .products.list.items.product-items > .product-item {
+            flex-basis: calc((100% - 4.5rem) / 4);
+        }
+    }
+
+    /*
+     * A visible `border` matters here, not just decoration — without
+     * one this near-white button had no separation against plain
+     * white studio product photography (unlike the gallery nav
+     * buttons it's styled after, which always sit over photography
+     * with some color in it).
+     */
+    :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .products.list.items.product-items::scroll-button(left),
+    :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .products.list.items.product-items::scroll-button(right) {
+        position: absolute;
+        position-anchor: --product-slider;
+        top: anchor(center);
+        translate: 0 -50%;
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.25rem;
+        height: 2.25rem;
+        border: 1px solid var(--color-base-300);
+        border-radius: var(--radius-full, 999px);
+        background: var(--color-base-100);
+        box-shadow: 0 2px 8px -2px color-mix(in oklch, var(--color-neutral) 25%, transparent);
+        font-size: var(--text-xl);
+        cursor: pointer;
+        z-index: 2;
+    }
+
+    :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .products.list.items.product-items::scroll-button(left) {
+        content: "\2039";
+        /* Physical edges: these buttons scroll physically left/right, and anchor(start) is the anchor's RIGHT edge on right-to-left pages. */
+        left: calc(anchor(left) + 0.75rem);
+    }
+
+    :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .products.list.items.product-items::scroll-button(right) {
+        content: "\203A";
+        right: calc(anchor(right) + 0.75rem);
+    }
+
+    :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .products.list.items.product-items::scroll-button(*):disabled {
+        opacity: 0.25;
+        pointer-events: none;
+    }
+
+    /*
+     * List mode's row layout. `.product-item` itself only ever has one
+     * child (`.product-item-info`, which wraps the photo and details) —
+     * the flex row lives one level down for that reason.
+     */
+    .products-list .products.list.items.product-items {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+    }
+
+    /*
+     * Side-by-side row only from 40rem up — below it, squeezing the
+     * fixed-width photo plus the full details column (name, rating,
+     * price, swatches, Add to Cart) caused wrapping.
+     */
+    @media (min-width: 40rem) {
+        .products-list .product-item-info {
+            display: flex;
+            gap: 1.5rem;
+            align-items: flex-start;
+        }
+
+        .products-list .product-item-photo {
+            flex-shrink: 0;
+        }
+
+        .products-list .product-item-details {
+            flex: 1 1 auto;
+            min-width: 0;
+        }
+
+        .products-list .product-item .actions-primary form,
+        .products-list .product-item .actions-primary .action.tocart {
+            width: auto;
+        }
+    }
+
+    .product-item {
+        border: 1px solid var(--color-base-300);
+        border-radius: var(--radius-box);
+        padding: 1rem;
+        background: var(--color-base-100);
+        transition: box-shadow 0.15s ease;
+    }
+
+    .product-item:hover {
+        box-shadow: 0 4px 16px -4px color-mix(in oklch, var(--color-neutral) 15%, transparent);
+    }
+
+    /*
+     * Pins each card's Add to Cart/Wishlist/Compare row to a shared
+     * bottom edge across a row of cards with different content heights
+     * (title length, reviews, swatches). Scoped with :where() (zero
+     * specificity) to grid/slider contexts, where Grid/Flexbox's own
+     * default `align-items: stretch` already makes `.product-item`
+     * match its row's tallest sibling — list mode has no such row
+     * concept and is left untouched by this zero-specificity scoping.
+     */
+    :where(.products-grid, .zero-product-slider-track, .block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .product-item {
+        display: flex;
+        flex-direction: column;
+        /*
+         * No explicit height here — the ancestor's own `align-items:
+         * stretch` (Grid and Flexbox's shared default) already gives
+         * this box the row's real stretched height. An explicit
+         * `height: 100%` looked equivalent but broke stretch in the
+         * carousel's flex-row context, where the track's own height is
+         * intrinsic (content-derived): a percentage that can't resolve
+         * against an indefinite container height suppresses the
+         * `auto`-triggered stretch instead of falling back to it.
+         */
+    }
+
+    :where(.products-grid, .zero-product-slider-track, .block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .product-item-info,
+    :where(.products-grid, .zero-product-slider-track, .block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .product-item-details {
+        display: flex;
+        flex-direction: column;
+        flex: 1 1 auto;
+        min-height: 0;
+    }
+
+    /*
+     * `Magento_Catalog::product/list.phtml` (the main catalog/search
+     * grid) wraps `.product-item-actions` in an extra `.product-item
+     * -inner` div — `.product-item-actions` itself is that div's own
+     * child, not a direct child of `.product-item-details`, so the
+     * bottom-pinning margin below has to target this wrapper instead.
+     * `product/list/items.phtml` (related/upsell/crosssell, widget
+     * carousels) has no such wrapper — harmless no-op there.
+     */
+    :where(.products-grid, .zero-product-slider-track, .block.related, .block.upsell, .block.crosssell, .block.widget.new)
+        .product-item-inner {
+        margin-top: auto;
+    }
+
+    .product-item .product-item-photo,
+    .product-item .product-item-name {
+        display: block;
+    }
+
+    .product-item .product-item-name {
+        font-size: var(--text-card-name);
+        font-weight: 500;
+        margin-top: 0.5rem;
+    }
+
+    /* Matches the PDP price weight/family instead of inheriting the display serif. */
+    .product-item .price-box {
+        font-size: var(--text-card-price);
+        font-weight: 700;
+        margin-top: 0.25rem;
+    }
+
+    /*
+     * The "was" price relies on Luma's own LESS for both its
+     * strikethrough styling and its hide/reveal state, which this
+     * theme doesn't ship — it rendered as a second full-size price
+     * instead of a muted secondary one. Applies everywhere `.price-box`
+     * appears (PDP, grid, related/upsell, wishlist, compare, cart).
+     */
+    .price-box .old-price {
+        display: inline-flex;
+        align-items: baseline;
+        gap: 0.375rem;
+        margin-inline-start: 0.5rem;
+    }
+
+    .price-box .old-price .price {
+        font-size: var(--text-label);
+        font-weight: 400;
+        text-decoration: line-through;
+        color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+    }
+
+    .price-box .old-price .price-label {
+        font-size: var(--text-xs);
+        color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+    }
+
+    /*
+     * One row: Add to Cart left, Wishlist/Compare as circular icon
+     * buttons right. `.product-item-actions` is the shared parent of
+     * both action groups across every consumer (category grid, widget
+     * grids/carousels, related/upsell/crosssell), so this alone
+     * covers all of them.
+     */
+    .product-item-actions {
+        display: flex;
+        align-items: center;
+        justify-content: space-between;
+        gap: 0.75rem;
+        margin-top: auto;
+        padding-top: 0.75rem;
+    }
+
+    .product-item .actions-primary form,
+    .product-item .actions-primary .action.tocart {
+        width: auto;
+    }
+
+    /*
+     * nowrap keeps "Add to Cart" on one line: under space-between, the button
+     * could shrink below its text width once the fixed-size icon buttons took
+     * their share of a narrow card.
+     */
+    .product-item .actions-primary .action.tocart {
+        white-space: nowrap;
+        flex-shrink: 0;
+    }
+
+    /* Uppercase/tracked editorial voice, shared by every `.action`-turned-`.btn` element and hand-authored CMS buttons. */
+    .btn {
+        @apply font-semibold uppercase tracking-wide;
+    }
+
+    /*
+     * The bundle page's two-step "Customize" flow (hide the summary,
+     * show only the options form) is a pure JS behavior this theme
+     * never runs — both panels already render together. With nothing
+     * to "go back" from, this button has no function; hidden rather
+     * than restyled.
+     */
+    .action.back.customization {
+        display: none;
+    }
+
+    /*
+     * These fields had no explicit width and fell back to browser
+     * default sizing; `.fieldset`'s own `max-width` below keeps the
+     * form from stretching full-bleed once these fill it.
+     */
+    input.input-text,
+    select,
+    textarea {
+        width: 100%;
+        border: 1px solid var(--color-base-300);
+        border-radius: var(--radius-field);
+        padding: 0.5rem 0.75rem;
+        background: var(--color-base-100);
+        color: var(--color-base-content);
+    }
+
+    input.input-text:focus,
+    select:focus,
+    textarea:focus {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 1px;
+    }
+
+    /* Qty steppers need a small fixed width, not the 100% above — same specificity, wins on source order. */
+    input[type="number"] {
+        width: 5rem;
+    }
+
+    .fieldset .field {
+        margin-bottom: 1rem;
+    }
+
+    /*
+     * DaisyUI reserves a bare `.label` component; Magento core widgets
+     * put a literal `class="label"` on real `<label>` elements
+     * sitewide. The element+class selector here (0-1-1) outranks
+     * DaisyUI's bare class (0-1-0) within the same layer.
+     */
+    label.label {
+        display: block;
+        white-space: normal;
+        font-size: var(--text-label);
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    /*
+     * Field tooltips ship with no CSS in this theme, so the content
+     * panel rendered in normal document flow (pushing later content)
+     * despite its own `opacity: 0` — the JS widget that would toggle
+     * it never runs without RequireJS. Repositioned and made
+     * hover/focus-accessible via plain CSS instead.
+     */
+    .field-tooltip {
+        position: relative;
+        display: inline-block;
+    }
+
+    .field-tooltip .label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .field-tooltip-action {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 1.25rem;
+        height: 1.25rem;
+        border-radius: 999px;
+        border: 1px solid var(--color-base-300);
+        color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+        font-size: var(--text-xs);
+        cursor: pointer;
+    }
+
+    .field-tooltip-action::before {
+        content: "?";
+    }
+
+    /* Same tint-on-hover convention as the header's icon buttons; `:focus-visible` keeps the accent color for keyboard use. */
+    .field-tooltip-action:hover {
+        background: color-mix(in oklch, var(--color-base-content) 7%, transparent);
+        border-color: var(--color-base-content);
+        color: var(--color-base-content);
+    }
+
+    .field-tooltip-action:focus-visible {
+        border-color: var(--color-primary);
+        color: var(--color-primary);
+    }
+
+    .field-tooltip-content {
+        position: absolute;
+        z-index: 20;
+        top: calc(100% + 0.5rem);
+        inset-inline-start: 0;
+        width: max-content;
+        max-width: 16rem;
+        padding: 0.625rem 0.75rem;
+        border-radius: var(--radius-field, 0.5rem);
+        border: 1px solid var(--color-base-300);
+        background: var(--color-base-100);
+        box-shadow: 0 8px 20px -6px color-mix(in oklch, var(--color-neutral) 20%, transparent);
+        font-size: var(--text-label);
+        /* `display`, not `visibility`: a hidden-but-laid-out panel still widened phones' pages (register, account edit) by its 16rem. */
+        display: none;
+    }
+
+    .field-tooltip:hover .field-tooltip-content,
+    .field-tooltip:focus-within .field-tooltip-content {
+        display: block;
+    }
+
+    /* On phones the "?" can sit near the right edge: anchor the panel to the screen's width instead. */
+    @media (max-width: 47.99rem) {
+        .field-tooltip {
+            position: static;
+        }
+
+        .field.choice:has(> .field-tooltip) {
+            position: relative;
+            flex-wrap: wrap;
+        }
+
+        .field-tooltip-content {
+            left: 0;
+            right: 0;
+            max-width: none;
+            width: auto;
+        }
+    }
+
+    /*
+     * DaisyUI's bare `.status` component (an indicator dot) collides
+     * with Magento's own `class="status"` on order-table cells —
+     * resets it back to a plain table cell.
+     */
+    td.status,
+    th.status {
+        display: table-cell;
+        width: auto;
+        height: auto;
+        aspect-ratio: auto;
+        background: none;
+        border-radius: 0;
+        vertical-align: inherit;
+    }
+
+    /* Hides the native scrollbar only — scroll/keyboard/touch behavior is untouched. */
+    .zero-banner-carousel-track {
+        scrollbar-width: none;
+    }
+
+    .zero-banner-carousel-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Same scrollbar-hiding treatment for the homepage product slider, kept as a separate class since its content shape differs. */
+    .zero-product-slider-track {
+        scrollbar-width: none;
+        /* Containing block for the cards' absolutely positioned bits (sr-only
+           text, swatch inputs): without it they escape the scroller, and on
+           RTL pages they widen the whole page to the left. */
+        position: relative;
+    }
+
+    .zero-product-slider-track::-webkit-scrollbar {
+        display: none;
+    }
+
+    /* Uses the sans base font instead of the display serif, which is reserved for large italic accents elsewhere. */
+    .block-title {
+        font-family: var(--font-sans);
+        font-weight: 600;
+        font-size: var(--text-lg);
+        margin-bottom: 0.75rem;
+    }
+
+    /*
+     * Bumps these 4 section headings to read as real section titles
+     * rather than small sidebar labels — scoped to related/upsell/
+     * crosssell/new-products specifically, since `.block-title` is
+     * shared with genuinely small-label contexts (account dashboard,
+     * wishlist/compare sidebars, mini search).
+     */
+    .block.related,
+    .block.upsell,
+    .block.crosssell,
+    .block.widget.new {
+        margin-top: 3rem;
+        padding-top: 2rem;
+        border-top: 1px solid var(--color-base-300);
+    }
+
+    .block.related .block-title,
+    .block.upsell .block-title,
+    .block.crosssell .block-title,
+    .block.widget.new .block-title {
+        font-size: var(--text-section-title);
+        font-weight: 500;
+        letter-spacing: -0.02em;
+        margin-bottom: 1.5rem;
+    }
+
+    /* Stacked boxes only: inside a grid (the dashboard's two-up cards) the gap spaces them, and this margin pushed every second card 1rem lower than its neighbour. */
+    .block-content:not(.grid) > .box + .box {
+        margin-top: 1rem;
+    }
+
+    .actions-toolbar {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 1rem;
+        margin-top: 1.5rem;
+    }
+
+    .actions-toolbar .primary,
+    .actions-toolbar .secondary {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.75rem;
+    }
+
+    /* Caps form width so fields don't stretch full-bleed on sidebar-less pages (Contact, Register, Advanced Search, ...). */
+    .fieldset {
+        max-width: 34rem;
+        border: 0;
+        margin: 0 0 1.5rem;
+        padding: 0;
+    }
+
+    .fieldset + .fieldset {
+        margin-top: 1.5rem;
+        padding-top: 1.5rem;
+        border-top: 1px solid var(--color-base-300);
+    }
+
+    /*
+     * Sans-serif heading treatment for every `<fieldset>` sitewide —
+     * the display serif's thin letterforms read as broken at this
+     * size/weight, and that face is reserved for large italic accents
+     * elsewhere in this theme.
+     */
+    .legend {
+        font-family: var(--font-sans);
+        font-weight: 600;
+        letter-spacing: -0.01em;
+        font-size: var(--text-xl);
+        margin-bottom: 1rem;
+        padding: 0;
+        width: 100%;
+    }
+
+    .field.choice {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        margin-bottom: 0.75rem;
+    }
+
+    .field.choice label.label {
+        margin-bottom: 0;
+    }
+
+    .table-wrapper {
+        overflow-x: auto;
+        margin-bottom: 1.5rem;
+    }
+
+    table.data {
+        width: 100%;
+        border-collapse: collapse;
+        font-size: var(--text-sm);
+    }
+
+    /* Same sans-base font fix as `.block-title` above. */
+    table.data caption {
+        text-align: start;
+        font-family: var(--font-sans);
+        font-weight: 600;
+        font-size: var(--text-lg);
+        margin-bottom: 0.75rem;
+    }
+
+    /*
+     * Stock Luma/Blank always visually hides `.table-caption` (a
+     * screen-reader-only WCAG element) via LESS this theme doesn't
+     * ship — left visible, it duplicated the block's own heading
+     * (e.g. "Recent Orders" twice). Kept in the DOM, only hidden
+     * visually.
+     */
+    .table-caption {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    table.data th,
+    table.data td {
+        padding: 0.625rem 0.75rem;
+        text-align: start;
+        border-bottom: 1px solid var(--color-base-300);
+        vertical-align: top;
+    }
+
+    /*
+     * Product options: date/date-time/time options wrap their selects in an
+     * inner fieldset whose <legend> (DaisyUI .legend) rendered as a large
+     * heading; it's a field label like the others. Downloadable links without
+     * separate purchase repeat "Links" as a field label under the "Links"
+     * legend.
+     */
+    .product-options-wrapper .fieldset-product-options-inner > .legend {
+        font-size: var(--text-label);
+        font-weight: 500;
+        margin-bottom: 0.25rem;
+    }
+
+    .product-options-wrapper .downloads-no-separately > .label {
+        display: none;
+    }
+
+    /*
+     * "More Information" (and any data table) label cells carry class
+     * `label`, which DaisyUI makes `display: inline-flex`: the cell left
+     * table layout, shrank to its text and its row rule stopped short.
+     */
+    table.data th.label {
+        display: table-cell;
+    }
+
+    .additional-attributes th {
+        width: 35%;
+        font-weight: 600;
+    }
+
+    table.data thead th {
+        font-weight: 600;
+        color: color-mix(in oklch, var(--color-base-content) 65%, transparent);
+        text-transform: uppercase;
+        font-size: var(--text-xs);
+        letter-spacing: 0.02em;
+    }
+
+    /*
+     * The account nav's current-page item is core's hardcoded
+     * `Html\Link` `_toHtml()` output — a bare `<strong>` with no `<a>`
+     * wrapper. DaisyUI's `menu` already pads it like its sibling `<a>`
+     * items; this marks it as the current page. Scoped to the account
+     * nav: the footer's "Orders and Returns" link is the same stock
+     * markup and got this grey box on its own page.
+     */
+    .block-collapsible-nav .nav.item.current > :is(strong, a) {
+        background: var(--color-base-200);
+        font-weight: 600;
+    }
+
+    /* `menu` pads every item's child, which turned this 1px rule into a 2rem grey bar. */
+    .nav.items .delimiter {
+        display: block;
+        height: 1px;
+        min-height: 0;
+        padding: 0;
+        margin: 0.5rem 0.75rem;
+        background: var(--color-base-300);
+        pointer-events: none;
+    }
+
+    /* Compact stacked-list treatment for the wishlist/compare sidebar widgets, which lack the grid context the catalog card styling assumes. */
+    :is(.block-wishlist, .block-compare, .block-reorder) .product-item {
+        padding: 0.75rem 0;
+        border: 0;
+        border-bottom: 1px solid var(--color-base-300);
+        background: none;
+        box-shadow: none;
+    }
+
+    .block-wishlist .product-item:last-child,
+    .block-compare .product-item:last-child {
+        border-bottom: 0;
+    }
+
+    .block-wishlist .product-item-name,
+    .block-compare .product-item-name {
+        display: block;
+        font-size: var(--text-sm);
+        font-weight: 500;
+        margin-bottom: 0.375rem;
+    }
+
+    .block-wishlist .actions-toolbar,
+    .block-compare .actions-toolbar {
+        margin-top: 0.5rem;
+    }
+
+    /*
+     * Re-declared in this later layer: the real icon-button rule for
+     * this selector lives in `@layer components`, but a lower
+     * -specificity generic `button.action` rule in this later
+     * `@layer utilities` was still winning on layer order alone.
+     */
+    .form.minisearch .actions .action.search {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        height: 100%;
+        padding-inline: 0.75rem;
+        background: transparent;
+        color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+        border: 0;
+    }
+
+    .form.minisearch .actions .action.search:hover {
+        background: color-mix(in oklch, var(--color-base-content) 7%, transparent);
+        color: var(--color-base-content);
+        opacity: 1;
+    }
+
+    /* Account icon dropdown, native `<details>`, styled like the header's other icon-triggered menus. */
+    .account-toplinks-menu summary::after {
+        content: none;
+    }
+
+    .account-toplinks-menu[open] summary {
+        background: var(--color-base-200);
+    }
+
+    .account-toplinks-menu .header.links {
+        display: flex;
+        flex-direction: column;
+        gap: 0.125rem;
+    }
+
+    /*
+     * `> li` rather than `.link`-scoped: two of these links extend
+     * core's bare `Html\Link` with no class on their `<li>` at all,
+     * and `zero_customer_accountlinks.xml` gives them a `class="link"`
+     * argument that lands on the `<a>` instead — caught below by the
+     * `a.link` variant. "My Wish List"/"Compare Products" already
+     * carry their own complete layout classes and aren't matched here.
+     */
+    .account-toplinks-menu .header.links > li {
+        list-style: none;
+    }
+
+    .account-toplinks-menu .header.links .link > a,
+    .account-toplinks-menu .header.links .link > strong,
+    .account-toplinks-menu .header.links > li > a.link {
+        display: block;
+        padding: 0.5rem 0.75rem;
+        border-radius: var(--radius-field);
+        font-size: var(--text-sm);
+    }
+
+    .account-toplinks-menu .header.links .link > a:hover,
+    .account-toplinks-menu .header.links > li > a.link:hover {
+        background: var(--color-base-200);
+    }
+
+    .account-toplinks-menu .header.links .delimiter {
+        display: block;
+        height: 1px;
+        margin: 0.375rem 0.25rem;
+        background: var(--color-base-300);
+    }
+
+    /*
+     * CSS-only 5-star rating bar. Stock markup (`.rating-result`
+     * wrapping a width-clipped inner `<span>`) is built for a LESS
+     * sprite-image this theme doesn't ship — replaced with two
+     * stacked Unicode star strings (a muted "empty" layer, a
+     * primary-colored "filled" layer clipped by the same inner span's
+     * width) instead of an image. The real percentage text stays in
+     * the DOM, visually hidden, for screen readers and `title`.
+     */
+    .rating-summary .label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .rating-result {
+        position: relative;
+        display: inline-block;
+        line-height: 1;
+        font-size: var(--text-base);
+        letter-spacing: 0.1em;
+    }
+
+    .rating-result::before {
+        content: "★★★★★";
+        color: var(--color-base-300);
+    }
+
+    .rating-result span[style] {
+        position: absolute;
+        top: 0;
+        inset-inline-start: 0;
+        overflow: hidden;
+        height: 100%;
+        white-space: nowrap;
+    }
+
+    /* Muted gray fill, matching the review-summary color used sitewide instead of the primary accent. */
+    .rating-result span[style]::before {
+        content: "★★★★★";
+        color: color-mix(in oklch, var(--color-base-content) 48%, transparent);
+    }
+
+    .rating-result span[style] span {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .product-reviews-summary.short .rating-result {
+        font-size: var(--text-label);
+    }
+
+    .product-reviews-summary .reviews-actions {
+        display: flex;
+        gap: 0.75rem;
+        margin-top: 0.25rem;
+        font-size: var(--text-label);
+    }
+
+    .product-reviews-summary .reviews-actions .action {
+        color: color-mix(in oklch, var(--color-base-content) 48%, transparent);
+    }
+
+    /*
+     * PDP's own "★ 4.8 / 12 reviews" link — the color has to live
+     * here, in `@layer utilities`, to beat the bare rule above it
+     * (see that rule's own `@layer components` counterpart). Covers
+     * both the populated and the empty ("Be the first to review")
+     * state identically.
+     */
+    .product-info-price .product-reviews-summary .reviews-actions .action {
+        color: color-mix(in oklch, var(--color-base-content) 48%, transparent);
+    }
+
+    /*
+     * The star-rating picker: a plain native radio group styled as
+     * stars. `content: "★"` plus the checked/hover sibling-selector
+     * fill and the `:focus-visible` outline are the parts no utility
+     * class can express — layout itself lives in the template.
+     */
+    .review-control-vote label::before {
+        content: "★";
+    }
+
+    .review-control-vote input:checked ~ label,
+    .review-control-vote label:hover,
+    .review-control-vote label:hover ~ label {
+        color: color-mix(in oklch, var(--color-base-content) 70%, transparent);
+    }
+
+    .review-control-vote input:focus-visible + label {
+        outline: 2px solid var(--color-base-content);
+        outline-offset: 2px;
+    }
+
+    /* Lighter ghost-button treatment instead of the generic solid `.action.tocart`-style styling, so three stacked buttons don't all read as equally primary. */
+    .action.towishlist,
+    .action.tocompare {
+        display: inline-flex;
+        align-items: center;
+        gap: 0.375rem;
+        background: transparent;
+        color: var(--color-base-content);
+        border: 1px solid var(--color-base-300);
+        border-radius: var(--radius-field);
+        padding: 0.5rem 0.75rem;
+        font-size: var(--text-label);
+        font-weight: 500;
+    }
+
+    /* Same lime hover-reveal convention as Add to Cart. */
+    .action.towishlist:hover,
+    .action.tocompare:hover {
+        background: var(--color-primary);
+        border-color: var(--color-primary);
+        color: var(--color-primary-content);
+    }
+
+    .action.towishlist::before {
+        content: "♡";
+        font-size: var(--text-base);
+        line-height: 1;
+    }
+
+    .action.tocompare::before {
+        content: "⇄";
+        font-size: 0.9rem;
+        line-height: 1;
+    }
+
+    /*
+     * The PDP renders this button a second time via an explicit
+     * `getBlock()` lookup in addtocart.phtml (aligned with the Add to
+     * Cart row) — hidden here rather than removed from layout, since
+     * removing it deletes the block instance that lookup depends on.
+     */
+    .product-addto-links .action.towishlist {
+        display: none;
+    }
+
+    /* Same story as the wishlist button above — Compare is rendered a second time next to Add to Cart. */
+    .product-addto-links .action.tocompare {
+        display: none;
+    }
+
+    /*
+     * `.fieldset .field`'s generic margin also matches this qty field
+     * since it genuinely sits inside a fieldset — same specificity as
+     * that rule, so this needs a real override rather than a utility
+     * class.
+     */
+    .box-tocart .actions .field.qty {
+        margin-bottom: 0;
+    }
+
+    /* PDP-only square icon-button sizing — the shared base class above is used by 6+ other templates and can't be restyled directly. */
+    .box-tocart .actions .action.towishlist,
+    .box-tocart .actions .action.tocompare {
+        flex: 0 0 auto;
+        height: 2.5rem;
+        width: 2.5rem;
+        padding: 0;
+        justify-content: center;
+        gap: 0;
+    }
+
+    /* Hides the native number-input spin arrows now that real +/- buttons replace them. */
+    .qty-stepper .input-text.qty {
+        -moz-appearance: textfield;
+    }
+
+    .qty-stepper .input-text.qty::-webkit-inner-spin-button,
+    .qty-stepper .input-text.qty::-webkit-outer-spin-button {
+        -webkit-appearance: none;
+        margin: 0;
+    }
+
+    /*
+     * Hides Wishlist/Compare below 40rem so Add to Cart has room — a
+     * 2-column mobile card isn't wide enough for all three without
+     * clipping the button text. Both return at 40rem+.
+     */
+    .product-item-actions .actions-secondary {
+        display: none;
+    }
+
+    @media (min-width: 40rem) {
+        .product-item-actions .actions-secondary {
+            display: flex;
+            flex-wrap: nowrap;
+            gap: 0.5rem;
+        }
+    }
+
+    /* Same circular icon treatment as the PDP's own Wishlist/Compare buttons, reused now that they sit beside Add to Cart in one row. */
+    .product-item-actions .actions-secondary .action.towishlist,
+    .product-item-actions .actions-secondary .action.tocompare {
+        display: inline-flex;
+        align-items: center;
+        justify-content: center;
+        width: 2.5rem;
+        height: 2.5rem;
+        padding: 0;
+        border-radius: 9999px;
+        gap: 0;
+        flex: 0 0 auto;
+    }
+
+    /*
+     * Swatch styling. `Magento_Swatches::product/layered/renderer.phtml`
+     * and `product/view/renderer.phtml` output real `.swatch-option`
+     * divs with inline background/text already set, but this theme
+     * shipped no matching CSS, so every swatch rendered invisible.
+     */
+    .swatch-attribute-options {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.5rem;
+        margin-top: 0.25rem;
+    }
+
+    .swatch-option-link-layered {
+        display: block;
+    }
+
+    /* A chosen filter swatch (Zero_LayeredNavigation: several at once): as the product page's selected one. */
+    .swatch-option-link-layered.is-chosen .swatch-option {
+        border-color: var(--color-neutral);
+        box-shadow: 0 0 0 1px var(--color-neutral);
+    }
+
+    .swatch-option-link-layered.is-chosen .swatch-option.color,
+    .swatch-option-link-layered.is-chosen .swatch-option.image {
+        border-color: var(--color-base-100);
+        box-shadow: none;
+        outline: 2px solid var(--color-neutral);
+    }
+
+    .swatch-option-link-layered.is-chosen .swatch-option.text {
+        background: var(--color-neutral);
+        color: var(--color-neutral-content);
+    }
+
+    /*
+     * The price filter's slider (Zero_LayeredNavigation): two range inputs on
+     * one track, only their thumbs taking the pointer; the chosen span filled
+     * between --low and --high (set by its script).
+     */
+    .price-slider {
+        position: relative;
+        height: 1.75rem;
+        --low: 0%;
+        --high: 100%;
+    }
+
+    .price-slider::before {
+        content: "";
+        position: absolute;
+        inset: 50% 0 auto;
+        height: 0.25rem;
+        transform: translateY(-50%);
+        border-radius: 999px;
+        background: linear-gradient(to right,
+            var(--color-base-300) var(--low), var(--color-neutral) var(--low),
+            var(--color-neutral) var(--high), var(--color-base-300) var(--high));
+    }
+
+    .price-slider input[type="range"] {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        margin: 0;
+        background: none;
+        pointer-events: none;
+        appearance: none;
+    }
+
+    .price-slider input[type="range"]::-webkit-slider-thumb {
+        appearance: none;
+        width: 1.125rem;
+        height: 1.125rem;
+        border-radius: 999px;
+        background: var(--color-base-100);
+        border: 2px solid var(--color-neutral);
+        cursor: grab;
+        pointer-events: auto;
+    }
+
+    .price-slider input[type="range"]::-moz-range-thumb {
+        width: 1rem;
+        height: 1rem;
+        border-radius: 999px;
+        background: var(--color-base-100);
+        border: 2px solid var(--color-neutral);
+        cursor: grab;
+        pointer-events: auto;
+    }
+
+    .price-slider input[type="range"]:focus-visible::-webkit-slider-thumb {
+        outline: 2px solid var(--color-neutral);
+        outline-offset: 2px;
+    }
+
+    /* Filter checkboxes (Zero_LayeredNavigation): drawn, not inputs, the option is a link. */
+    .filter-check {
+        display: inline-grid;
+        place-items: center;
+        flex-shrink: 0;
+        font-size: 0.625rem;
+        line-height: 1;
+    }
+
+    .filter-check.checkbox-neutral {
+        background: var(--color-neutral);
+        color: var(--color-neutral-content);
+        border-color: var(--color-neutral);
+    }
+
+    .swatch-option {
+        display: flex;
+        align-items: center;
+        justify-content: center;
+        box-sizing: border-box;
+        border: 1px solid var(--color-base-300);
+        border-radius: var(--radius-field);
+        cursor: pointer;
+        transition: border-color 0.15s ease;
+    }
+
+    /*
+     * Ring-gap treatment: a thick border in the page background color
+     * plus a thin outline that only turns solid on selection, instead
+     * of a colored box-shadow ring. `.swatch-option.text` (Size/
+     * Material chips) keeps its own separate dark-fill selected state
+     * below and is untouched by this.
+     */
+    .swatch-option.color,
+    .swatch-option.image {
+        width: 2.125rem;
+        height: 2.125rem;
+        border: 3px solid var(--color-base-100);
+        border-radius: 999px;
+        outline: 1px solid transparent;
+        outline-offset: 0;
+        background-size: cover !important;
+    }
+
+    .swatch-option.text {
+        min-width: 2.25rem;
+        height: 1.75rem;
+        padding: 0 0.5rem;
+        font-size: var(--text-xs);
+        font-weight: 500;
+        white-space: nowrap;
+    }
+
+    /*
+     * Text swatches only at this specificity — color/image swatches
+     * get a more specific hover override below. Dark neutral, not the
+     * primary lime, matching this theme's real selection color.
+     */
+    .swatch-option:hover,
+    .swatch-option-link-layered:hover .swatch-option {
+        border-color: var(--color-neutral);
+    }
+
+    .swatch-option.color:hover,
+    .swatch-option-link-layered:hover .swatch-option.color,
+    .swatch-option.image:hover,
+    .swatch-option-link-layered:hover .swatch-option.image {
+        border-color: var(--color-base-100);
+        outline-color: color-mix(in oklch, var(--color-base-content) 45%, transparent);
+    }
+
+    .swatch-option.selected,
+    .swatch-attribute-options .swatch-option[data-selected="true"] {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px var(--color-primary);
+    }
+
+    .swatch-option.color.selected,
+    .swatch-attribute-options .swatch-option.color[data-selected="true"],
+    .swatch-option.image.selected,
+    .swatch-attribute-options .swatch-option.image[data-selected="true"] {
+        border-color: var(--color-base-100);
+        outline-color: var(--color-base-content);
+        box-shadow: none;
+    }
+
+    .swatch-attribute .swatch-attribute-label,
+    .swatch-attribute .swatch-attribute-selected-option {
+        font-size: var(--text-label);
+        font-weight: 500;
+    }
+
+    /* No margin: the ": " prefix below already spaces it ("Size: 28", not "Size : 28"). */
+    .swatch-attribute-selected-option {
+        color: color-mix(in oklch, var(--color-base-content) 65%, transparent);
+    }
+
+    .swatch-attribute + .swatch-attribute {
+        margin-top: 1rem;
+    }
+
+    /*
+     * The real, native, keyboard-operable radio inputs, inside their `<label>`
+     * (the swatch), with `:checked` driving its selected ring. Transparent and
+     * laid over the label, not clipped to 1px: a click lands on the radio
+     * itself. Firefox stops selecting a hidden radio through its label once a
+     * submit was blocked for a missing choice ("Please select one of these
+     * options"), which is exactly when the shopper goes to pick one.
+     */
+    .swatch-option-wrapper {
+        display: inline-flex;
+    }
+
+    label.swatch-option {
+        position: relative;
+    }
+
+    .swatch-radio-input {
+        position: absolute;
+        inset: 0;
+        width: 100%;
+        height: 100%;
+        margin: 0;
+        opacity: 0;
+        cursor: pointer;
+    }
+
+    .swatch-radio-input:disabled {
+        cursor: not-allowed;
+    }
+
+    label.swatch-option:has(> .swatch-radio-input:checked) {
+        border-color: var(--color-primary);
+        box-shadow: 0 0 0 2px var(--color-primary);
+    }
+
+    label.swatch-option.color:has(> .swatch-radio-input:checked),
+    label.swatch-option.image:has(> .swatch-radio-input:checked) {
+        border-color: var(--color-base-100);
+        outline-color: var(--color-base-content);
+        box-shadow: none;
+    }
+
+    /* No salable variant with the other choices (see Magento_Swatches::product/view/renderer.phtml). */
+    label.swatch-option:has(> .swatch-radio-input:disabled) {
+        opacity: 0.3;
+        cursor: not-allowed;
+        background-image: linear-gradient(to top right, transparent calc(50% - 1px), var(--color-base-content) 50%, transparent calc(50% + 1px));
+    }
+
+    .swatch-attribute-selected-option:not(:empty)::before {
+        content: ": ";
+    }
+
+    .swatch-attribute-selected-option {
+        color: var(--color-base-content);
+        font-weight: 600;
+    }
+
+    label.swatch-option:has(> .swatch-radio-input:focus-visible) {
+        outline: 2px solid var(--color-primary);
+        outline-offset: 2px;
+    }
+
+    fieldset.swatch-attribute-options {
+        border: 0;
+        margin: 0;
+        padding: 0;
+    }
+
+    /*
+     * `.footer.content` is a bare `<container>` with no template of
+     * its own, so a `.phtml`-scoped Tailwind class can't reach it —
+     * and this project's `@source` scan is deliberately `.phtml`-only
+     * anyway. Kept as plain CSS with an arbitrary grid-template value
+     * Tailwind couldn't express through the scanner regardless.
+     */
+    @media (min-width: 64rem) {
+        .footer.content {
+            display: grid;
+            grid-template-columns: minmax(16rem, 1.1fr) 2fr;
+            column-gap: 4rem;
+            row-gap: 1.5rem;
+            align-items: start;
+            padding-top: 3.5rem;
+            padding-bottom: 2rem;
+        }
+
+        .footer.content > .copyright,
+        .footer.content > .bugs {
+            grid-column: 1 / -1;
+        }
+    }
+
+    .footer.content {
+        max-width: 90rem;
+        margin-inline: auto;
+        padding: 2.5rem 1rem 2rem;
+    }
+
+    @media (min-width: 48rem) {
+        .footer.content {
+            padding-inline: 2rem;
+        }
+    }
+
+    /*
+     * Core's `Html\Link\Current` fallback renders a bare `<li>` with
+     * no class hook at all — this reset applies wherever that stock
+     * class shows up, not just the footer.
+     */
+    .nav.item {
+        list-style: none;
+    }
+
+    ul.footer.links .nav.item {
+        list-style: none;
+    }
+
+    ul.footer.links .nav.item a {
+        color: var(--color-primary-content);
+    }
+
+    ul.footer.links .nav.item a:hover {
+        color: var(--color-base-100);
+        text-decoration: underline;
+        text-underline-offset: 2px;
+    }
+
+    .footer.content .copyright,
+    .footer.content .bugs {
+        display: block;
+        border-top: 1px solid var(--color-base-300);
+        padding-top: 1rem;
+        margin-top: 0.5rem;
+        font-size: var(--text-xs);
+        color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+    }
+
+    .footer.content .bugs {
+        border-top: 0;
+        padding-top: 0;
+        margin-top: 0;
+    }
+
+    /* Own explicit grid row so the store switcher doesn't compete with `.copyright`/`.bugs` for auto-placement. */
+    .footer.content > .store-view-switcher {
+        grid-column: 1 / -1;
+        display: flex;
+        justify-content: flex-end;
+        /* `<details>` defaults to shrink-to-fit width, which would otherwise beat `justify-content: flex-end`. */
+        width: 100%;
+    }
+
+    /* Compact swatch sizing for the category-grid card preview — reuses the same `.swatch-option`/`:checked` selected-state CSS above unchanged. */
+    .swatch-opt-listing {
+        display: flex;
+        flex-direction: column;
+        gap: 0.375rem;
+        margin-top: 0.5rem;
+    }
+
+    .swatch-opt-listing .swatch-attribute-options {
+        gap: 0.375rem;
+    }
+
+    .swatch-opt-listing .swatch-option {
+        width: 1.25rem;
+        height: 1.25rem;
+    }
+
+    .swatch-opt-listing .swatch-option.text {
+        min-width: 1.75rem;
+        height: 1.375rem;
+        font-size: var(--text-2xs);
+    }
+
+    /*
+     * Fallback `alert` styling for stock message divs not yet
+     * converted to per-template `alert alert-*` classes (payment
+     * vault, PayPal, shipping tracking, reviews, search, wishlist
+     * partials, ...) — composed from real DaisyUI `alert` utilities
+     * via `@apply`, not hand-rolled CSS standing in for them.
+     */
+    div.message {
+        @apply alert text-sm py-2;
+    }
+
+    /*
+     * Soft alerts: DaisyUI writes the status colour itself on an 8% tint of
+     * it, which is 3.6-4.1:1 here (warning, success, info). Mixed 80% with
+     * the text colour it is 5:1 or more in both themes (WCAG AA 4.5:1); the
+     * rule follows the message definitions below.
+     */
+    /* `alert-soft` (a tint, not a solid fill) matches this theme's muted static-notice style; the bold solid variant is reserved for transient flash messages. */
+    div.message.info,
+    div.message.notice {
+        @apply alert-info alert-soft;
+    }
+
+    div.message.warning {
+        @apply alert-warning alert-soft;
+    }
+
+    div.message.error {
+        @apply alert-error alert-soft;
+    }
+
+    div.message.success {
+        @apply alert-success alert-soft;
+    }
+
+    /* Same for soft alerts used as classes directly, and for the messages above (after them, so it wins). */
+    .alert.alert-soft,
+    div.message.info,
+    div.message.notice,
+    div.message.warning,
+    div.message.error,
+    div.message.success {
+        color: color-mix(in srgb, var(--alert-color, var(--color-base-content)) 80%, var(--color-base-content));
+    }
+
+    /*
+     * Account pages
+     * ------------------------------------------------------------------
+     * The My Account sidebar is a <details> (Magento_Theme::html/collapsible
+     * .phtml): a closed bar naming the current page below desktop, an open
+     * list with an eyebrow heading from 64rem.
+     */
+    .block-collapsible-nav > summary {
+        display: flex;
+        align-items: center;
+        gap: 0.5rem;
+        list-style: none;
+        cursor: pointer;
+        padding: 0.875rem 1rem;
+        border: 1px solid var(--color-base-300);
+        background: var(--color-base-200);
+        font-size: var(--text-sm);
+    }
+
+    .block-collapsible-nav > summary::-webkit-details-marker {
+        display: none;
+    }
+
+    .block-collapsible-nav > summary::after {
+        content: "";
+        margin-inline-start: auto;
+        width: 0.5rem;
+        height: 0.5rem;
+        border-right: 1.5px solid currentColor;
+        border-bottom: 1.5px solid currentColor;
+        transform: rotate(45deg) translateY(-2px);
+    }
+
+    .block-collapsible-nav[open] > summary::after {
+        transform: rotate(-135deg) translateY(-2px);
+    }
+
+    .block-collapsible-nav-current:not(:empty)::before {
+        content: "/ ";
+        color: color-mix(in oklch, var(--color-base-content) 45%, transparent);
+    }
+
+    .block-collapsible-nav > .content {
+        padding-top: 0.5rem;
+    }
+
+    @media (min-width: 64rem) {
+        .block-collapsible-nav > summary {
+            pointer-events: none;
+            padding: 0 0 0.75rem;
+            margin-bottom: 0.25rem;
+            border: 0;
+            border-bottom: 1px solid var(--color-base-300);
+            background: none;
+            font-size: var(--text-xs);
+            text-transform: uppercase;
+            letter-spacing: 0.08em;
+        }
+
+        .block-collapsible-nav > summary::after,
+        .block-collapsible-nav-current {
+            display: none;
+        }
+    }
+
+    /* Wish list / Recently Ordered widgets under the account nav. */
+    .sidebar :is(.block-wishlist, .block-reorder) {
+        margin-top: 2.5rem;
+    }
+
+    .block-wishlist .block-title .counter {
+        font-weight: 400;
+        color: color-mix(in oklch, var(--color-base-content) 55%, transparent);
+    }
+
+    .block-wishlist .block-title .counter::before {
+        content: "(";
+    }
+
+    .block-wishlist .block-title .counter::after {
+        content: ")";
+    }
+
+    :is(.block-wishlist, .block-reorder) .subtitle {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-size: var(--text-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.08em;
+        color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+    }
+
+    .block-wishlist .product-item-info {
+        display: grid;
+        grid-template-columns: 4rem minmax(0, 1fr);
+        gap: 0.75rem;
+        align-items: start;
+        border: 0;
+        padding: 0;
+        background: none;
+    }
+
+    .block-wishlist .product-item-photo img {
+        width: 4rem;
+        height: auto;
+        background: var(--color-base-200);
+    }
+
+    .block-wishlist .product-item-details .price {
+        font-size: var(--text-sm);
+        font-weight: 600;
+    }
+
+    .block-wishlist .product-item-actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.25rem 0.75rem;
+        margin-top: 0.5rem;
+    }
+
+    :is(.block-wishlist, .block-reorder) .action.tocart {
+        @apply btn-sm;
+    }
+
+    /* Recently Ordered: checkbox then product name on one line; the per-item "Add to Cart" label stays for screen readers. */
+    .block-reorder .product-item {
+        display: flex;
+        align-items: center;
+        gap: 0.625rem;
+        padding: 0.5rem 0;
+    }
+
+    .block-reorder .product-item .field.choice {
+        margin: 0;
+    }
+
+    .block-reorder .product-item .field.choice > .label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    .block-reorder .product-item-name {
+        font-size: var(--text-sm);
+        font-weight: 500;
+    }
+
+    /* Dashboard: room between its three blocks; the Recent Orders "View All" sits at the right like "Manage Addresses". */
+    .column.main > .block + .block,
+    .column.main > .block-dashboard-orders {
+        margin-top: 2.5rem;
+    }
+
+    .block-dashboard-orders > .block-title {
+        display: flex;
+        align-items: baseline;
+        justify-content: space-between;
+        gap: 1rem;
+    }
+
+    .block-dashboard-orders > .block-title .action.view {
+        font-size: var(--text-sm);
+        font-weight: 600;
+    }
+
+    /* Email and password fields follow the "Change Email" / "Change Password" checkboxes (Magento_Customer::form/edit.phtml). */
+    .form-edit-account:not(:has(#change-email:checked, #change-password:checked)) fieldset.password,
+    .form-edit-account:not(:has(#change-email:checked)) [data-container="change-email"],
+    .form-edit-account:not(:has(#change-password:checked)) :is([data-container="new-password"], [data-container="confirm-password"]),
+    .form-edit-account .legend > span {
+        display: none;
+    }
+
+    .form-edit-account:has(#change-email:checked):not(:has(#change-password:checked)) .legend-email,
+    .form-edit-account:has(#change-password:checked):not(:has(#change-email:checked)) .legend-password,
+    .form-edit-account:has(#change-email:checked):has(#change-password:checked) .legend-both {
+        display: inline;
+    }
+
+    /* Stock buttons and links that no template gave DaisyUI classes (newsletter Save, wish list Update/Share, Back links). */
+    .actions-toolbar :where(button.action.primary:not(.btn)) {
+        @apply btn btn-neutral;
+    }
+
+    .actions-toolbar :where(button.action:not(.btn, .primary, .link)) {
+        @apply btn btn-outline;
+    }
+
+    .actions-toolbar :where(a.action.back:not(.btn)) {
+        font-size: var(--text-sm);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    address {
+        font-style: normal;
+    }
+
+    /* Order view: status and date beside the title, actions at the right. */
+    .page-title-wrapper:has(> .order-status) {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        gap: 0.75rem 1.25rem;
+    }
+
+    .page-title-wrapper:has(> .order-status) > .page-title {
+        flex-basis: 100%;
+    }
+
+    .page-title-wrapper > .order-status {
+        padding: 0.25rem 0.625rem;
+        border: 1px solid var(--color-base-content);
+        font-size: var(--text-xs);
+        font-weight: 600;
+        text-transform: uppercase;
+        letter-spacing: 0.06em;
+    }
+
+    .page-title-wrapper > .order-date {
+        font-size: var(--text-sm);
+    }
+
+    .page-title-wrapper > .order-date .label {
+        display: inline;
+        color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+    }
+
+    .page-title-wrapper > .order-actions-toolbar {
+        margin: 0 0 0 auto;
+    }
+
+    .page-title-wrapper > .order-actions-toolbar .actions {
+        display: flex;
+        align-items: center;
+        gap: 1rem;
+    }
+
+    /* Order tabs (Items Ordered / Invoices / Shipments): underlined tabs; the items block repeated the current tab's name as its own heading. */
+    .items.order-links {
+        display: flex;
+        gap: 1.5rem;
+        margin: 1.5rem 0 1rem;
+        border-bottom: 1px solid var(--color-base-300);
+    }
+
+    .items.order-links > .nav.item > :is(a, strong) {
+        display: block;
+        padding: 0.5rem 0;
+        margin-bottom: -1px;
+        font-size: var(--text-sm);
+        font-weight: 600;
+    }
+
+    .items.order-links > .nav.item.current > strong {
+        border-bottom: 2px solid var(--color-base-content);
+    }
+
+    .items.order-links > .nav.item > a {
+        color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+    }
+
+    .order-details-items.ordered > .order-title {
+        display: none;
+    }
+
+    .items-qty .title::after {
+        content: ":";
+    }
+
+    .block-order-details-view {
+        margin-top: 2.5rem;
+    }
+
+    .block-order-details-view .block-content {
+        display: grid;
+        grid-template-columns: repeat(auto-fit, minmax(12rem, 1fr));
+        gap: 1.5rem;
+    }
+
+    .block-order-details-view .block-content > .box + .box {
+        margin-top: 0;
+    }
+
+    .block-order-details-view .box-title {
+        display: block;
+        margin-bottom: 0.375rem;
+    }
+
+    /* Order lists: the status cell read as disabled grey, and View Order / Reorder sat flush. */
+    td.col.status {
+        color: inherit;
+    }
+
+    td.col.actions {
+        white-space: nowrap;
+    }
+
+    td.col.actions > form {
+        margin-inline-start: 0.75rem;
+    }
+
+    /*
+     * Phones: order tables become one card per row, each cell labelled by its
+     * own `data-th` (stock markup; Luma does the same). The item table's five
+     * columns were cut off at the screen edge.
+     */
+    @media (max-width: 47.99rem) {
+        :is(.orders-history, .orders-recent, .order-items) table.data thead {
+            display: none;
+        }
+
+        :is(.orders-history, .orders-recent, .order-items) table.data tbody tr {
+            display: block;
+            padding: 0.5rem 0;
+            border-bottom: 1px solid var(--color-base-300);
+        }
+
+        :is(.orders-history, .orders-recent, .order-items) table.data tbody td {
+            display: flex;
+            justify-content: space-between;
+            gap: 1rem;
+            padding: 0.25rem 0;
+            border: 0;
+            text-align: end;
+        }
+
+        :is(.orders-history, .orders-recent, .order-items) table.data tbody td[data-th]::before {
+            content: attr(data-th);
+            font-weight: 600;
+            text-align: start;
+            color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+        }
+
+        :is(.orders-history, .orders-recent, .order-items) table.data tbody td.col.actions {
+            justify-content: flex-end;
+            align-items: center;
+            padding-top: 0.5rem;
+        }
+
+        :is(.orders-history, .orders-recent, .order-items) table.data tbody td.col.actions::before {
+            content: none;
+        }
+
+        .order-items table.data tfoot tr {
+            display: flex;
+            justify-content: space-between;
+        }
+
+        .order-items table.data tfoot :is(th, td) {
+            border: 0;
+            padding: 0.25rem 0;
+        }
+    }
+
+    /* My Wish List page: a card grid, not one full-width card per item. */
+    .products-grid.wishlist .product-items {
+        display: grid;
+        grid-template-columns: repeat(auto-fill, minmax(14rem, 1fr));
+        gap: 1.5rem;
+    }
+
+    .products-grid.wishlist .product-image-container {
+        width: 100% !important;
+    }
+
+    .products-grid.wishlist .product-image-photo {
+        width: 100%;
+        height: auto;
+    }
+
+    .products-grid.wishlist .product-item-comment {
+        width: 100%;
+        min-height: 4rem;
+        font-size: var(--text-sm);
+    }
+
+    /*
+     * Catalog
+     * ------------------------------------------------------------------
+     * List mode printed the 5-star bar and the "★ 3.5 / 2 Reviews" link
+     * (the full-view summary) one under the other; it keeps the link, as
+     * the product page does.
+     */
+    .products-list .product-reviews-summary .rating-summary {
+        display: none;
+    }
+
+    .products-list .product-reviews-summary .reviews-actions {
+        margin-top: 0.125rem;
+    }
+
+    /* Active filter chips: DaisyUI's badge is one fixed-height line, so a long value ("$10,000.00 - $19,999.99") spilled out of its border. */
+    .filter-current .badge {
+        height: auto;
+        min-height: 1.75rem;
+        justify-content: flex-start;
+        padding-block: 0.25rem;
+        white-space: normal;
+        text-align: start;
+        line-height: 1.3;
+    }
+
+    .filter-current .badge .action.remove {
+        flex-shrink: 0;
+    }
+
+    /*
+     * Cart page
+     * ------------------------------------------------------------------
+     * Stock markup (Magento_Checkout::cart/item/default.phtml, the summary
+     * blocks) with no Luma CSS: photo above the name, options as a bare
+     * dt/dd column, a second row holding Edit/Remove, and a summary of
+     * loose headings. Below lg the summary moved above the items (it comes
+     * first in the markup); it now follows them.
+     */
+    @media (max-width: 63.99rem) {
+        .cart-container {
+            display: flex;
+            flex-direction: column;
+            gap: 2rem;
+        }
+
+        .cart-container > .cart-summary {
+            order: 2;
+        }
+    }
+
+    .cart-summary {
+        display: flex;
+        flex-direction: column;
+        gap: 1rem;
+        padding: 1.25rem;
+        border: 1px solid var(--color-base-300);
+        background: var(--color-base-100);
+    }
+
+    @media (min-width: 64rem) {
+        .cart-summary {
+            position: sticky;
+            top: 1rem;
+        }
+    }
+
+    .cart-summary > .summary.title {
+        font-size: var(--text-lg);
+        font-weight: 600;
+    }
+
+    /* "Shipping and Tax" heading over a one-line note: the note says it. */
+    .cart-summary .block.shipping > .title {
+        display: none;
+    }
+
+    .cart-summary .block.shipping p {
+        font-size: var(--text-label);
+    }
+
+    .cart-totals table.data :is(th, td) {
+        padding: 0.375rem 0;
+        border: 0;
+        font-weight: 400;
+    }
+
+    .cart-totals table.data td {
+        text-align: end;
+    }
+
+    .cart-totals tr.grand :is(th, td) {
+        padding-top: 0.75rem;
+        border-top: 1px solid var(--color-base-300);
+        font-size: var(--text-base);
+        font-weight: 600;
+    }
+
+    .cart-summary .block.discount > .title {
+        font-size: var(--text-sm);
+        font-weight: 600;
+        margin-bottom: 0.5rem;
+    }
+
+    .cart-summary .fieldset.coupon {
+        display: flex;
+        align-items: flex-end;
+        gap: 0.5rem;
+        max-width: none;
+        margin: 0;
+    }
+
+    .cart-summary .fieldset.coupon > .field {
+        flex: 1;
+        margin: 0;
+    }
+
+    .cart-summary .fieldset.coupon .actions-toolbar {
+        margin: 0;
+    }
+
+    .checkout-methods-items {
+        display: flex;
+        flex-direction: column;
+        align-items: stretch;
+        gap: 0.75rem;
+        list-style: none;
+        margin: 0;
+        padding: 0;
+    }
+
+    .checkout-methods-items .action.checkout {
+        width: 100%;
+    }
+
+    .checkout-methods-items .action.multicheckout {
+        display: block;
+        text-align: center;
+        font-size: var(--text-label);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    #shopping-cart-table tr.item-info > td {
+        padding-top: 1rem;
+        border-bottom: 0;
+    }
+
+    #shopping-cart-table tr.item-actions > td {
+        padding-top: 0;
+        padding-bottom: 1rem;
+    }
+
+    #shopping-cart-table .item-actions .actions-toolbar {
+        justify-content: flex-end;
+        gap: 1.25rem;
+        margin: 0;
+    }
+
+    #shopping-cart-table .item-actions .action-edit {
+        font-size: var(--text-sm);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    #shopping-cart-table .product-item-photo {
+        float: inline-start;
+        margin-inline-end: 1rem;
+    }
+
+    #shopping-cart-table .product-image-container {
+        width: 5.5rem !important;
+    }
+
+    #shopping-cart-table .product-image-photo {
+        width: 100%;
+        height: auto;
+    }
+
+    #shopping-cart-table .product-item-details {
+        overflow: hidden;
+    }
+
+    #shopping-cart-table .product-item-name {
+        display: block;
+        margin-bottom: 0.25rem;
+        font-weight: 600;
+    }
+
+    dl.item-options {
+        display: grid;
+        grid-template-columns: auto 1fr;
+        gap: 0.125rem 0.5rem;
+        margin: 0;
+        font-size: var(--text-label);
+        color: color-mix(in oklch, var(--color-base-content) 65%, transparent);
+    }
+
+    dl.item-options dt::after {
+        content: ":";
+    }
+
+    dl.item-options dd {
+        margin: 0;
+    }
+
+    /* The column header already says "Qty". */
+    #shopping-cart-table .control.qty .label {
+        position: absolute;
+        width: 1px;
+        height: 1px;
+        overflow: hidden;
+        clip: rect(0, 0, 0, 0);
+    }
+
+    #shopping-cart-table input.qty {
+        width: 4.5rem;
+    }
+
+    #shopping-cart-table :is(th, td).col.subtotal {
+        text-align: end;
+    }
+
+    .cart.main.actions {
+        display: flex;
+        flex-wrap: wrap;
+        align-items: center;
+        justify-content: space-between;
+        gap: 1rem;
+        margin-top: 1rem;
+    }
+
+    .cart.main.actions .action.continue {
+        font-size: var(--text-sm);
+        text-decoration: underline;
+        text-underline-offset: 3px;
+    }
+
+    .cart.main.actions button.action {
+        @apply btn btn-outline btn-sm;
+    }
+
+    /* Phones: one block per item (photo + name + options, then price / qty / subtotal labelled from `data-th`). */
+    @media (max-width: 47.99rem) {
+        #shopping-cart-table thead {
+            display: none;
+        }
+
+        #shopping-cart-table tr.item-info {
+            display: flex;
+            flex-wrap: wrap;
+            align-items: flex-end;
+            gap: 0.75rem 1rem;
+        }
+
+        #shopping-cart-table tr.item-info > td {
+            display: block;
+            padding: 0;
+        }
+
+        #shopping-cart-table tr.item-info > td.col.item {
+            flex-basis: 100%;
+            padding-top: 1rem;
+        }
+
+        #shopping-cart-table tr.item-info > td:not(.col.item) {
+            flex: 1;
+        }
+
+        #shopping-cart-table tr.item-info > td:not(.col.item)::before {
+            content: attr(data-th);
+            display: block;
+            margin-bottom: 0.25rem;
+            font-size: var(--text-xs);
+            color: color-mix(in oklch, var(--color-base-content) 60%, transparent);
+        }
+
+        #shopping-cart-table tr.item-actions > td {
+            display: block;
+            padding-top: 0.75rem;
+        }
+    }
+
+    /*
+     * "New" / "Sale -N%" badges (Zero_Core::product/badges.phtml): over the
+     * top-left corner of a card photo, and above the title on the product page.
+     */
+    .product-item-photo {
+        position: relative;
+    }
+
+    .product-badges {
+        display: flex;
+        flex-wrap: wrap;
+        gap: 0.25rem;
+    }
+
+    .product-item-photo > .product-badges {
+        position: absolute;
+        top: 0.5rem;
+        inset-inline-start: 0.5rem;
+        z-index: 1;
+    }
+
+    .product-info-main > .product-badges {
+        margin-bottom: 0.75rem;
+    }
+
+    .product-badge {
+        padding: 0.1875rem 0.5rem;
+        font-size: var(--text-2xs);
+        font-weight: 600;
+        line-height: 1.2;
+        letter-spacing: 0.06em;
+        text-transform: uppercase;
+    }
+
+    .product-badge-new {
+        background: var(--color-neutral);
+        color: var(--color-neutral-content);
+    }
+
+    .product-badge-sale {
+        background: var(--color-primary);
+        color: var(--color-primary-content);
+    }
+}
+
+/* Zero_StockAlert: the form's honeypot field, out of sight and reach (bots fill it, people don't see it). */
+.zero-stock-alert-trap {
+    position: absolute;
+    left: -9999px;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+}

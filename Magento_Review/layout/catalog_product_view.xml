@@ -1,0 +1,32 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Server-rendered review list in the product Reviews section. Stock loads it
+ * via AJAX from review/product/listAjax (which refuses non-AJAX requests), so
+ * no reviews showed. This adds the same ListView + pager pair that
+ * review_product_listajax.xml declares as children of reviews.tab;
+ * Magento_Review::review.phtml renders it with getChildHtml(). The pager
+ * name `product_review_list.toolbar` is what ListView::_prepareLayout() looks up.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="reviews.tab">
+            <block class="Magento\Review\Block\Product\View\ListView" name="product_review_list"
+                   as="product_review_list" template="Magento_Review::product/view/list.phtml"
+                   ifconfig="catalog/review/active">
+                <block class="Magento\Theme\Block\Html\Pager" name="product_review_list.toolbar">
+                    <arguments>
+                        <argument name="show_per_page" xsi:type="boolean">false</argument>
+                        <argument name="show_amounts" xsi:type="boolean">false</argument>
+                    </arguments>
+                </block>
+            </block>
+        </referenceBlock>
+    </body>
+</page>

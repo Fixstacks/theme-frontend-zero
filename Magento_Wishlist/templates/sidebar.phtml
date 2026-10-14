@@ -1,0 +1,99 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * "My Wish List" sidebar widget. Stock is Knockout `ko if`/`ko ifnot` comment
+ * bindings, so without Knockout neither branch rendered (no items, no empty
+ * state). Rendered with PHP from AbstractBlock (hasWishlistItems(),
+ * getWishlistItems(), ...); Add to Cart / Remove are POST forms to
+ * wishlist/index/cart and wishlist/index/remove (as on the wishlist page).
+ *
+ * @var \Magento\Wishlist\Block\Customer\Sidebar $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$wishlstViewModel = $block->getData('wishlistDataViewModel');
+?>
+<?php if ($wishlstViewModel->isAllow()) : ?>
+    <div class="block block-wishlist">
+        <div class="block-title">
+            <strong id="block-wishlist-heading" role="heading" aria-level="2">
+                <?= $escaper->escapeHtml($block->getTitle()) ?>
+            </strong>
+            <?php if ($block->hasWishlistItems()) : ?>
+                <span class="counter"><?= (int) $block->getWishlistItemsCount() ?></span>
+            <?php endif; ?>
+        </div>
+        <div class="block-content" aria-labelledby="block-wishlist-heading">
+            <strong class="subtitle"><?= $escaper->escapeHtml(__('Last Added Items')) ?></strong>
+            <?php if ($block->hasWishlistItems()) : ?>
+                <ol class="product-items" id="wishlist-sidebar">
+                    <?php foreach ($block->getWishlistItems() as $item) : ?>
+                        <?php $product = $item->getProduct(); ?>
+                        <li class="product-item">
+                            <div class="product-item-info">
+                                <a class="product-item-photo"
+                                   href="<?= $escaper->escapeUrl($block->getProductUrl($item)) ?>"
+                                   title="<?= $escaper->escapeHtmlAttr($product->getName()) ?>">
+                                    <img src="<?= $escaper->escapeUrl($block->getImageUrl($product)) ?>"
+                                         alt="<?= $escaper->escapeHtmlAttr($product->getName()) ?>"
+                                         class="product-image-photo"/>
+                                </a>
+                                <div class="product-item-details">
+                                    <strong class="product-item-name">
+                                        <a class="product-item-link"
+                                           href="<?= $escaper->escapeUrl($block->getProductUrl($item)) ?>">
+                                            <?= $escaper->escapeHtml($product->getName()) ?>
+                                        </a>
+                                    </strong>
+                                    <?= /* @noEscape */ $block->getProductPriceHtml(
+                                        $product,
+                                        \Magento\Catalog\Pricing\Price\ConfiguredPriceInterface::CONFIGURED_PRICE_CODE
+                                    ) ?>
+                                    <div class="product-item-actions">
+                                        <?php if ($product->isSaleable()) : ?>
+                                            <div class="actions-primary">
+                                                <form method="post"
+                                                      action="<?= $escaper->escapeUrl($block->getUrl('wishlist/index/cart')) ?>">
+                                                    <?= $block->getBlockHtml('formkey') ?>
+                                                    <input type="hidden" name="item" value="<?= (int) $item->getId() ?>">
+                                                    <button type="submit" class="action tocart primary btn btn-neutral hover:bg-primary hover:text-primary-content">
+                                                        <span><?= $escaper->escapeHtml(__('Add to Cart')) ?></span>
+                                                    </button>
+                                                </form>
+                                            </div>
+                                        <?php endif; ?>
+                                        <div class="actions-secondary">
+                                            <form method="post"
+                                                  action="<?= $escaper->escapeUrl($block->getUrl('wishlist/index/remove')) ?>">
+                                                <?= $block->getBlockHtml('formkey') ?>
+                                                <input type="hidden" name="item" value="<?= (int) $item->getId() ?>">
+                                                <button type="submit" class="btn-remove action delete link link-error text-sm no-underline hover:underline"
+                                                        title="<?= $escaper->escapeHtmlAttr(__('Remove This Item')) ?>">
+                                                    <span><?= $escaper->escapeHtml(__('Remove This Item')) ?></span>
+                                                </button>
+                                            </form>
+                                        </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </li>
+                    <?php endforeach; ?>
+                </ol>
+                <div class="actions-toolbar">
+                    <div class="primary">
+                        <a class="action details link link-neutral text-sm no-underline hover:underline"
+                           href="<?= $escaper->escapeUrl($wishlstViewModel->getListUrl()) ?>"
+                           title="<?= $escaper->escapeHtmlAttr(__('Go to Wish List')) ?>">
+                            <span><?= $escaper->escapeHtml(__('Go to Wish List')) ?></span>
+                        </a>
+                    </div>
+                </div>
+            <?php else : ?>
+                <div class="empty"><?= $escaper->escapeHtml(__('You have no items in your wish list.')) ?></div>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php endif; ?>

@@ -1,0 +1,134 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Multishipping step 1 (assign items to addresses).
+ *
+ * - Adds the missing form_key field.
+ * - "Remove item" is a submit button with formaction=getItemDeleteUrl() and
+ *   formmethod=post: it sits inside the page's single form, so a nested
+ *   <form> isn't possible (the URL already carries address/id).
+ * - "Enter a New Address" is a plain link to getNewAddressUrl() (a GET action).
+ * - "Go to Shipping Information" has name="continue" value="1": AddressesPost
+ *   tells the two submit buttons apart by `continue`, which stock's JS set via
+ *   the hidden #can_continue_flag. Only the clicked button's value is sent,
+ *   and it overrides the hidden "0".
+ *
+ * @var \Magento\Multishipping\Block\Checkout\Addresses $block
+ */
+?>
+<form id="checkout_multishipping_form"
+      action="<?= $block->escapeUrl($block->getPostActionUrl()) ?>"
+      method="post"
+      class="multicheckout address form">
+    <?= $block->getBlockHtml('formkey') ?>
+    <div class="title">
+        <strong><?= $block->escapeHtml(__('Please select a shipping address for applicable items.')) ?></strong>
+    </div>
+    <input type="hidden" name="continue" value="0" id="can_continue_flag"/>
+    <input type="hidden" name="new_address" value="0" id="add_new_address_flag"/>
+    <div class="table-wrapper">
+        <table class="items data table" id="multiship-addresses-table">
+            <caption class="table-caption">
+                <?= $block->escapeHtml(__('Please select a shipping address for applicable items.')) ?>
+            </caption>
+            <thead>
+            <tr>
+                <th class="col product" scope="col"><?= $block->escapeHtml(__('Product')) ?></th>
+                <th class="col qty" scope="col"><?= $block->escapeHtml(__('Qty')) ?></th>
+                <th class="col address" scope="col"><?= $block->escapeHtml(__('Send To')) ?></th>
+                <th class="col actions" scope="col">&nbsp;</th>
+            </tr>
+            </thead>
+            <tbody>
+            <?php foreach ($block->getItems() as $_index => $_item) : ?>
+                <?php if ($_item->getQuoteItem()) : ?>
+                    <tr>
+                        <td class="col product" data-th="<?= $block->escapeHtml(__('Product')) ?>">
+                            <?= $block->getItemHtml($_item->getQuoteItem()) ?>
+                        </td>
+                        <td class="col qty" data-th="<?= $block->escapeHtml(__('Qty')) ?>">
+                            <div class="field qty">
+                                <label for="ship-<?= $block->escapeHtml($_index) ?>-<?= $block->escapeHtml($_item->getQuoteItemId()) ?>-qty"
+                                       class="label">
+                                    <span><?= $block->escapeHtml(__('Qty')) ?></span>
+                                </label>
+                                <div class="control">
+                                    <input type="number"
+                                           data-multiship-item-id="<?= $block->escapeHtml($_item->getSku()) ?>"
+                                           id="ship-<?= $block->escapeHtml($_index) ?>-<?= $block->escapeHtml($_item->getQuoteItemId()) ?>-qty"
+                                           name="ship[<?= $block->escapeHtml($_index) ?>][<?= $block->escapeHtml($_item->getQuoteItemId()) ?>][qty]"
+                                           value="<?= $block->escapeHtml($_item->getQty()) ?>"
+                                           size="2"
+                                           min="0"
+                                           required
+                                           class="input-text qty"
+                                           autocomplete="off"
+                                    />
+                                </div>
+                            </div>
+                        </td>
+                        <td class="col address" data-th="<?= $block->escapeHtml(__('Send To')) ?>">
+                            <?php if ($_item->getProduct()->getIsVirtual()) : ?>
+                                <div class="applicable">
+                                    <?= $block->escapeHtml(__('A shipping selection is not applicable.')) ?>
+                                </div>
+                            <?php else : ?>
+                                <div class="field address">
+                                    <label for="ship_<?= $block->escapeHtml($_index) ?>_<?= $block->escapeHtml($_item->getQuoteItemId()) ?>_address"
+                                           class="label">
+                                        <span><?= $block->escapeHtml(__('Send To')) ?></span>
+                                    </label>
+                                    <div class="control">
+                                        <?= $block->getAddressesHtmlSelect($_item, $_index) ?>
+                                    </div>
+                                </div>
+                            <?php endif; ?>
+                        </td>
+                        <td class="col actions" data-th="<?= $block->escapeHtml(__('Actions')) ?>">
+                            <button type="submit"
+                                    formaction="<?= $block->escapeUrl($block->getItemDeleteUrl($_item)) ?>"
+                                    formmethod="post"
+                                    title="<?= $block->escapeHtmlAttr(__('Remove Item')) ?>"
+                                    class="action delete link link-error text-sm no-underline hover:underline">
+                                <span><?= $block->escapeHtml(__('Remove item')) ?></span>
+                            </button>
+                        </td>
+                    </tr>
+                <?php endif; ?>
+            <?php endforeach; ?>
+            </tbody>
+        </table>
+    </div>
+    <div class="actions-toolbar">
+        <div class="primary">
+            <button type="submit"
+                    name="continue"
+                    value="1"
+                    title="<?= $block->escapeHtmlAttr(__('Go to Shipping Information')) ?>"
+                    class="action primary continue btn btn-primary hover:bg-neutral hover:text-neutral-content<?= $block->isContinueDisabled() ? ' disabled' : '' ?>"
+                <?php if ($block->isContinueDisabled()) : ?>
+                    disabled="disabled"
+                <?php endif; ?>>
+                <span><?= $block->escapeHtml(__('Go to Shipping Information')) ?></span>
+            </button>
+        </div>
+        <div class="secondary">
+            <button type="submit" class="action update link link-neutral text-sm no-underline hover:underline">
+                <span><?= $block->escapeHtml(__('Update Qty &amp; Addresses')) ?></span>
+            </button>
+            <a href="<?= $block->escapeUrl($block->getNewAddressUrl()) ?>"
+               title="<?= $block->escapeHtmlAttr(__('Enter a New Address')) ?>"
+               class="action add link link-neutral text-sm no-underline hover:underline">
+                <span><?= $block->escapeHtml(__('Enter a New Address')) ?></span>
+            </a>
+            <a href="<?= $block->escapeUrl($block->getBackUrl()) ?>"
+               class="action back link link-neutral text-sm no-underline hover:underline">
+                <span><?= $block->escapeHtml(__('Back to Shopping Cart')) ?></span>
+            </a>
+        </div>
+    </div>
+</form>

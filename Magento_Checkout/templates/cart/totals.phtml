@@ -1,0 +1,35 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Cart summary totals, server-rendered (stock is only a Knockout placeholder,
+ * so subtotal/grand total never showed).
+ *
+ * renderTotals() renders each quote total (subtotal, shipping, tax, discount)
+ * through Magento_Checkout::total/default.phtml. getTotals() has no grand
+ * total, so one is built here and rendered with a separate renderTotal() call
+ * with `area => -1`: that matches renderTotal()'s default renderingArea,
+ * which default.phtml uses to bold the row (renderTotals()' area filter would
+ * skip it).
+ *
+ * @var \Magento\Checkout\Block\Cart\Totals $block
+ */
+$grandTotal = new \Magento\Framework\DataObject([
+    'code' => 'grand_total',
+    'area' => -1,
+    'value' => $block->getQuote()->getGrandTotal(),
+    'title' => __('Order Total'),
+]);
+?>
+<div id="cart-totals" class="cart-totals">
+    <table class="data table table-totals">
+        <caption class="table-caption"><?= $block->escapeHtml(__('Order Total')) ?></caption>
+        <tbody>
+            <?= /* @noEscape */ $block->renderTotals() ?>
+            <?= /* @noEscape */ $block->renderTotal($grandTotal) ?>
+        </tbody>
+    </table>
+</div>

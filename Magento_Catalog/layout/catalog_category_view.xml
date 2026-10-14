@@ -1,0 +1,22 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2013 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Category page dead-script removals:
+ * - category.product.list.additional.wishlist_addto: config for the
+ *   addToWishlist AJAX widget; the grid wishlist button is a POST form.
+ * - require-cookie: JS-only no-cookies redirect (as on the product page);
+ *   declared by two modules under one name, one remove covers both.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="category.product.list.additional.wishlist_addto" remove="true"/>
+        <referenceBlock name="require-cookie" remove="true"/>
+    </body>
+</page>

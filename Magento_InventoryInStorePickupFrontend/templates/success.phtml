@@ -1,0 +1,40 @@
+<?php
+/**
+ * Copyright 2019 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Order success page (Zero Checkout and the stock fallback). This module's
+ * checkout_onepage_success.xml puts `checkout.success` on this template, so
+ * this, not Magento_Checkout::success.phtml, is the one to override.
+ * Stock markup with DaisyUI classes: "Continue Shopping" is `btn btn-neutral`,
+ * secondary to the lime "Create an Account" prompt.
+ *
+ * @var \Magento\Checkout\Block\Onepage\Success $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div class="checkout-success flex flex-col gap-3 mb-8">
+    <?php if ($block->getOrderId()): ?>
+        <?php if ($block->getCanViewOrder()): ?>
+            <p><?= $escaper->escapeHtml(__('Your order number is: %1.', sprintf('<a href="%s" class="order-number link"><strong>%s</strong></a>', $escaper->escapeUrl($block->getViewOrderUrl()), $block->getOrderId())), ['a', 'strong']) ?></p>
+        <?php else: ?>
+            <p><?= $escaper->escapeHtml(__('Your order # is: <span>%1</span>.', $block->getOrderId()), ['span']) ?></p>
+        <?php endif; ?>
+        <?php if ($block->getIsOrderStorePickup()->execute()): ?>
+            <p><?= $escaper->escapeHtml(__('We\'ll email you an order and pick-up confirmation with details.')) ?></p>
+        <?php else: ?>
+            <p><?= $escaper->escapeHtml(__('We\'ll email you an order confirmation with details and tracking info.')) ?></p>
+        <?php endif; ?>
+    <?php endif; ?>
+
+    <?= $block->getAdditionalInfoHtml() ?>
+
+    <div class="actions-toolbar mt-2">
+        <div class="primary">
+            <a class="action primary continue btn btn-neutral hover:bg-primary hover:text-primary-content"
+               href="<?= $escaper->escapeUrl($block->getContinueUrl()) ?>"><span><?= $escaper->escapeHtml(__('Continue Shopping')) ?></span></a>
+        </div>
+    </div>
+</div>

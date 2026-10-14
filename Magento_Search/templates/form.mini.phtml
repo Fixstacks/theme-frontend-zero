@@ -1,0 +1,77 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Header search box: a plain GET form.
+ *
+ * - Live suggestions: the input hx-gets Zero\Core Search\Suggest (debounced)
+ *   into #search_autocomplete, replacing stock's quickSearch widget. CSS shows
+ *   the dropdown on `:focus-within` + `:not(:empty)`. The first focus asks
+ *   too, value unchanged, so the empty box offers popular searches
+ *   (Zero_Search): `focusin once`, as htmx runs one handler per event.
+ * - Suggestions are plain links (Tab reaches them; the dropdown stays open
+ *   while focus is inside it), announced through aria-live. Not an ARIA
+ *   combobox: that pattern promises arrow-key selection inside a listbox.
+ * - Icon-only submit with an sr-only "Search" accessible name.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Search\ViewModel\ConfigProvider $configProvider
+ */
+$configProvider = $block->getData('configProvider');
+/** @var \Magento\Search\ViewModel\AdditionalSearchFormData $additionalSearchFormData */
+$additionalSearchFormData = $block->getData('additionalSearchFormData');
+/** @var \Magento\Search\Helper\Data $helper */
+$helper = $configProvider->getSearchHelperData();
+?>
+<div class="block block-search">
+    <div class="block block-title"><strong><?= $escaper->escapeHtml(__('Search')) ?></strong></div>
+    <div class="block block-content">
+        <form class="form minisearch" id="search_mini_form"
+              action="<?= $escaper->escapeUrl($helper->getResultUrl()) ?>" method="get">
+            <?php  if (!empty($queryParams = $additionalSearchFormData->getFormData())): ?>
+                <?php foreach ($queryParams as $param): ?>
+                    <input type="hidden" name="<?= $escaper->escapeHtmlAttr($param['name']) ?>"
+                           value="<?= $escaper->escapeHtmlAttr($param['value']) ?>"/>
+                <?php endforeach; ?>
+            <?php endif; ?>
+            <div class="field search">
+                <label class="label" for="search" data-role="minisearch-label">
+                    <span><?= $escaper->escapeHtml(__('Search')) ?></span>
+                </label>
+                <div class="control">
+                    <input id="search"
+                           type="text"
+                           name="<?= $escaper->escapeHtmlAttr($helper->getQueryParamName()) ?>"
+                           value="<?= /* @noEscape */ $helper->getEscapedQueryText() ?>"
+                           placeholder="<?= $escaper->escapeHtmlAttr(__('Search products')) ?>"
+                           class="input-text"
+                           maxlength="<?= $escaper->escapeHtmlAttr($helper->getMaxQueryLength()) ?>"
+                           aria-controls="search_autocomplete"
+                           autocomplete="off"
+                           hx-get="<?= $escaper->escapeUrl($block->getUrl('zero/search/suggest')) ?>"
+                           hx-trigger="input changed delay:300ms, focus changed delay:300ms, focusin once"
+                           hx-target="#search_autocomplete"
+                           hx-swap="innerHTML"/>
+                    <div id="search_autocomplete" class="search-autocomplete" aria-live="polite"></div>
+                    <?= $block->getChildHtml() ?>
+                </div>
+            </div>
+            <div class="actions">
+                <button type="submit"
+                        title="<?= $escaper->escapeHtml(__('Search')) ?>"
+                        class="action search"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Search')) ?>"
+                >
+                    <span class="sr-only"><?= $escaper->escapeHtml(__('Search')) ?></span>
+                    <svg class="w-4 h-4" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true">
+                        <circle cx="11" cy="11" r="7"/><path d="m21 21-4.3-4.3"/>
+                    </svg>
+                </button>
+            </div>
+        </form>
+    </div>
+</div>

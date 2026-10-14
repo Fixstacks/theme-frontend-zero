@@ -1,0 +1,70 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Cart discount code box. Both buttons are type="submit" on the couponPost
+ * form (stock's type="button" needed the discountCode widget). Only "Cancel
+ * Coupon" carries name="remove" value="1"; Apply sends no `remove`, which
+ * CouponPost treats as apply. The field's label is for screen readers (the
+ * block heading and placeholder say the same); the button is an outline one,
+ * so "Proceed to Checkout" stays the summary's only primary action.
+ *
+ * @var \Magento\Framework\View\Element\AbstractBlock $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+// We should use strlen function because coupon code could be "0", converted to bool will lead to false
+$hasCouponCode = $block->getCouponCode() !== null && strlen($block->getCouponCode()) > 0;
+?>
+<div class="block discount" id="block-discount">
+    <div class="title" data-role="title">
+        <strong id="block-discount-heading" role="heading" aria-level="2"><?= $escaper->escapeHtml(__('Apply Discount Code')) ?></strong>
+    </div>
+    <div class="content" data-role="content" aria-labelledby="block-discount-heading">
+        <form id="discount-coupon-form"
+              action="<?= $escaper->escapeUrl($block->getUrl('checkout/cart/couponPost')) ?>"
+              method="post">
+            <?= $block->getBlockHtml('formkey') ?>
+            <div class="fieldset coupon<?= $hasCouponCode ? ' applied' : '' ?>">
+                <div class="field">
+                    <label for="coupon_code" class="label sr-only">
+                        <span><?= $escaper->escapeHtml(__('Enter discount code')) ?></span>
+                    </label>
+                    <div class="control">
+                        <input type="text"
+                               class="input-text"
+                               id="coupon_code"
+                               name="coupon_code"
+                               value="<?= $escaper->escapeHtmlAttr($block->getCouponCode()) ?>"
+                               placeholder="<?= $escaper->escapeHtmlAttr(__('Enter discount code')) ?>"
+                                <?php if ($hasCouponCode): ?>
+                                   disabled="disabled"
+                                <?php endif; ?>
+                        />
+                    </div>
+                </div>
+                <div class="actions-toolbar">
+                    <?php if (!$hasCouponCode): ?>
+                    <div class="primary">
+                        <button class="action apply btn btn-outline" type="submit">
+                            <span><?= $escaper->escapeHtml(__('Apply Discount')) ?></span>
+                        </button>
+                    </div>
+                    <?php else: ?>
+                        <div class="primary">
+                            <button type="submit" name="remove" value="1" class="action cancel btn btn-outline">
+                                <span><?= $escaper->escapeHtml(__('Cancel Coupon')) ?></span>
+                            </button>
+                        </div>
+                    <?php endif; ?>
+                </div>
+            </div>
+            <?php if (!$hasCouponCode): ?>
+                <?= /* @noEscape */ $block->getChildHtml('captcha') ?>
+            <?php endif; ?>
+        </form>
+    </div>
+</div>

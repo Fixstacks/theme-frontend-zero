@@ -1,0 +1,58 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * MSRP / MAP price (view/base). Stock's "Click for price" is a JS widget, so
+ * the real price never appeared. MAP requires a deliberate customer action,
+ * so the real price (getRealPriceHtml(), set by FinalPriceBox) is inside a
+ * native <details>: opening "Click for price" is the action. "What's this?"
+ * works the same way.
+ *
+ * @var \Magento\Msrp\Pricing\Render\PriceBox $block
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ */
+/** @var \Magento\Msrp\Pricing\Price\MsrpPriceInterface $priceType */
+$priceType = $block->getPrice();
+
+/** @var $product \Magento\Catalog\Model\Product */
+$product = $block->getSaleableItem();
+$productId = $product->getId();
+
+$amount = $block->getMsrpPriceCalculator()->getMsrpPriceValue($product);
+
+$msrpPrice = $block->renderAmount(
+    $priceType->getCustomAmount($amount),
+    [
+        'price_id' => $block->getPriceId() ? $block->getPriceId() : 'old-price-' . $productId,
+        'include_container' => false,
+        'skip_adjustments' => true,
+    ]
+);
+?>
+
+<?php if ($amount) : ?>
+    <span class="old-price map-old-price"><?= /* @noEscape */ $msrpPrice ?></span>
+<?php endif; ?>
+
+<?php if ($priceType->isShowPriceOnGesture()) : ?>
+    <details class="msrp-reveal">
+        <summary class="action map-show-info"><?= $block->escapeHtml(__('Click for price')) ?></summary>
+        <span class="map-real-price"><?= /* @noEscape */ $block->getRealPriceHtml() ?></span>
+    </details>
+<?php else : ?>
+    <span class="msrp-message">
+        <?= $block->escapeHtml($priceType->getMsrpPriceMessage()) ?>
+    </span>
+<?php endif; ?>
+
+<?php if ($block->getZone() == \Magento\Framework\Pricing\Render::ZONE_ITEM_VIEW) : ?>
+    <details class="msrp-help">
+        <summary class="link tip"><?= $block->escapeHtml(__("What's this?")) ?></summary>
+        <span class="msrp-message">
+            <?= $block->escapeHtml($priceType->getMsrpPriceMessage()) ?>
+        </span>
+    </details>
+<?php endif; ?>

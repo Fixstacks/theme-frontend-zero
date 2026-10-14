@@ -1,0 +1,27 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Replaces stock's
+ * Magento_Wishlist::item/column/remove.phtml. Same `formaction` fix
+ * as this theme's own item/column/cart.phtml — see that file's own
+ * docblock for the full "one shared form, no nesting possible"
+ * story. Magento\Wishlist\Controller\Index\Remove::execute() only
+ * ever reads `item` and ignores every other field, so submitting the
+ * whole shared bulk form to it is always safe.
+ *
+ * @var \Magento\Wishlist\Block\Customer\Wishlist\Item\Column\Remove $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$item = $block->getItem();
+?>
+<button type="submit"
+        formaction="<?= $escaper->escapeUrl($block->getUrl('wishlist/index/remove')) ?>"
+        name="item" value="<?= $escaper->escapeHtmlAttr($item->getId()) ?>"
+        title="<?= $escaper->escapeHtmlAttr(__('Remove Item')) ?>"
+        class="btn-remove action delete link link-error text-sm no-underline hover:underline">
+    <span><?= $escaper->escapeHtml(__('Remove item')) ?></span>
+</button>

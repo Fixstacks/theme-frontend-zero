@@ -1,0 +1,121 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * A shared wishlist (the page a share email links to).
+ *
+ * Add to Cart, Add to Wish List and Add All to Cart used data-post JS. They
+ * sit inside the page's one form, so they are submit buttons with
+ * formaction/formmethod="post", using the URLs/params behind the Wishlist
+ * helper (wishlist/shared/cart + item, wishlist/index/add + product,
+ * wishlist/shared/allcart). Shared\Cart takes the stored qty, so no qty field.
+ *
+ * "Add to Wish List" is icon-only with title/aria-label; Add to Cart keeps its
+ * text.
+ *
+ * @var \Magento\Wishlist\Block\Share\Wishlist $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+
+<?php if ($block->hasWishlistItems()): ?>
+    <form class="form shared wishlist" action="<?= $block->escapeUrl($block->getUrl('wishlist/index/update')) ?>"
+          method="post">
+        <?= $block->getBlockHtml('formkey') ?>
+        <div class="wishlist table-wrapper">
+            <table class="table data wishlist" id="wishlist-table">
+                <caption class="table-caption"><?= $block->escapeHtml(__('Wish List')) ?></caption>
+                <thead>
+                <tr>
+                    <th class="col product" scope="col"><?= $block->escapeHtml(__('Product')) ?></th>
+                    <th class="col comment" scope="col"><?= $block->escapeHtml(__('Comment')) ?></th>
+                    <th class="col actions" scope="col"><?= $block->escapeHtml(__('Add to Cart')) ?></th>
+                </tr>
+                </thead>
+                <tbody>
+                <?php foreach ($block->getWishlistItems() as $item): ?>
+                    <?php
+                    $product = $item->getProduct();
+                    $isVisibleProduct = $product->isVisibleInSiteVisibility();
+                    ?>
+                    <tr>
+                        <td data-th="<?= $block->escapeHtmlAttr(__('Product')) ?>" class="col product">
+                            <a class="product photo" href="<?= $block->escapeUrl($block->getProductUrl($item)) ?>"
+                               title="<?= $block->escapeHtmlAttr($product->getName()) ?>">
+                                <?= $block->getImage($product, 'customer_shared_wishlist')->toHtml() ?>
+                            </a>
+                            <strong class="product name">
+                                <a href="<?= $block->escapeUrl($block->getProductUrl($item)) ?>">
+                                    <?= $block->escapeHtml($product->getName()) ?>
+                                </a>
+                            </strong>
+                            <?=
+                                $block->getProductPriceHtml(
+                                    $product,
+                                    'wishlist_configured_price',
+                                    \Magento\Framework\Pricing\Render::ZONE_ITEM_LIST,
+                                    ['item' => $item]
+                                );
+                            ?>
+                            <?= $block->getDetailsHtml($item) ?>
+                        </td>
+                        <td data-th="<?= $block->escapeHtmlAttr(__('Comment')) ?>"
+                            class="col comment"><?= /* @noEscape */ $block->getEscapedDescription($item) ?>
+                        </td>
+                        <td data-th="<?= $block->escapeHtmlAttr(__('Add to Cart')) ?>" class="col actions"
+                            data-role="add-to-links">
+                            <?php if ($product->isSaleable()): ?>
+                                <?php if ($isVisibleProduct): ?>
+                                    <button type="submit"
+                                            formaction="<?= $block->escapeUrl($block->getUrl('wishlist/shared/cart')) ?>"
+                                            formmethod="post"
+                                            title="<?= $block->escapeHtmlAttr(__('Add to Cart')) ?>"
+                                            name="item"
+                                            value="<?= (int) $item->getWishlistItemId() ?>"
+                                            class="action tocart btn btn-neutral hover:bg-primary hover:text-primary-content">
+                                        <span><?= $block->escapeHtml(__('Add to Cart')) ?></span>
+                                    </button>
+                                <?php endif ?>
+                            <?php endif; ?>
+                            <button type="submit"
+                                    formaction="<?= $block->escapeUrl($block->getUrl('wishlist/index/add')) ?>"
+                                    formmethod="post"
+                                    name="product"
+                                    value="<?= (int) $product->getId() ?>"
+                                    class="action towishlist"
+                                    title="<?= $block->escapeHtmlAttr(__('Add to Wish List')) ?>"
+                                    aria-label="<?= $block->escapeHtmlAttr(__('Add to Wish List')) ?>">
+                                <span class="sr-only"><?= $block->escapeHtml(__('Add to Wish List')) ?></span>
+                            </button>
+                        </td>
+                    </tr>
+                <?php endforeach ?>
+                </tbody>
+            </table>
+        </div>
+
+        <div class="actions-toolbar">
+            <?php if ($block->isSaleable()): ?>
+                <div class="primary">
+                    <button type="submit"
+                            formaction="<?= $block->escapeUrl($block->getUrl('wishlist/shared/allcart')) ?>"
+                            formmethod="post"
+                            title="<?= $block->escapeHtmlAttr(__('Add All to Cart')) ?>"
+                            class="action tocart primary btn btn-neutral hover:bg-primary hover:text-primary-content">
+                        <span><?= $block->escapeHtml(__('Add All to Cart')) ?></span>
+                    </button>
+                </div>
+            <?php endif;?>
+            <div class="secondary">
+                <a href="<?= $block->escapeUrl($block->getBackUrl()) ?>" class="action back link link-neutral text-sm no-underline hover:underline">
+                    <span><?= $block->escapeHtml(__('Back')) ?></span>
+                </a>
+            </div>
+        </div>
+    </form>
+<?php else: ?>
+    <div class="message info empty alert alert-info alert-soft text-sm py-2"><div><?= $block->escapeHtml(__('Wish List is empty now.')) ?></div></div>
+<?php endif ?>

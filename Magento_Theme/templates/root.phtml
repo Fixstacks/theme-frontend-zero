@@ -1,0 +1,32 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Base <html>/<body> skeleton (view/base override, frontend only).
+ *
+ * - The <body> loaderAjax init is removed.
+ * - Font preloads are head links in default_head_blocks.xml, where a child
+ *   theme can drop the ones it doesn't use (a preloaded font competes with
+ *   the page's LCP image for the bandwidth).
+ * - app.css is not preloaded here: it's a blocking <css> in
+ *   default_head_blocks.xml (preload + swap measured CLS = 1 on mobile).
+ */
+?>
+<!doctype html>
+<html <?= /* @noEscape */ $htmlAttributes ?>>
+    <head <?= /* @noEscape */ $headAttributes ?>>
+        <?= /* @noEscape */ $requireJs ?>
+        <?= /* @noEscape */ $headContent ?>
+        <?php /* 2.4.8+ pass head.critical and the CSS/JS assets separately; 2.4.7 has both inside $headContent. */ ?>
+        <?= /* @noEscape */ $headCritical ?? '' ?>
+        <?= /* @noEscape */ $headAssets ?? '' ?>
+        <?= /* @noEscape */ $headAdditional ?>
+    </head>
+    <body data-container="body"
+        <?= /* @noEscape */ $bodyAttributes ?>>
+        <?= /* @noEscape */ $layoutContent ?>
+    </body>
+</html>

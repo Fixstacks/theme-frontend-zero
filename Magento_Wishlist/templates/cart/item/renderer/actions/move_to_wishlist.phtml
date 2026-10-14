@@ -1,0 +1,25 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Cart line "Move to Wishlist" (stock used data-post JS). Inside the cart's
+ * shared updatePost form, so a submit button with
+ * formaction=wishlist/index/fromcart and name="item" (like Remove item).
+ *
+ * @var \Magento\Wishlist\Block\Cart\Item\Renderer\Actions\MoveToWishlist $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->isAllowInCart() && $block->isProductVisibleInSiteVisibility()) : ?>
+    <button type="submit"
+            formaction="<?= $escaper->escapeUrl($block->getUrl('wishlist/index/fromcart')) ?>"
+            formmethod="post"
+            name="item"
+            value="<?= (int) $block->getItem()->getId() ?>"
+            class="action towishlist action-towishlist">
+        <span><?= $escaper->escapeHtml(__('Move to Wishlist')) ?></span>
+    </button>
+<?php endif ?>

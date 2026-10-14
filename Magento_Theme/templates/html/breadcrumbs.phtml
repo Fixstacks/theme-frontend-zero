@@ -1,0 +1,39 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Breadcrumbs, functionally as stock. Overridden so Tailwind's .phtml-only
+ * scan sees the `breadcrumbs` class and DaisyUI's component CSS is compiled.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ */
+?>
+<?php if ($crumbs && is_array($crumbs)) : ?>
+<?php
+/*
+ * Small uppercase, letter-spaced, muted trail; the current crumb at full
+ * contrast. Applies to every page using this template.
+ */
+?>
+<div class="breadcrumbs text-xs uppercase tracking-wide text-base-content/60 mb-4">
+    <ul class="items">
+        <?php foreach ($crumbs as $crumbName => $crumbInfo) : ?>
+            <li class="item <?= $block->escapeHtmlAttr($crumbName) ?>">
+            <?php if ($crumbInfo['link']) : ?>
+                <a href="<?= $block->escapeUrl($crumbInfo['link']) ?>"
+                   title="<?= $block->escapeHtml($crumbInfo['title']) ?>">
+                    <?= $block->escapeHtml($crumbInfo['label']) ?>
+                </a>
+            <?php elseif ($crumbInfo['last']) : ?>
+                <strong class="font-semibold text-base-content"><?= $block->escapeHtml($crumbInfo['label']) ?></strong>
+            <?php else : ?>
+                <?= $block->escapeHtml($crumbInfo['label']) ?>
+            <?php endif; ?>
+            </li>
+        <?php endforeach; ?>
+    </ul>
+</div>
+<?php endif; ?>

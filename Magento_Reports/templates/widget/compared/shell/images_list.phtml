@@ -1,0 +1,17 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Cacheable shell for the
+ * "Recently Compared Products" widget's Images Only template. See
+ * `Magento_Reports::widget/viewed/shell/grid.phtml`'s own docblock
+ * for the full "why" (the "Recently Compared" sibling widget).
+ *
+ * @var \Magento\Reports\Block\Product\Compared $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div hx-get="<?= $escaper->escapeUrl($block->getUrl('zero/widget/compared', ['template' => 'images_list', 'page_size' => $block->getPageSize()])) ?>"
+     hx-trigger="zero:session-ready from:body"
+     hx-swap="outerHTML"></div>

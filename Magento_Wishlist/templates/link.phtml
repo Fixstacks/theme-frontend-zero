@@ -1,0 +1,32 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Header "My Wish List" link. The link is cacheable markup; the count is a
+ * placeholder <span> that loads `zero/customer/wishlistcounter`
+ * (replacing the Knockout counter). It also listens for `wishlist:updated`
+ * so an HX-Trigger response can refresh it.
+ *
+ * @var \Magento\Wishlist\Block\Link $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php /*
+ * No color utilities on this <a>: Tailwind utilities are in a later cascade
+ * layer than the `.header.links > li > a` component rules, so they would beat
+ * the shared resting and hover colors of the other account-menu items.
+ */ ?>
+<li class="link wishlist list-none">
+    <a href="<?= $escaper->escapeUrl($block->getHref()) ?>"
+       class="inline-flex items-center gap-1.5 text-sm transition-colors">
+        <?= $escaper->escapeHtml($block->getLabel()) ?>
+        <span class="counter qty badge badge-primary badge-sm" hidden
+              hx-get="<?= $escaper->escapeUrl($block->getUrl('zero/customer/wishlistcounter')) ?>"
+              data-zero-fragment="wishlistcounter"
+              hx-trigger="wishlist:updated from:body"
+              hx-swap="outerHTML"></span>
+    </a>
+</li>

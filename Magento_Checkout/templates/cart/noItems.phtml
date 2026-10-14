@@ -1,0 +1,23 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Empty cart message, minus the empty-cart init (it reloads a stale
+ * customer-data "cart" section; the mini-cart here is an HTMX fragment
+ * without that cache). "Continue Shopping" is a button rather than stock's
+ * "Click here" sentence link.
+ *
+ * @var \Magento\Checkout\Block\Cart $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div class="cart-empty">
+    <?= $block->getChildHtml('checkout_cart_empty_widget') ?>
+    <p class="text-base-content/70"><?= $escaper->escapeHtml(__('You have no items in your shopping cart.')) ?></p>
+    <a href="<?= $escaper->escapeUrl($block->getContinueShoppingUrl()) ?>"
+       class="btn btn-neutral mt-4"><?= $escaper->escapeHtml(__('Continue Shopping')) ?></a>
+    <?= $block->getChildHtml('shopping.cart.table.after') ?>
+</div>

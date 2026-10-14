@@ -1,0 +1,84 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product page Add to Cart.
+ *
+ * - No `disabled` on the button: stock relies on validate-product JS to remove
+ *   it, so without RequireJS the button stayed disabled forever. Server-side
+ *   validation in cart/add is authoritative.
+ * - `btn-neutral` (dark) with lime hover; lime is reserved for marketing CTAs.
+ * - Qty −/+ buttons call the input's native stepUp()/stepDown() via inline
+ *   data-qty-step, wired in web/js/zero.js (no CSS-only way to increment). Without JS the input still works.
+ * - The wishlist and compare icons are fetched with getLayout()->getBlock()
+ *   rather than <move>: this template is used by two block instances
+ *   (product.info.addtocart for products without options,
+ *   product.info.addtocart.additional for those with), and a move only reaches
+ *   one. Their original copies are hidden with CSS, not removed — removing
+ *   deletes the block instance this lookup needs. Both icons share one wrapper
+ *   so they wrap together on mobile.
+ * - Single-consumer layout is Tailwind utilities here. What stays in CSS: the
+ *   spin-button pseudo-elements, the qty field's margin (beats the shared
+ *   `.fieldset .field` rule), and the PDP-only square icon sizing on the
+ *   shared towishlist/tocompare classes.
+ *
+ * @var $block \Magento\Catalog\Block\Product\View
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php $_product = $block->getProduct(); ?>
+<?php $buttonTitle = __('Add to Cart'); ?>
+<?php $wishlistBlock = $block->getLayout()->getBlock('view.addto.wishlist'); ?>
+<?php $compareBlock = $block->getLayout()->getBlock('view.addto.compare'); ?>
+<?php if ($_product->isSaleable()):?>
+<div class="box-tocart">
+    <div class="fieldset">
+        <div class="actions flex flex-wrap items-center gap-3">
+            <?php if ($block->shouldRenderQuantity()):?>
+            <div class="field qty flex-none h-10">
+                <label class="label sr-only" for="qty"><span><?= $escaper->escapeHtml(__('Qty')) ?></span></label>
+                <div class="control qty-stepper flex items-stretch h-full border border-base-300 overflow-hidden">
+                    <button type="button"
+                            class="qty-stepper-btn flex items-center justify-center w-9 shrink-0 bg-transparent border-0 text-lg leading-none text-base-content cursor-pointer hover:bg-base-200"
+                            data-qty-step="down"
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Decrease quantity')) ?>">&minus;</button>
+                    <input type="number"
+                           name="qty"
+                           id="qty"
+                           min="0"
+                           value="<?= $block->getProductDefaultQty() * 1 ?>"
+                           title="<?= $escaper->escapeHtmlAttr(__('Qty')) ?>"
+                           class="input-text qty w-12 border-0 border-x border-base-300 rounded-none text-center py-2"
+                           data-validate="<?= $escaper->escapeHtml(json_encode($block->getQuantityValidators())) ?>"
+                           />
+                    <button type="button"
+                            class="qty-stepper-btn flex items-center justify-center w-9 shrink-0 bg-transparent border-0 text-lg leading-none text-base-content cursor-pointer hover:bg-base-200"
+                            data-qty-step="up"
+                            aria-label="<?= $escaper->escapeHtmlAttr(__('Increase quantity')) ?>">+</button>
+                </div>
+            </div>
+            <?php endif; ?>
+            <button type="submit"
+                    title="<?= $escaper->escapeHtmlAttr($buttonTitle) ?>"
+                    class="action primary tocart btn btn-neutral hover:bg-primary hover:text-primary-content flex-auto"
+                    id="product-addtocart-button">
+                <span><?= $escaper->escapeHtml($buttonTitle) ?></span>
+            </button>
+            <?php if ($wishlistBlock || $compareBlock): ?>
+                <div class="box-tocart-icon-actions flex flex-none gap-3">
+                    <?php if ($wishlistBlock): ?>
+                        <?= /* @noEscape */ $wishlistBlock->toHtml() ?>
+                    <?php endif; ?>
+                    <?php if ($compareBlock): ?>
+                        <?= /* @noEscape */ $compareBlock->toHtml() ?>
+                    <?php endif; ?>
+                </div>
+            <?php endif; ?>
+            <?= $block->getChildHtml('', true) ?>
+        </div>
+    </div>
+</div>
+<?php endif; ?>

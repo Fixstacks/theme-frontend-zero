@@ -1,0 +1,128 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Review list (product Reviews section and review/product/list). Same
+ * structure and microdata as stock, styled with Tailwind utilities (this is
+ * the only consumer). `.rating-result` stays a shared CSS component.
+ * The zero.reviews.extras child (Zero_Reviews, when enabled) adds each
+ * review's "Verified purchase" badge and photos.
+ *
+ * @var \Magento\Review\Block\Product\View\ListView $block
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+use Magento\Framework\Escaper;
+use Magento\Framework\View\Helper\SecureHtmlRenderer;
+use Magento\Review\Block\Product\View\ListView;
+
+/**
+ * @var ListView $block
+ * @var SecureHtmlRenderer $secureRenderer
+ * @var Escaper $escaper
+ */
+
+$_items = $block->getReviewsCollection()->getItems();
+$extras = $block->getChildBlock('zero.reviews.extras') ?: null;
+$extras?->getData('extras')->load($_items);
+$format = $block->getDateFormat() ?: \IntlDateFormatter::SHORT;
+?>
+<?php
+// The "Show 10 20 50 per page" pager only means something with more reviews than its smallest page.
+$showToolbar = $block->getReviewsCollection()->getSize() > 10;
+?>
+<?php if (count($_items)): ?>
+    <div class="block review-list" id="customer-reviews">
+        <?php if (!$block->getHideTitle()): ?>
+            <div class="block-title">
+                <strong><?= $escaper->escapeHtml(__('Customer Reviews')) ?></strong>
+            </div>
+        <?php endif ?>
+        <div class="block-content">
+            <?php if ($showToolbar): ?>
+                <div class="toolbar review-toolbar mb-4">
+                    <?= $block->getChildHtml('toolbar') ?>
+                </div>
+            <?php endif; ?>
+            <ol class="items review-items flex flex-col">
+                <?php foreach ($_items as $_review): ?>
+                    <li class="item review-item py-6 border-t border-base-300 first:border-t-0 first:pt-0"
+                        itemscope itemprop="review" itemtype="http://schema.org/Review">
+                        <div class="review-title font-semibold text-base mb-1.5" itemprop="name">
+                            <?= $escaper->escapeHtml($_review->getTitle()) ?>
+                        </div>
+                        <?php if (count($_review->getRatingVotes())): ?>
+                            <div class="review-ratings mb-3">
+                                <?php foreach ($_review->getRatingVotes() as $_vote): ?>
+                                    <div class="rating-summary item flex items-center gap-2"
+                                         itemprop="reviewRating" itemscope itemtype="http://schema.org/Rating">
+                                        <span class="label rating-label">
+                                            <span><?= $escaper->escapeHtml($_vote->getRatingCode()) ?></span>
+                                        </span>
+                                        <div class="rating-result"
+                                             id="review_<?= /* @noEscape */ $_review->getReviewId()
+                                                . '_vote_'
+                                                . $_vote->getVoteId() ?>"
+                                             title="<?= $escaper->escapeHtmlAttr($_vote->getPercent()) ?>%">
+                                            <meta itemprop="worstRating" content="1"/>
+                                            <meta itemprop="bestRating" content="100"/>
+                                            <span style="width: <?= $escaper->escapeHtml($_vote->getPercent()) ?>%;">
+                                                <span itemprop="ratingValue">
+                                                    <?= $escaper->escapeHtml($_vote->getPercent()) ?>%
+                                                </span>
+                                            </span>
+                                        </div>
+                                    </div>
+                                <?php endforeach; ?>
+                            </div>
+                        <?php endif; ?>
+                        <?php if ($extras): ?>
+                            <?= $extras->setData('review_id', (int) $_review->getId())->toHtml() ?>
+                        <?php endif; ?>
+                        <div class="review-content-container">
+                            <div class="review-content text-md leading-[1.6] mb-3" itemprop="description">
+                                <?= /* @noEscape */ nl2br($escaper->escapeHtml($_review->getDetail())) ?>
+                            </div>
+                            <div class="review-details flex flex-wrap gap-x-4 gap-y-1 text-label text-base-content/60">
+                                <p class="review-author m-0">
+                                    <span class="review-details-label me-1">
+                                        <?= $escaper->escapeHtml(__('Review by')) ?>
+                                    </span>
+                                    <strong class="review-details-value text-base-content font-medium" itemprop="author">
+                                        <?= $escaper->escapeHtml($_review->getNickname()) ?>
+                                    </strong>
+                                </p>
+                                <p class="review-date m-0">
+                                    <span class="review-details-label me-1">
+                                        <?= $escaper->escapeHtml(__('Posted on')) ?>
+                                    </span>
+                                    <time class="review-details-value text-base-content font-medium" itemprop="datePublished"
+                                          datetime="<?= $escaper->escapeHtmlAttr($block->formatDate(
+                                              $_review->getCreatedAt(),
+                                              $format
+                                          )) ?>">
+                                        <?= $escaper->escapeHtml(
+                                            $block->formatDate(
+                                                $_review->getCreatedAt(),
+                                                $format
+                                            )
+                                        ) ?>
+                                    </time>
+                                </p>
+                            </div>
+                        </div>
+                    </li>
+                <?php endforeach; ?>
+            </ol>
+            <?php if ($showToolbar): ?>
+                <div class="toolbar review-toolbar mb-4">
+                    <?= $block->getChildHtml('toolbar') ?>
+                </div>
+            <?php endif; ?>
+        </div>
+    </div>
+<?php endif; ?>

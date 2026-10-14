@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Removes `theme.active.editor`: Magento_Ui adds it to every page and its
+ * template calls `require.config(...)` unguarded (to map the WYSIWYG adapter),
+ * which throws without RequireJS. No WYSIWYG editor runs on the storefront.
+ * -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="theme.active.editor" remove="true"/>
+    </body>
+</page>

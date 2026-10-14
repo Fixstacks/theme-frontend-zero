@@ -1,0 +1,14 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Print pages (order, invoice, shipment, credit memo): open the print dialog
+ * once the page has loaded. Stock wraps window.print() in require(['jquery']),
+ * which threw "require is not a function" here (no RequireJS) and never
+ * printed. The dialog opens from web/js/zero.js.
+ */
+?>
+<span data-print-on-load hidden></span>

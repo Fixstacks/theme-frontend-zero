@@ -1,0 +1,30 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Header "Compare Products" link: cacheable link + an HTMX-loaded count
+ * (zero/customer/comparecounter), like Magento_Wishlist::link.phtml.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php /*
+ * No color utilities on the <a> (see Magento_Wishlist::link.phtml): they'd
+ * beat the account menu's shared component colors.
+ */ ?>
+<li class="item link compare list-none">
+    <a class="inline-flex items-center gap-1.5 text-sm transition-colors"
+       title="<?= $escaper->escapeHtmlAttr(__('Compare Products')) ?>"
+       href="<?= $escaper->escapeUrl($block->getUrl('catalog/product_compare')) ?>">
+        <?= $escaper->escapeHtml(__('Compare Products')) ?>
+        <span class="counter qty badge badge-primary badge-sm" hidden
+              hx-get="<?= $escaper->escapeUrl($block->getUrl('zero/customer/comparecounter')) ?>"
+              data-zero-fragment="comparecounter"
+              hx-trigger="compare:updated from:body"
+              hx-swap="outerHTML"></span>
+    </a>
+</li>

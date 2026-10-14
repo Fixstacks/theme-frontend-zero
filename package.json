@@ -1,0 +1,24 @@
+{
+  "name": "@zero/theme-default",
+  "version": "0.1.0",
+  "private": true,
+  "license": "(OSL-3.0 OR AFL-3.0)",
+  "description": "Build tooling for the Zero/default Magento theme (Zero-Framework Headless Engine)",
+  "type": "module",
+  "scripts": {
+    "build": "npm run build:css && npm run build:htmx",
+    "build:css": "node scripts/collect-module-styles.mjs && tailwindcss -i ./src/styles/app.css -o ./web/css/app.css --minify",
+    "dev:css": "tailwindcss -i ./src/styles/app.css -o ./web/css/app.css --watch",
+    "build:htmx": "node scripts/copy-htmx.mjs",
+    "build:dist": "npm run build && node scripts/minify-theme-css.mjs"
+  },
+  "devDependencies": {
+    "@tailwindcss/cli": "^4.0.0",
+    "daisyui": "^5.0.0",
+    "lightningcss": "^1.33.0",
+    "tailwindcss": "^4.0.0"
+  },
+  "dependencies": {
+    "htmx.org": "^2.0.4"
+  }
+}

@@ -1,0 +1,54 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Header mini-cart (replaces the Knockout component and dropdownDialog).
+ *
+ * - Native Popover API for open/close (Escape and light-dismiss included); the
+ *   same click also hx-gets the content. Anchored under the button with CSS
+ *   Anchor Positioning; without support it uses the default popover placement.
+ * - The count badge is a fragment refreshed on `cart:updated` (fired by
+ *   Zero\Checkout Cart\Update, which handles qty/remove in the popover).
+ * - hx-target is inherited: the badge sits inside the button, whose target is
+ *   #minicart-content, so it sets `hx-target="this"`. Any nested hx-get here
+ *   must do the same.
+ * - Icon + badge only; the accessible name is the button's aria-label (plus an
+ *   sr-only label).
+ *
+ * @var \Magento\Checkout\Block\Cart\Sidebar $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div data-block="minicart" class="minicart-wrapper relative">
+    <button type="button"
+            id="minicart-trigger"
+            popovertarget="minicart-popover"
+            class="btn btn-ghost btn-sm gap-2"
+            aria-label="<?= $escaper->escapeHtmlAttr(__('My Cart')) ?>"
+            hx-get="<?= $escaper->escapeUrl($block->getUrl('zero/checkout/minicart')) ?>"
+            hx-trigger="click, cart:updated from:body"
+            hx-target="#minicart-content"
+            hx-swap="innerHTML">
+        <svg class="size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+            <path stroke-linecap="round" stroke-linejoin="round" d="M2.25 3h1.386c.51 0 .955.343 1.087.835l.383 1.437M7.5 14.25a3 3 0 0 0-3 3h15.75m-12.75-3h11.218c1.121-2.3 1.891-4.788 2.231-7.401.052-.399-.278-.75-.68-.75H5.106M7.5 14.25 5.106 5.272M6 18.75a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Zm12.75 0a.75.75 0 1 1-1.5 0 .75.75 0 0 1 1.5 0Z" />
+        </svg>
+        <span class="sr-only"><?= $escaper->escapeHtml(__('My Cart')) ?></span>
+        <span class="counter qty badge badge-primary badge-sm" hidden
+              hx-get="<?= $escaper->escapeUrl($block->getUrl('zero/checkout/cartcounter')) ?>"
+              data-zero-fragment="cartcounter"
+              hx-trigger="cart:updated from:body"
+              hx-target="this"
+              hx-swap="outerHTML"></span>
+    </button>
+    <?php if ($block->getIsNeedToDisplaySideBar()) : ?>
+    <div id="minicart-popover" popover
+         class="block-minicart m-0 w-80 rounded-box border border-base-300 bg-base-100 p-4 shadow-lg">
+        <div id="minicart-content">
+            <p class="text-sm text-base-content/60"><?= $escaper->escapeHtml(__('Loading...')) ?></p>
+        </div>
+    </div>
+    <?php endif; ?>
+</div>

@@ -1,0 +1,179 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2013 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Gives the core "columns" container a stable id: every hypermedia control
+ * (filters, sort, pager, limiter) targets and hx-selects it, so one request
+ * refreshes filters, grid and pager together.
+ *
+ * Theme-only template= overrides (top.links, footer_links) live here, not in a
+ * module's layout, which would apply to every theme.
+ *
+ * footer_links' children are core Html\Link\Current blocks; their class comes
+ * from the `attributes` argument (array arguments merge per item, so
+ * catalog-search-advanced-link keeps its data-action).
+ * -->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceContainer name="columns" htmlId="page-columns"/>
+        <!--
+            `footer-container` (htmlClass="page-footer", declared in Magento_Theme's own page_layout/
+            1column.xml, reachable from every page) is a plain template-less container — `htmlClass`
+            is the only lever. The original "page-footer" value is included verbatim since
+            referenceContainer REPLACES htmlClass rather than appending to it.
+        -->
+        <referenceContainer name="footer-container" htmlClass="page-footer bg-primary text-primary-content"/>
+        <!--
+            `store_switcher` is already wired into the footer by core — the gap was that stock's own
+            switcher template switches store GROUPS (stays at 1 here), not store VIEWS. This theme's
+            own override switches store views instead, needing the same view_model argument
+            `store.settings.language` below already uses.
+        -->
+        <referenceBlock name="store_switcher">
+            <arguments>
+                <argument name="view_model" xsi:type="object">Magento\Store\ViewModel\SwitcherUrlProvider</argument>
+            </arguments>
+        </referenceBlock>
+        <!--
+            `.footer.content` is a 2-column CSS grid; core declares `store_switcher` before
+            `footer_links` with no grid placement, so auto-placement floated it into row 1's second
+            column and bumped `footer_links` into row 2. Moved to the end (after `report.bugs`) so it
+            no longer competes for auto-placement — `.footer.content > .store-view-switcher` gives it
+            its own full-width row instead.
+        -->
+        <move element="store_switcher" destination="footer" after="report.bugs"/>
+        <!--
+            `store.settings.language` (stock's own store-view switcher in the mobile "Settings" panel)
+            is gated on the same condition as the footer switcher above and starts rendering the
+            instant a second store view exists — a confusingly-labeled duplicate. Removed outright;
+            the footer switcher already covers this sitewide, including mobile.
+        -->
+        <referenceBlock name="store.settings.language" remove="true"/>
+        <!-- Same duplicate-switcher issue, a second source (`header.panel.wrapper` > `header.panel`) — removed for the same reason. -->
+        <referenceBlock name="store_language" remove="true"/>
+        <!--
+            The shell passes currentUrlViewModel's encoded URL as the fragment's
+            `referer`, so "Sign In" returns to this page; login-state filtering happens
+            in zero_customer_accountlinks.xml.
+        -->
+        <referenceBlock name="top.links" template="Magento_Customer::account/toplinks.phtml">
+            <arguments>
+                <argument name="currentUrlViewModel" xsi:type="object">Zero\Core\ViewModel\CurrentUrlEncoded</argument>
+            </arguments>
+        </referenceBlock>
+        <!--
+            `top.links`'s own children include a `Html\Header` welcome-message block (show_part=
+            welcome) — not a navigation link, but still swept into `Account\Navigation::getLinks()`'s
+            `getChildBlocks()` call and rendered as one, which is the source of the dropdown's
+            "Default welcome msg!" line. See `Magento_Customer::account/toplinks.phtml`.
+        -->
+        <!--
+            `top.links` originally rendered inside `header.panel.wrapper` (the lime top bar)
+            alongside two normally-invisible siblings. Moving the account icon out leaves that bar
+            empty, so this relocates the whole block into `header-wrapper`, right after `minicart`,
+            matching the reference's own header row order.
+        -->
+        <move element="top.links" destination="header-wrapper" after="minicart"/>
+        <referenceBlock name="footer_links" template="Magento_Theme::html/footer/links.phtml"/>
+        <referenceBlock name="privacy-policy-link">
+            <arguments>
+                <argument name="attributes" xsi:type="array">
+                    <item name="class" xsi:type="string">text-primary-content hover:text-base-100 hover:underline underline-offset-2</item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="sales-guest-form-link">
+            <arguments>
+                <argument name="attributes" xsi:type="array">
+                    <item name="class" xsi:type="string">text-primary-content hover:text-base-100 hover:underline underline-offset-2</item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="contact-us-link">
+            <arguments>
+                <argument name="attributes" xsi:type="array">
+                    <item name="class" xsi:type="string">text-primary-content hover:text-base-100 hover:underline underline-offset-2</item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="catalog-search-advanced-link">
+            <arguments>
+                <argument name="attributes" xsi:type="array">
+                    <item name="class" xsi:type="string">text-primary-content hover:text-base-100 hover:underline underline-offset-2</item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="search-term-popular-link">
+            <arguments>
+                <argument name="attributes" xsi:type="array">
+                    <item name="class" xsi:type="string">text-primary-content hover:text-base-100 hover:underline underline-offset-2</item>
+                </argument>
+            </arguments>
+        </referenceBlock>
+        <!--
+            The reference's header search has no visible secondary link underneath.
+            `advanced-search-link` (a child of `top.search`, distinct from `catalog-search-advanced
+            -link` in the footer) is redundant with the "Advanced Search" link the footer's Help
+            column already carries — removed from the header only.
+        -->
+        <referenceBlock name="advanced-search-link" remove="true"/>
+        <!--
+            `navigation.sections` (the mobile "Menu" tab group) gets a real theme template — see
+            `Magento_Theme::html/sections.phtml` (stock's dead JS-tabs markup replaced with a native
+            disclosure). `store.links`, the group's own "Account" tab, is a placeholder with no real
+            content — removed outright, since account links already live in the header's icon
+            dropdown (`top.links` above).
+        -->
+        <referenceBlock name="navigation.sections" template="Magento_Theme::html/sections.phtml"/>
+        <referenceBlock name="store.links" remove="true"/>
+        <!--
+            `navigation.sections` moves from its stock `page.top` position (a separate full-width row
+            below the header) into `header-wrapper`, right after the logo, so the mini-cart/account
+            icons sit on the right and the menu on the left, in the same bar. See `src/styles/
+            components.css`'s `.header.content .nav-sections-item` for how one `<details>` element
+            reads as both a compact icon button and a full-width panel, depending on open state.
+        -->
+        <move element="navigation.sections" destination="header-wrapper" after="logo"/>
+        <!--
+            `customer.section.config` feeds `customer-data.js`'s own section-invalidation config —
+            dead without RequireJS, and superseded regardless: every customer-data-dependent UI this
+            project rebuilt (mini-cart, wishlist/compare counters, welcome message, account-links
+            dropdown) invalidates itself via its own HTMX trigger instead.
+        -->
+        <referenceBlock name="customer.section.config" remove="true"/>
+        <!--
+            Dead `text/x-magento-init` blocks (no RequireJS), superseded by the
+            server-rendered HTMX fragments:
+            - form_key_provider / pageCache: client form_key and private-content refresh.
+            - authentication-popup: Knockout sign-in modal; Sign In links go to the page.
+            - customer.customer.data / customer.data.invalidation.rules: customer-data cache.
+            - frontend-storage-manager: client Recently Viewed/Compared sync.
+            - js_cookies / cookie-status-check: jQuery cookie config (the cookie banner
+              uses its own inline script).
+            - pagebuilder.widget.initializer: Page Builder widget registration.
+            - cookie_config: inline `window.cookiesConfig` for jQuery cookies,
+              not loaded here. It carries a CSP nonce, which the built-in
+              full-page cache drops from cached responses, so on a cache hit it
+              was blocked by the strict policy. The stock checkout re-adds it
+              (Zero_Core checkout_index_index.xml). The RequireJS base URL
+              (`require.js` block) can't be renamed like that: the root
+              template prints that block by name in <head>; its template is
+              overridden instead (Magento_Theme::page/js/require_js.phtml).
+        -->
+        <referenceBlock name="form_key_provider" remove="true"/>
+        <referenceBlock name="pageCache" remove="true"/>
+        <referenceBlock name="authentication-popup" remove="true"/>
+        <referenceBlock name="customer.customer.data" remove="true"/>
+        <referenceBlock name="customer.data.invalidation.rules" remove="true"/>
+        <referenceBlock name="frontend-storage-manager" remove="true"/>
+        <referenceBlock name="js_cookies" remove="true"/>
+        <referenceBlock name="cookie-status-check" remove="true"/>
+        <referenceBlock name="pagebuilder.widget.initializer" remove="true"/>
+        <referenceBlock name="cookie_config" remove="true"/>
+    </body>
+</page>

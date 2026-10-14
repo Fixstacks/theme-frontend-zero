@@ -1,0 +1,18 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+
+    Magento/blank stays the parent. Removing it (f76161e4) never reached any
+    install that already had the theme: Magento keeps the parent it first
+    registered, so every store kept inheriting Blank. Only a fresh install
+    got no parent, and there Blank's etc/view.xml was missing: no product
+    image sizes (category_page_grid, product_base_image...), so every
+    product image was the placeholder. Found installing on a clean Magento
+    2.4.7 (infra/terraform-test).
+-->
+<theme xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+       xsi:noNamespaceSchemaLocation="urn:magento:framework:Config/etc/theme.xsd">
+    <title>Zero</title>
+    <parent>Magento/blank</parent>
+</theme>

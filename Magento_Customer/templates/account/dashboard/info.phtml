@@ -1,0 +1,67 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Account dashboard "Account Information" and "Newsletters" boxes as DaisyUI
+ * cards.
+ *
+ * Action links use `link-neutral`, not `link-primary`: the lime primary is
+ * ~1.06:1 on base-100. The same swap was applied to this link pattern
+ * theme-wide.
+ *
+ * @var \Magento\Customer\Block\Account\Dashboard\Info $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div class="block block-dashboard-info">
+    <div class="block-title title mb-4">
+        <strong class="font-sans font-semibold text-xl"><?= $escaper->escapeHtml(__('Account Information')) ?></strong>
+    </div>
+    <div class="block-content content grid gap-4 sm:grid-cols-2">
+        <div class="box box-information card card-border border-base-300 bg-base-100">
+            <div class="card-body">
+                <strong class="card-title box-title text-base"><?= $escaper->escapeHtml(__('Contact Information')) ?></strong>
+                <div class="box-content text-sm">
+                    <p>
+                        <?= $escaper->escapeHtml($block->getName()) ?><br>
+                        <?= $escaper->escapeHtml($block->getCustomer()->getEmail()) ?><br>
+                    </p>
+                    <?= $block->getChildHtml('customer.account.dashboard.info.extra'); ?>
+                </div>
+                <div class="box-actions card-actions mt-2 flex gap-4">
+                    <a class="action edit link link-neutral text-sm no-underline hover:underline" href="<?= $escaper->escapeUrl($block->getUrl('customer/account/edit')) ?>">
+                        <span><?= $escaper->escapeHtml(__('Edit')) ?></span>
+                    </a>
+                    <a href="<?= $escaper->escapeUrl($block->getChangePasswordUrl()) ?>" class="action change-password link link-neutral text-sm no-underline hover:underline">
+                        <?= $escaper->escapeHtml(__('Change Password')) ?>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <?php if ($block->isNewsletterEnabled()): ?>
+            <div class="box box-newsletter card card-border border-base-300 bg-base-100">
+                <div class="card-body">
+                    <strong class="card-title box-title text-base"><?= $escaper->escapeHtml(__('Newsletters')) ?></strong>
+                    <div class="box-content text-sm">
+                        <p>
+                            <?php if ($block->getIsSubscribed()): ?>
+                                <?= $escaper->escapeHtml(__('You are subscribed to "General Subscription".')) ?>
+                            <?php else: ?>
+                                <?= $escaper->escapeHtml(__('You aren\'t subscribed to our newsletter.')) ?>
+                            <?php endif; ?>
+                        </p>
+                    </div>
+                    <div class="box-actions card-actions mt-2">
+                        <a class="action edit link link-neutral text-sm no-underline hover:underline" href="<?= $escaper->escapeUrl($block->getUrl('newsletter/manage')) ?>">
+                            <span><?= $escaper->escapeHtml(__('Edit')) ?></span>
+                        </a>
+                    </div>
+                </div>
+            </div>
+        <?php endif; ?>
+        <?= $block->getChildHtml('additional_blocks'); ?>
+    </div>
+</div>

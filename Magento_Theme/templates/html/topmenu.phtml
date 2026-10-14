@@ -1,0 +1,76 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Category menu. Desktop submenus open via CSS `:hover`/`:focus-within`; the
+ * stock `menu` widget init is removed.
+ *
+ * The tree is walked from `$block->getMenu()` (not getHtml()'s flat string) so
+ * every node with children gets a native <details class="menu-toggle">:
+ * collapsed by default on mobile, forced open on desktop via
+ * `::details-content` (components.css). The category <a> is a sibling of the
+ * <details>, not inside <summary>: the label navigates, the chevron toggles.
+ *
+ * getHtml() is still called and its result discarded: Catalog's
+ * Plugin\Block\Topmenu::beforeGetHtml() is what fills the menu tree.
+ *
+ * Stock's columnsLimit mega-menu split is not supported (nothing sets it).
+ *
+ * @var \Magento\Theme\Block\Html\Topmenu $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+
+// Populates $block->getMenu() as a side effect — see this file's own
+// top docblock for the real "why" this discarded call is required.
+$block->getHtml('level-top', 'submenu', 0);
+
+/**
+ * @param \Magento\Framework\Data\Tree\Node\Collection $items
+ * @param int $level
+ * @return void
+ */
+$renderMenuItems = function ($items, $level) use (&$renderMenuItems, $escaper) {
+    /** @var \Magento\Framework\Data\Tree\Node $item */
+    foreach ($items as $item) {
+        $hasChildren = $item->hasChildren();
+        $classes = ['level' . $level];
+        if ($hasChildren) {
+            $classes[] = 'parent';
+        }
+        if ($item->getIsCategory()) {
+            $classes[] = 'category-item';
+        }
+        ?>
+        <li class="<?= $escaper->escapeHtmlAttr(implode(' ', $classes)) ?>">
+            <a href="<?= $escaper->escapeUrl((string) $item->getUrl()) ?>">
+                <span><?= $escaper->escapeHtml($item->getName()) ?></span>
+            </a>
+            <?php if ($hasChildren) : ?>
+                <details class="menu-toggle">
+                    <summary class="menu-toggle-summary"
+                              aria-label="<?= $escaper->escapeHtmlAttr(__('Toggle %1 submenu', $item->getName())) ?>">
+                        <svg class="menu-toggle-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                             stroke-width="2" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="m8.25 4.5 7.5 7.5-7.5 7.5" />
+                        </svg>
+                    </summary>
+                    <ul class="level<?= (int) ($level + 1) ?> submenu">
+                        <?php $renderMenuItems($item->getChildren(), $level + 1); ?>
+                    </ul>
+                </details>
+            <?php endif; ?>
+        </li>
+        <?php
+    }
+};
+?>
+
+<nav class="navigation" data-action="navigation">
+    <ul>
+        <?php $renderMenuItems($block->getMenu()->getChildren(), 0); ?>
+        <?= $block->getChildHtml() ?>
+    </ul>
+</nav>

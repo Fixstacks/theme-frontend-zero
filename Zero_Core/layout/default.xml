@@ -1,0 +1,23 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Sidebar "Compare Products" / "My Wish List": the stock blocks are rendered
+ * into the cacheable page with a depersonalized layout, so they could only ever
+ * show their empty state. Replaced by one hx-get shell that loads both from
+ * zero/sidebar (Zero\Core\Controller\Sidebar\Index), showing a block only when
+ * it has items. Theme-level, not module layout: only this theme loads htmx.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="catalog.compare.sidebar" remove="true"/>
+        <referenceBlock name="wishlist_sidebar" remove="true"/>
+        <referenceContainer name="sidebar.additional">
+            <block class="Magento\Framework\View\Element\Template" name="zero.sidebar.private"
+                   template="Zero_Core::sidebar/shell.phtml" before="-"/>
+        </referenceContainer>
+    </body>
+</page>

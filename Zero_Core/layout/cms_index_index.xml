@@ -1,0 +1,37 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Homepage: replaces the "home" CMS page's Page Builder content (authored for
+ * another theme; this theme doesn't load Page Builder CSS) with
+ * zero.homepage.sections. The hero above it is the "Homepage hero" banner,
+ * placed in content.top by a Zero Banner widget instance (Content → Widgets).
+ *
+ * Removing `cms_page` only affects the homepage: the block comes from
+ * cms_page_view, which combines with cms_index_index only there.
+ *
+ * Cms\Block\Page::_prepareLayout() is what set the <title> and meta
+ * description, so with the block removed they are set here explicitly from
+ * the homepage's own copy.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <head>
+        <title>Zero — Independent Commerce, Refined</title>
+        <meta name="description" content="A considered Magento 2 storefront for considered things. Fewer layers, better choices, more room to breathe. Shop women's, men's, gear, training, and fine jewelry."/>
+    </head>
+    <body>
+        <referenceBlock name="cms_page" remove="true"/>
+        <referenceContainer name="content">
+            <block class="Magento\Framework\View\Element\Template" name="zero.homepage.sections"
+                   template="Zero_Core::homepage/sections.phtml">
+                <arguments>
+                    <argument name="categoryShowcaseViewModel" xsi:type="object">Zero\Core\ViewModel\Homepage\CategoryShowcase</argument>
+                    <argument name="featuredProductsViewModel" xsi:type="object">Zero\Core\ViewModel\Homepage\FeaturedProducts</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+    </body>
+</page>

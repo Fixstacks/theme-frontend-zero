@@ -1,0 +1,76 @@
+<?php
+/**
+ * Copyright 2011 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Footer newsletter form.
+ *
+ * - Adds the form_key stock omits (it relied on JS to inject one; without it
+ *   every subscribe failed CSRF).
+ * - No `novalidate`, so the input's native `required`/`type="email"` actually
+ *   validate. The validation/trim-input/block-submit-on-send widgets are
+ *   dropped; the server validates too.
+ * - The label stays, `sr-only`; placeholder-only fields aren't accessible.
+ *   focus-visible outlines keep keyboard focus visible.
+ * - Small text on the lime band uses primary-content/70+ (≥4.5:1).
+ *
+ * @var \Magento\Newsletter\Block\Subscribe $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div class="block newsletter">
+    <span class="block text-xs font-semibold uppercase tracking-widest text-primary-content/65 mb-3">
+        <?= $escaper->escapeHtml(__('Stay in the Loop')) ?>
+    </span>
+    <div class="mb-3">
+        <span class="block text-4xl font-medium tracking-tight leading-none">
+            <?= $escaper->escapeHtml(__('Less noise.')) ?>
+        </span>
+        <span class="block font-display text-4xl leading-none">
+            <?= $escaper->escapeHtml(__('More signal.')) ?>
+        </span>
+    </div>
+    <p class="text-sm text-primary-content/75 max-w-sm mb-6">
+        <?= $escaper->escapeHtml(__('Occasional notes on new arrivals and what\'s next.')) ?>
+    </p>
+    <div>
+        <form class="flex items-end gap-4 max-w-md border-b border-primary-content/40 pb-2"
+            action="<?= $escaper->escapeUrl($block->getFormActionUrl()) ?>"
+            method="post"
+            id="newsletter-validate-detail">
+            <?= $block->getBlockHtml('formkey') ?>
+            <div class="flex-1">
+                <label for="newsletter" class="block">
+                    <span class="sr-only">
+                        <?= $escaper->escapeHtml(__('Sign Up for Our Newsletter:')) ?>
+                    </span>
+                    <input name="email" type="email" id="newsletter"
+                           placeholder="you@example.com"
+                           required
+                           class="w-full bg-transparent border-0 p-0 py-1 text-base text-primary-content
+                                  placeholder:text-primary-content/70 outline-none
+                                  focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+                                  focus-visible:outline-neutral"
+                    />
+                </label>
+            </div>
+            <div class="flex items-center">
+                <button class="inline-flex items-center gap-1.5 text-xs sm:text-sm font-semibold uppercase
+                               tracking-widest text-primary-content hover:text-neutral bg-transparent border-0 p-0
+                               focus-visible:outline focus-visible:outline-2 focus-visible:outline-offset-2
+                               focus-visible:outline-neutral"
+                        title="<?= $escaper->escapeHtmlAttr(__('Subscribe')) ?>"
+                        type="submit"
+                        aria-label="<?= $escaper->escapeHtmlAttr(__('Subscribe')) ?>">
+                    <span><?= $escaper->escapeHtml(__('Subscribe')) ?></span>
+                    <svg class="w-3.5 h-3.5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" aria-hidden="true"><path d="M7 17 17 7M9 7h8v8"/></svg>
+                </button>
+            </div>
+        </form>
+        <p class="text-xs uppercase tracking-wider text-primary-content/70 mt-3">
+            <?= $escaper->escapeHtml(__('No spam. Just the good stuff.')) ?>
+        </p>
+    </div>
+</div>

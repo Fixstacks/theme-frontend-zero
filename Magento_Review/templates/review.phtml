@@ -1,0 +1,16 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product Reviews section: renders the product_review_list child
+ * (Magento_Review/layout/catalog_product_view.xml) server-side instead of
+ * stock's AJAX-filled empty container.
+ *
+ * @var \Magento\Review\Block\Product\Review $block
+ */
+?>
+<?= $block->getChildHtml('product_review_list') ?>
+<?= $block->getChildHtml('review_form') ?>

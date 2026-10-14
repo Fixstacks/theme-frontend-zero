@@ -1,0 +1,76 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product page title (catalog_product_view.xml only; other pages keep stock's
+ * title.phtml).
+ *
+ * - Last word as an italic `.font-display` accent, only when the name doesn't
+ *   look like a variant SKU name: no `-` followed by an uppercase letter or
+ *   digit ("Tee-XS-Red"), no ™/®, last word longer than 2 characters.
+ *   Otherwise the name renders plain.
+ * - Category eyebrow above the title (ViewModel\ProductCategoryEyebrow);
+ *   nothing when the product has no category.
+ * - css_class/base attributes/getChildHtml() are as in stock.
+ *
+ * @var \Magento\Theme\Block\Html\Title $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Zero\Core\ViewModel\ProductCategoryEyebrow $categoryEyebrowViewModel
+ */
+$cssClass = $block->getCssClass() ? ' ' . $block->getCssClass() : '';
+$pageHeading = $block->getPageHeading() ? trim($block->getPageHeading()) : '';
+$categoryEyebrowViewModel = $block->getData('categoryEyebrowViewModel');
+$categoryEyebrow = $categoryEyebrowViewModel ? $categoryEyebrowViewModel->getCategoryName() : '';
+
+$leadText = $pageHeading;
+$accentWord = '';
+
+if ($pageHeading) {
+    $looksLikeVariantSuffix = (bool) preg_match('/-[A-Z0-9]/', $pageHeading)
+        || str_contains($pageHeading, '™')
+        || str_contains($pageHeading, '®');
+
+    if (!$looksLikeVariantSuffix) {
+        $words = preg_split('/\s+/', $pageHeading) ?: [];
+        $lastWord = (string) end($words);
+        if (count($words) > 1 && mb_strlen($lastWord) > 2) {
+            $accentWord = $lastWord;
+            $leadText = trim(implode(' ', array_slice($words, 0, -1)));
+        }
+    }
+}
+?>
+
+<?php if ($pageHeading): ?>
+<?php if ($categoryEyebrow): ?>
+    <?php
+    /*
+     * Outside `.page-title-wrapper`: that wrapper is a space-between flex row
+     * (shared with order view's "Print" link), which pushed the title to the right.
+     */
+    ?>
+    <p class="page-title-eyebrow text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2">
+        <?= $escaper->escapeHtml($categoryEyebrow) ?>
+    </p>
+<?php endif; ?>
+<div class="page-title-wrapper<?= $escaper->escapeHtmlAttr($cssClass) ?>">
+    <h1 class="page-title"
+        <?php if ($block->getId()): ?> id="<?= $escaper->escapeHtmlAttr($block->getId()) ?>" <?php endif; ?>
+        <?php if ($block->getAddBaseAttributeAria()): ?>
+            aria-labelledby="<?= $escaper->escapeHtmlAttr($block->getAddBaseAttributeAria()) ?>"
+        <?php endif; ?>>
+        <span class="base" data-ui-id="page-title-wrapper" <?= /* @noEscape */ $block->getAddBaseAttribute() ?>>
+            <?php if ($accentWord): ?>
+                <?= $escaper->escapeHtml($leadText) ?>
+                <em class="font-display text-secondary"><?= $escaper->escapeHtml($accentWord) ?></em>
+            <?php else: ?>
+                <?= $escaper->escapeHtml($pageHeading) ?>
+            <?php endif; ?>
+        </span>
+    </h1>
+    <?= $block->getChildHtml() ?>
+</div>
+<?php endif; ?>

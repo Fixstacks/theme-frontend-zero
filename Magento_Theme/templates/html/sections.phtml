@@ -1,0 +1,50 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * The mobile "Menu" group (navigation.sections). Stock uses JS tabs; this is a
+ * native <details>: closed by default on mobile, its <summary> is the header's
+ * hamburger button (SVG icon + text label that CSS shows only when open).
+ * Desktop forces it open (components.css), where the nav is a plain bar.
+ *
+ * Otherwise stock logic (getGroupChildNames()/getChildData(), empty groups
+ * skipped). The placeholder "Account" tab (store.links) is removed in
+ * Magento_Theme/layout/default.xml; account links live in the header dropdown.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$group = $block->getGroupName();
+$groupCss = $block->getGroupCss();
+?>
+<?php if ($detailedInfoGroup = $block->getGroupChildNames($group)): ?>
+    <div class="sections <?= $escaper->escapeHtmlAttr($groupCss) ?>">
+        <?php $layout = $block->getLayout(); ?>
+        <div class="section-items <?= $escaper->escapeHtmlAttr($groupCss) ?>-items">
+            <?php foreach ($detailedInfoGroup as $name):
+                $html = $layout->renderElement($name);
+                if (!($html !== null && trim($html)) && ($block->getUseForce() != true)) {
+                    continue;
+                }
+                $alias = $layout->getElementAlias($name);
+                $label = $block->getChildData($alias, 'title');
+                ?>
+                <details class="<?= $escaper->escapeHtmlAttr($groupCss) ?>-item">
+                    <summary class="section-item-title <?= $escaper->escapeHtmlAttr($groupCss) ?>-item-title">
+                        <svg class="<?= $escaper->escapeHtmlAttr($groupCss) ?>-item-icon size-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.5" aria-hidden="true">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M3.75 6.75h16.5M3.75 12h16.5M3.75 17.25h16.5" />
+                        </svg>
+                        <span class="<?= $escaper->escapeHtmlAttr($groupCss) ?>-item-label"><?= /* @noEscape */ $label ?></span>
+                    </summary>
+                    <div class="section-item-content <?= $escaper->escapeHtmlAttr($groupCss) ?>-item-content"
+                         id="<?= $escaper->escapeHtmlAttr($alias) ?>">
+                        <?= /* @noEscape */ $html ?>
+                    </div>
+                </details>
+            <?php endforeach; ?>
+        </div>
+    </div>
+<?php endif; ?>

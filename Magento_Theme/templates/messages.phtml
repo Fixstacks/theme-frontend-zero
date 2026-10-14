@@ -1,0 +1,17 @@
+<?php
+/**
+ * Copyright 2015 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Flash messages shell: an empty, cacheable placeholder; the session's
+ * messages (the `mage-messages` cookie) arrive with the other per-visitor
+ * fragments in one request (Zero_Core Controller\Session\Bootstrap,
+ * session.js), so cached pages never contain another visitor's messages.
+ *
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div data-zero-fragment="messages">
+</div>

@@ -1,0 +1,26 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Header welcome part. Stock's Knockout `customer` bindings never run here;
+ * the greeting comes from the zero/customer/welcome fragment. The
+ * `show_part == 'other'` branch is left as stock.
+ *
+ * @var \Magento\Theme\Block\Html\Header $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->getShowPart() == 'welcome') : ?>
+    <li class="greet welcome list-none text-sm text-base-content/60">
+        <?php // getWelcome() already returns HTML-escaped content (Header::getWelcome() calls
+        // escapeQuote() internally) — rendering it raw here, not through escapeHtml() a second
+        // time, to avoid double-escaping stock's own already-safe output. ?>
+        <span class="welcome-text" data-zero-fragment="welcome"><?= /* @noEscape */ $block->getWelcome() ?></span>
+        <?= $block->getBlockHtml('header.additional') ?>
+    </li>
+<?php elseif ($block->getShowPart() == 'other') : ?>
+    <?= $block->getChildHtml() ?>
+<?php endif ?>

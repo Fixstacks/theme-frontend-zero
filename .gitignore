@@ -1,0 +1,5 @@
+node_modules/
+.vite/
+playwright-report/
+test-results/
+src/styles/generated/

@@ -1,0 +1,51 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Grid/List switcher as links (stock's "#" mode-switcher needs toolbar.js).
+ * URLs via getPagerUrl() with `product_list_mode`, also hx-get/hx-select
+ * #page-columns, like the sorter and limiter.
+ *
+ * @var \Magento\Catalog\Block\Product\ProductList\Toolbar $block
+ */
+?>
+<?php if ($block->isEnabledViewSwitcher()) : ?>
+    <?php $_modes = $block->getModes(); ?>
+    <?php if ($_modes && count($_modes) > 1) : ?>
+        <div class="modes flex items-center gap-2">
+            <strong class="modes-label text-sm text-base-content/60 font-normal" id="modes-label">
+                <?= $block->escapeHtml(__('View as')) ?>
+            </strong>
+            <div class="join">
+                <?php foreach ($_modes as $_code => $_label) : ?>
+                    <?php if ($block->isModeActive($_code)) : ?>
+                        <strong title="<?= $block->escapeHtmlAttr($_label) ?>"
+                                class="modes-mode active mode-<?= $block->escapeHtmlAttr(strtolower($_code)) ?>
+                                        btn btn-xs join-item btn-primary no-animation"
+                                data-value="<?= $block->escapeHtmlAttr(strtolower($_code)) ?>">
+                            <span><?= $block->escapeHtml($_label) ?></span>
+                        </strong>
+                    <?php else :
+                        $modeUrl = $block->getPagerUrl(['product_list_mode' => $_code]);
+                        ?>
+                        <a class="modes-mode mode-<?= $block->escapeHtmlAttr(strtolower($_code)) ?>
+                                    btn btn-xs join-item btn-ghost"
+                           title="<?= $block->escapeHtmlAttr($_label) ?>"
+                           href="<?= $block->escapeUrl($modeUrl) ?>"
+                           hx-get="<?= $block->escapeUrl($modeUrl) ?>"
+                           hx-target="#page-columns" hx-select="#page-columns"
+                           hx-swap="outerHTML" hx-push-url="true"
+                           data-value="<?= $block->escapeHtmlAttr(strtolower($_code)) ?>"
+                           id="mode-<?= $block->escapeHtmlAttr(strtolower($_code)) ?>"
+                           aria-labelledby="modes-label mode-<?= $block->escapeHtmlAttr(strtolower($_code)) ?>">
+                            <span><?= $block->escapeHtml($_label) ?></span>
+                        </a>
+                    <?php endif; ?>
+                <?php endforeach; ?>
+            </div>
+        </div>
+    <?php endif; ?>
+<?php endif; ?>

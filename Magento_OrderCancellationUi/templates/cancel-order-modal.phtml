@@ -1,0 +1,57 @@
+<?php
+/**
+ * Copyright 2023 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Customer order cancellation dialog. Stock has no non-JS path for this (only
+ * the GraphQL `cancelOrder` mutation), so this is a documented JS-required
+ * feature: a native <dialog> plus a small vanilla script.
+ *
+ * - The parent templates (order/recent, order/history, order/info/buttons)
+ *   render `<a data-role="cancel-order-trigger" data-target="#dialog-id">`
+ *   next to this dialog.
+ * - The script is printed once per order row but guarded by
+ *   `window.__zeroCancelOrderInit`, so one delegated listener is attached.
+ * - showModal() gives focus trapping and Escape; Close and backdrop click
+ *   close it. Confirm POSTs `cancelOrder` with the selected reason's text
+ *   (as stock does) to /graphql with the session cookie. A business error
+ *   shows in the aria-live status region; success reloads the page.
+ * - A trigger without a matching dialog does nothing.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ * @var $escaper Magento\Framework\Escaper
+ */
+$order = $block->getOrder();
+$orderId = (int) $order->getId();
+$dialogId = 'cancel-order-modal-' . $orderId;
+$graphqlUrl = $block->getGraphqlUrl();
+?>
+<dialog id="<?= $escaper->escapeHtmlAttr($dialogId) ?>" class="cancel-order-modal modal"
+        data-graphql-url="<?= $escaper->escapeHtmlAttr($graphqlUrl) ?>"
+        data-order-id="<?= /* @noEscape */ $orderId ?>">
+    <div class="modal-box">
+        <h3><?= $escaper->escapeHtml(__('Cancel order')) ?>
+            <span class="cancel-order-id"><?= $escaper->escapeHtml($order->getRealOrderId()) ?></span>
+        </h3>
+        <p><?= $escaper->escapeHtml(__('Provide a cancellation reason:')) ?></p>
+        <select class="cancel-order-reason select select-bordered w-full" data-role="reason" name="reason">
+            <?php foreach ($block->getReasons() as $key => $description) : ?>
+                <option value="<?= $escaper->escapeHtmlAttr(__($description)) ?>">
+                    <?= $escaper->escapeHtml(__($description)) ?>
+                </option>
+            <?php endforeach; ?>
+        </select>
+        <div class="cancel-order-status" role="status" aria-live="polite" hidden></div>
+        <div class="cancel-order-actions mt-4 flex justify-end gap-2">
+            <button type="button" data-role="close" class="btn btn-ghost">
+                <span><?= $escaper->escapeHtml(__('Close')) ?></span>
+            </button>
+            <button type="button" data-role="confirm" class="btn btn-primary">
+                <span><?= $escaper->escapeHtml(__('Confirm')) ?></span>
+            </button>
+        </div>
+    </div>
+</dialog>
+<script src="<?= $escaper->escapeUrl($block->getViewFileUrl('js/cancel-order.js')) ?>" defer></script>

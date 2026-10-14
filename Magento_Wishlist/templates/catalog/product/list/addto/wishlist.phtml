@@ -1,0 +1,27 @@
+<?php
+/**
+ * Copyright 2016 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product grid "Add to Wish List": a POST form to wishlist/index/add (stock
+ * used data-post JS), icon-only with aria-label/title.
+ *
+ * @var Magento\Wishlist\Block\Catalog\Product\ProductList\Item\AddTo\Wishlist $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->getWishlistHelper()->isAllow()) : ?>
+    <form method="post" action="<?= $escaper->escapeUrl($block->getUrl('wishlist/index/add')) ?>" class="inline-block">
+        <?= $block->getBlockHtml('formkey') ?>
+        <input type="hidden" name="product" value="<?= (int) $block->getProduct()->getId() ?>" />
+        <button type="submit"
+                class="action towishlist"
+                title="<?= $escaper->escapeHtmlAttr(__('Add to Wish List')) ?>"
+                aria-label="<?= $escaper->escapeHtmlAttr(__('Add to Wish List')) ?>"
+                data-action="add-to-wishlist">
+            <span class="sr-only"><?= $escaper->escapeHtml(__('Add to Wish List')) ?></span>
+        </button>
+    </form>
+<?php endif; ?>

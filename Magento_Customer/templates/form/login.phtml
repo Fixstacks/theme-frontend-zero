@@ -1,0 +1,71 @@
+<?php
+/**
+ * Copyright 2011 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Customer login form.
+ *
+ * - Dropped: validation/block-submit-on-send/show-password widgets and the
+ *   empty Knockout "Show Password" placeholder; LoginPost validates.
+ * - The password label's `for` now matches the input id (stock mismatch).
+ * - `$buttonLockManager?->isDisabled(...)` is kept: a conditional ReCaptcha
+ *   lock, not active here.
+ *
+ * @var \Magento\Customer\Block\Form\Login $block
+ * @var \Magento\Framework\View\Element\ButtonLockManager|null $buttonLockManager
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$buttonLockManager = $block->getData('button_lock_manager');
+?>
+<div class="block block-customer-login">
+    <div class="block-title">
+        <strong id="block-customer-login-heading" role="heading" aria-level="2"><?= $escaper->escapeHtml(__('Registered Customers')) ?></strong>
+    </div>
+    <div class="block-content" aria-labelledby="block-customer-login-heading">
+        <form class="form form-login"
+              action="<?= $escaper->escapeUrl($block->getPostActionUrl()) ?>"
+              method="post"
+              id="login-form">
+            <?= $block->getBlockHtml('formkey') ?>
+            <fieldset class="fieldset login" data-hasrequired="<?= $escaper->escapeHtml(__('* Required Fields')) ?>">
+                <div class="field note"><?= $escaper->escapeHtml(__('If you have an account, sign in with your email address.')) ?></div>
+                <div class="field email required">
+                    <label class="label" for="email"><span><?= $escaper->escapeHtml(__('Email')) ?></span></label>
+                    <div class="control">
+                        <input name="login[username]" value="<?= $escaper->escapeHtmlAttr($block->getUsername()) ?>"
+                            <?php if ($block->isAutocompleteDisabled()): ?> autocomplete="off"<?php endif; ?>
+                               id="email" type="email" class="input-text"
+                               title="<?= $escaper->escapeHtmlAttr(__('Email')) ?>"
+                               data-validate="{required:true, 'validate-email':true}">
+                    </div>
+                </div>
+                <div class="field password required">
+                    <label for="password" class="label"><span><?= $escaper->escapeHtml(__('Password')) ?></span></label>
+                    <div class="control">
+                        <input name="login[password]" type="password"
+                            <?php if ($block->isAutocompleteDisabled()): ?> autocomplete="off"<?php endif; ?>
+                               class="input-text" id="password"
+                               title="<?= $escaper->escapeHtmlAttr(__('Password')) ?>"
+                               data-validate="{required:true}">
+                    </div>
+                </div>
+                <?= $block->getChildHtml('form_additional_info') ?>
+                <div class="actions-toolbar">
+                    <div class="primary">
+                        <button type="submit" class="action login primary btn btn-primary hover:bg-neutral hover:text-neutral-content" name="send" id="send2" <?php if ($buttonLockManager?->isDisabled('customer_login_form_submit')): ?> disabled="disabled" <?php endif; ?>>
+                            <span><?= $escaper->escapeHtml(__('Sign In')) ?></span>
+                        </button>
+                    </div>
+                    <div class="secondary"><a class="action remind" href="<?= $escaper->escapeUrl($block->getForgotPasswordUrl()) ?>"><span><?= $escaper->escapeHtml(__('Forgot Your Password?')) ?></span></a></div>
+                </div>
+                <?php /* Phones: the "New Customers" card is a screen further down; offer it here too. */ ?>
+                <p class="md:hidden mt-5 text-sm">
+                    <?= $escaper->escapeHtml(__('New here?')) ?>
+                    <a class="font-semibold underline underline-offset-2" href="<?= $escaper->escapeUrl($block->getUrl('customer/account/create')) ?>"><?= $escaper->escapeHtml(__('Create an account')) ?></a>
+                </p>
+            </fieldset>
+        </form>
+    </div>
+</div>

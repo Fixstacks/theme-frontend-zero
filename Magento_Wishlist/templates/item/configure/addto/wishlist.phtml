@@ -1,0 +1,36 @@
+<?php
+/**
+ * Copyright 2016 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * "Update Wish List" on the wishlist item configure page (the product page
+ * layout reused). Stock used data-post JS.
+ *
+ * This block isn't inside #product_addtocart_form here, so the button and its
+ * hidden `id` use form="product_addtocart_form" plus formaction/formmethod:
+ * the item id and the form's product/qty/option fields post together.
+ * UpdateItemOptions builds the buyRequest from all params.
+ *
+ * @var \Magento\Wishlist\Block\Item\Configure $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+// getWishlistItem() (the real source of this item's own id) is a PROTECTED method on this
+// block, unreachable directly from the template — so the real id is read back out of
+// getUpdateParams()'s own already-computed JSON instead (`{"action":..,"data":{"id":..,
+// "product":..,"qty":..}}`, built by Wishlist\Helper\Data::getUpdateParams() from that exact
+// same protected value), rather than re-deriving it a second, riskier way.
+$updateParams = json_decode((string) $block->getUpdateParams(), true);
+$wishlistItemId = $updateParams['data']['id'] ?? null;
+?>
+<?php if ($wishlistItemId && $this->helper(\Magento\Wishlist\Helper\Data::class)->isAllow()) : ?>
+    <input type="hidden" name="id" value="<?= (int) $wishlistItemId ?>" form="product_addtocart_form">
+    <button type="submit"
+            form="product_addtocart_form"
+            formaction="<?= $block->escapeUrl($block->getUrl('wishlist/index/updateItemOptions')) ?>"
+            formmethod="post"
+            class="action towishlist updated">
+        <span><?= $block->escapeHtml(__('Update Wish List')) ?></span>
+    </button>
+<?php endif; ?>

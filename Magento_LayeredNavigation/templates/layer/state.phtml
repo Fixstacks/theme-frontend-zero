@@ -1,0 +1,80 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * "Now Shopping by" chips: stock links plus hx-get/hx-select/hx-swap of
+ * #page-columns. With Zero_LayeredNavigation (zero_filters) one chip per
+ * chosen value, its × taking out that value only.
+ *
+ * @var $block \Magento\LayeredNavigation\Block\Navigation\State
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php $_filters = $block->getActiveFilters() ?>
+<?php /** @var \Zero\LayeredNavigation\ViewModel\Filters|null $zero */ $zero = $block->getData('zero_filters'); ?>
+<?php if (!empty($_filters)) : ?>
+<div class="filter-current mb-4">
+    <strong class="block-subtitle filter-current-subtitle block text-xs font-semibold uppercase tracking-wide text-base-content/60 mb-2"
+            role="heading"
+            aria-level="2"
+            data-count="<?= /* @noEscape */ count($_filters) ?>"><?= $block->escapeHtml(__('Now Shopping by')) ?></strong>
+    <ol class="items flex flex-wrap gap-1.5">
+        <?php foreach ($_filters as $_filter) : ?>
+            <li class="item">
+                <?php
+                $clearLinkUrl = $_filter->getClearLinkUrl();
+                $currentFilterName = $block->escapeHtmlAttr(__($_filter->getName()) . " " . $block->stripTags($_filter->getLabel()));
+                ?>
+                <span class="badge badge-outline gap-1.5 ps-3 pe-1.5 py-3">
+                    <span class="filter-label text-base-content/60"><?= $block->escapeHtml(__($_filter->getName())) ?>:</span>
+                    <span class="filter-value font-medium"><?= $block->escapeHtml($block->stripTags($_filter->getLabel())) ?></span>
+                    <?php if ($zero) : ?>
+                        <?php $removeUrl = $zero->removeUrl($_filter); ?>
+                        <a class="action remove btn btn-circle btn-ghost btn-xs"
+                           href="<?= $block->escapeUrl($removeUrl) ?>"
+                           hx-get="<?= $block->escapeUrl($removeUrl) ?>"
+                           hx-target="#page-columns" hx-select="#page-columns"
+                           hx-swap="outerHTML" hx-push-url="true"
+                           title="<?= /* @noEscape */ $block->escapeHtmlAttr(__('Remove')) . " " . $currentFilterName ?>"
+                           aria-label="<?= /* @noEscape */ $block->escapeHtmlAttr(__('Remove')) . " " . $currentFilterName ?>">
+                            &times;
+                        </a>
+                    <?php elseif ($clearLinkUrl) : ?>
+                        <a class="action previous btn btn-circle btn-ghost btn-xs"
+                           href="<?= $block->escapeUrl($_filter->getRemoveUrl()) ?>"
+                           hx-get="<?= $block->escapeUrl($_filter->getRemoveUrl()) ?>"
+                           hx-target="#page-columns" hx-select="#page-columns"
+                           hx-swap="outerHTML" hx-push-url="true"
+                           title="<?= $block->escapeHtmlAttr(__('Previous')) ?>"
+                           aria-label="<?= $block->escapeHtmlAttr(__('Previous')) ?>">
+                            &lsaquo;
+                        </a>
+                        <a class="action remove btn btn-circle btn-ghost btn-xs"
+                           href="<?= $block->escapeUrl($clearLinkUrl) ?>"
+                           hx-get="<?= $block->escapeUrl($clearLinkUrl) ?>"
+                           hx-target="#page-columns" hx-select="#page-columns"
+                           hx-swap="outerHTML" hx-push-url="true"
+                           title="<?= $block->escapeHtmlAttr($_filter->getFilter()->getClearLinkText()) ?>"
+                           aria-label="<?= $block->escapeHtmlAttr($_filter->getFilter()->getClearLinkText()) ?>">
+                            &times;
+                        </a>
+                    <?php else : ?>
+                        <a class="action remove btn btn-circle btn-ghost btn-xs"
+                           href="<?= $block->escapeUrl($_filter->getRemoveUrl()) ?>"
+                           hx-get="<?= $block->escapeUrl($_filter->getRemoveUrl()) ?>"
+                           hx-target="#page-columns" hx-select="#page-columns"
+                           hx-swap="outerHTML" hx-push-url="true"
+                           title="<?= /* @noEscape */ $block->escapeHtmlAttr(__('Remove')) . " " . $currentFilterName ?>"
+                           aria-label="<?= /* @noEscape */ $block->escapeHtmlAttr(__('Remove')) . " " . $currentFilterName ?>">
+                            &times;
+                        </a>
+                    <?php endif; ?>
+                </span>
+            </li>
+        <?php endforeach; ?>
+    </ol>
+</div>
+<?php endif; ?>

@@ -1,0 +1,66 @@
+<?php
+/**
+ * Copyright 2011 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product card image (listings, widgets, related products). As stock, plus
+ * a <picture>: WebP first, and 300/600 px wide copies so high-density
+ * screens get a sharp image (the role's own 240 px one is the fallback src).
+ * Copies come from Zero\Core\Model\Image\ProductPicture, handed to this
+ * block as `zero_picture`; without it (or for a placeholder) it is stock's
+ * plain <img>.
+ *
+ * @var \Magento\Catalog\Block\Product\Image $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer
+ */
+$width = (int) $block->getWidth();
+$height = (int) $block->getHeight();
+$paddingBottom = $block->getRatio() * 100;
+/** @var \Zero\Core\Model\Image\ProductPicture|null $picture */
+$picture = $block->getData('zero_picture');
+$srcsets = $picture ? $picture->getSrcsets((string) $block->getImageUrl(), $width, $height, [300, 600]) : null;
+// Cards: 2 per row on phones, 3 on tablets, about 300 px wide from desktop up.
+$sizes = '(min-width: 1024px) 300px, (min-width: 640px) 33vw, 50vw';
+?>
+<span class="product-image-container product-image-container-<?= /* @noEscape */ $block->getProductId() ?>">
+    <span class="product-image-wrapper">
+        <?php if ($srcsets): ?><picture>
+            <source type="image/webp"
+                    srcset="<?= $escaper->escapeHtml($srcsets['webp']) ?>"
+                    sizes="<?= /* @noEscape */ $sizes ?>"><?php endif; ?>
+        <img class="<?= $escaper->escapeHtmlAttr($block->getClass()) ?>"
+            <?php foreach ($block->getCustomAttributes() as $name => $value): ?>
+                <?= $escaper->escapeHtmlAttr($name) ?>="<?= $escaper->escapeHtml($value) ?>"
+            <?php endforeach; ?>
+            src="<?= $escaper->escapeUrl($block->getImageUrl()) ?>"
+            <?php if ($srcsets): ?>
+            srcset="<?= $escaper->escapeHtml($srcsets['jpeg']) ?>"
+            sizes="<?= /* @noEscape */ $sizes ?>"
+            <?php endif; ?>
+            loading="lazy"
+            width="<?= $escaper->escapeHtmlAttr($block->getWidth()) ?>"
+            height="<?= $escaper->escapeHtmlAttr($block->getHeight()) ?>"
+            alt="<?= $escaper->escapeHtmlAttr($block->getLabel()) ?>"/><?php if ($srcsets): ?></picture><?php endif; ?></span>
+</span>
+<?php
+$styles = <<<STYLE
+.product-image-container-{$block->getProductId()} {
+    width: {$width}px;
+    height: auto;
+    aspect-ratio: {$width} / {$height};
+}
+.product-image-container-{$block->getProductId()} span.product-image-wrapper {
+    height: 100%;
+    width: 100%;
+}
+@supports not (aspect-ratio: auto) {
+    .product-image-container-{$block->getProductId()} span.product-image-wrapper {
+        padding-bottom: {$paddingBottom}%;
+    }
+}
+STYLE;
+?>
+<?= /* @noEscape */ $secureRenderer->renderTag('style', [], $styles, false) ?>

@@ -1,0 +1,33 @@
+<?php
+/**
+ * Copyright 2016 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product page "Add to Compare" (icon-only, aria-label; used only here).
+ * Rendered again next to the wishlist icon by addtocart.phtml; the original
+ * copy is hidden with CSS.
+ *
+ * Not a <form>: the addtocart.phtml copy sits inside #product_addtocart_form,
+ * and a nested form's form_key leaked into Add to Cart's POST (the stale
+ * second value won and failed CSRF). It uses form="product_addtocart_form" +
+ * formaction (catalog/product_compare/add) instead, like the wishlist button.
+ *
+ * @var \Magento\Catalog\Block\Product\View\Addto\Compare $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+$viewModel = $block->getData('addToCompareViewModel');
+$compareHelper = $this->helper(\Magento\Catalog\Helper\Product\Compare::class);
+?>
+
+<?php if ($viewModel->isAvailableForCompare($block->getProduct())) :?>
+<button type="submit"
+        form="product_addtocart_form"
+        formaction="<?= $escaper->escapeUrl($compareHelper->getAddUrl()) ?>"
+        data-role="add-to-links"
+        class="action tocompare"
+        aria-label="<?= $escaper->escapeHtmlAttr(__('Add to Compare')) ?>">
+    <span class="sr-only"><?= $escaper->escapeHtml(__('Add to Compare')) ?></span>
+</button>
+<?php endif; ?>

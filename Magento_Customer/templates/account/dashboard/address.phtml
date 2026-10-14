@@ -1,0 +1,54 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Replaces stock's
+ * Magento_Customer::account/dashboard/address.phtml (the "Address
+ * Book" default billing/shipping boxes on the My Account dashboard).
+ * Same "purely visual, already fully functional" gap as this theme's
+ * own sibling `dashboard/info.phtml` override — real DaisyUI `card`
+ * treatment instead of raw unstyled text.
+ *
+ * @var \Magento\Customer\Block\Account\Dashboard\Address $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div class="block block-dashboard-addresses">
+    <div class="block-title title mb-4 flex items-baseline justify-between gap-4">
+        <strong class="font-sans font-semibold text-xl"><?= $escaper->escapeHtml(__('Address Book')) ?></strong>
+        <a class="action edit link link-neutral text-sm no-underline hover:underline" href="<?= $escaper->escapeUrl($block->getAddressBookUrl()) ?>">
+            <span><?= $escaper->escapeHtml(__('Manage Addresses')) ?></span>
+        </a>
+    </div>
+    <div class="block-content content grid gap-4 sm:grid-cols-2">
+        <div class="box box-billing-address card card-border border-base-300 bg-base-100">
+            <div class="card-body">
+                <strong class="card-title box-title text-base"><?= $escaper->escapeHtml(__('Default Billing Address')) ?></strong>
+                <div class="box-content text-sm">
+                    <address class="not-italic"><?= $block->getPrimaryBillingAddressHtml() ?></address>
+                </div>
+                <div class="box-actions card-actions mt-2">
+                    <a class="action edit link link-neutral text-sm no-underline hover:underline" href="<?= $escaper->escapeUrl($block->getPrimaryBillingAddressEditUrl()) ?>" data-ui-id="default-billing-edit-link">
+                        <span><?= $escaper->escapeHtml(__('Edit Address')) ?></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+        <div class="box box-shipping-address card card-border border-base-300 bg-base-100">
+            <div class="card-body">
+                <strong class="card-title box-title text-base"><?= $escaper->escapeHtml(__('Default Shipping Address')) ?></strong>
+                <div class="box-content text-sm">
+                    <address class="not-italic"><?= $block->getPrimaryShippingAddressHtml() ?></address>
+                </div>
+                <div class="box-actions card-actions mt-2">
+                    <a class="action edit link link-neutral text-sm no-underline hover:underline" href="<?= $escaper->escapeUrl($block->getPrimaryShippingAddressEditUrl()) ?>" data-ui-id="default-shipping-edit-link">
+                        <span><?= $escaper->escapeHtml(__('Edit Address')) ?></span>
+                    </a>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>

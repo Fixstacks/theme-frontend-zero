@@ -1,0 +1,29 @@
+<?php
+/**
+ * Copyright 2016 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product page "Add to Wish List" (icon-only, aria-label; used only here).
+ *
+ * Submits #product_addtocart_form (form= + formaction=wishlist/index/add),
+ * not a separate form: that form carries the selected `super_attribute[...]`,
+ * which stock's JS used to copy into the data-post payload. Without it,
+ * configurable products were saved without the chosen size/color.
+ * Index\Add builds the buyRequest from all POST params.
+ *
+ * @var \Magento\Wishlist\Block\Catalog\Product\View\AddTo\Wishlist $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<?php if ($block->isWishListAllowed()): ?>
+    <button type="submit"
+            form="product_addtocart_form"
+            formaction="<?= $escaper->escapeUrl($block->getUrl('wishlist/index/add')) ?>"
+            class="action towishlist"
+            data-action="add-to-wishlist"
+            aria-label="<?= $escaper->escapeHtmlAttr(__('Add to Wish List')) ?>">
+        <span class="sr-only"><?= $escaper->escapeHtml(__('Add to Wish List')) ?></span>
+    </button>
+<?php endif; ?>

@@ -1,0 +1,32 @@
+<?php
+/**
+ * Copyright 2018 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Product page breadcrumbs. Stock renders an empty div filled by JS; this
+ * renders "Home > Product" in the same `.breadcrumbs > ul.items > li.item > a`
+ * shape as html/breadcrumbs.phtml (which DaisyUI's `.breadcrumbs` styles).
+ * The JS's referrer-aware category trail isn't reimplemented. Small uppercase
+ * muted styling, like the generic breadcrumbs.
+ *
+ * @var \Magento\Theme\Block\Html\Breadcrumbs $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Catalog\ViewModel\Product\Breadcrumbs $viewModel
+ */
+$viewModel = $block->getData('viewModel');
+?>
+<div class="breadcrumbs text-xs uppercase tracking-wide text-base-content/60">
+    <ul class="items">
+        <li class="item home">
+            <a href="<?= $escaper->escapeUrl($block->getUrl('')) ?>"
+               title="<?= $escaper->escapeHtmlAttr(__('Go to Home Page')) ?>">
+                <?= $escaper->escapeHtml(__('Home')) ?>
+            </a>
+        </li>
+        <li class="item product">
+            <strong class="font-semibold text-base-content"><?= $escaper->escapeHtml($viewModel->getProductName()) ?></strong>
+        </li>
+    </ul>
+</div>

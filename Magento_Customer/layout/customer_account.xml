@@ -1,0 +1,29 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2013 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * - Sets the template on customer_account_navigation (Html\Links ignores
+ *   templates unless one is set).
+ * - sidebar.main.account_nav gets block_title (html/collapsible.phtml prints
+ *   it) and block_css (stock parity), previously inherited from Blank.
+ * - page.main.title moves above the two-column layout.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <move element="page.main.title" destination="content.top" before="-"/>
+        <referenceBlock name="customer_account_navigation"
+                         template="Magento_Customer::account/navigation.phtml"/>
+        <referenceBlock name="sidebar.main.account_nav">
+            <arguments>
+                <argument name="block_title" xsi:type="string">My Account</argument>
+                <argument name="block_css" xsi:type="string">block-collapsible-nav</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

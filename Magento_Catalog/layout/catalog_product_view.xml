@@ -1,0 +1,93 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2013 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Removes `html_calendar` (Magento_Theme::js/calendar.phtml): it only sets a
+ * jQuery-UI datepicker locale via `require([...])`, and without RequireJS
+ * `require` is a config object, so it threw "require is not a function" on
+ * products with date custom options. Nothing consumes that config; date options
+ * stay plain text inputs. (Same as catalogsearch_advanced_index.xml.)
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <!--
+        mage/gallery/gallery.css styles Fotorama (`fotorama__*`); the theme's
+        gallery.phtml is a native :target gallery with its own classes, so none of
+        its selectors match.
+    -->
+    <head>
+        <remove src="mage/gallery/gallery.css"/>
+    </head>
+    <body>
+        <referenceBlock name="html_calendar" remove="true"/>
+        <!--
+            Product-page-only title template (bold lead + italic accent split, category
+            eyebrow above; see page-title.phtml). Other pages keep the shared template.
+        -->
+        <referenceBlock name="page.main.title" template="Magento_Catalog::product/view/page-title.phtml">
+            <arguments>
+                <argument name="categoryEyebrowViewModel" xsi:type="object">Zero\Core\ViewModel\ProductCategoryEyebrow</argument>
+            </arguments>
+        </referenceBlock>
+        <!--
+            Title moves inside the right info column (before product.info.price), so the
+            column reads eyebrow + title, stock/SKU/reviews, price, swatches.
+        -->
+        <move element="page.main.title" destination="product.info.main" before="product.info.price"/>
+        <!-- "New" / "Sale" badges above the eyebrow and title (Zero_Core::product/badges.phtml). -->
+        <referenceContainer name="product.info.main">
+            <block class="Magento\Catalog\Block\Product\View" name="zero.product.badges.view"
+                   template="Zero_Core::product/badges.phtml" before="-">
+                <arguments>
+                    <argument name="badgesViewModel" xsi:type="object">Zero\Core\ViewModel\ProductBadges</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
+        <!--
+            product.info.meta-row wraps stock/SKU and the reviews summary so CSS can
+            border them as one box; two separately bordered siblings split apart when
+            the row wrapped (~1024px and below).
+        -->
+        <referenceContainer name="product.info.price">
+            <container name="product.info.meta-row" htmlTag="div" htmlClass="product-info-meta-row"
+                       before="product.info.stock.sku"/>
+        </referenceContainer>
+        <move element="product.info.stock.sku" destination="product.info.meta-row"/>
+        <move element="product.info.review" destination="product.info.meta-row"/>
+        <!--
+            Dead `text/x-magento-init` blocks on product pages (no RequireJS loads):
+            - product.info.media.video: targets Fotorama's gallery placeholder, which
+              this theme's gallery never renders.
+            - product.info.addtocart.instantPurchase(.additional): output is only a
+              Knockout template placeholder.
+            - product_viewed_counter: client-side view beacon. The Recently Viewed
+              widget is fed server-side (Zero_Core events.xml observer).
+        -->
+        <referenceBlock name="product.info.media.video" remove="true"/>
+        <!-- WebP and high-density copies of the gallery's main images, and video players (see gallery.phtml). -->
+        <referenceBlock name="product.info.media.image">
+            <arguments>
+                <argument name="zero_picture" xsi:type="object">Zero\Core\Model\Image\ProductPicture</argument>
+                <argument name="zero_video" xsi:type="object">Zero\Core\ViewModel\Product\GalleryVideo</argument>
+            </arguments>
+        </referenceBlock>
+        <referenceBlock name="product.info.addtocart.instantPurchase" remove="true"/>
+        <referenceBlock name="product.info.addtocart.instantPurchase.additional" remove="true"/>
+        <referenceBlock name="product_viewed_counter" remove="true"/>
+        <!--
+            report.product.view (Magento_Reports' JS view counter): another dead
+            client-side beacon. The report_viewed_product_index data comes from the
+            server-side observer, which doesn't need it.
+        -->
+        <referenceBlock name="report.product.view" remove="true"/>
+        <!--
+            require-cookie (no-cookies redirect for wishlist): purely JS, so inert here.
+            Four modules declare it under the same name, so one remove covers all of them.
+        -->
+        <referenceBlock name="require-cookie" remove="true"/>
+    </body>
+</page>

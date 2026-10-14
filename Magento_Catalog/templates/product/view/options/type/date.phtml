@@ -1,0 +1,66 @@
+<?php
+/**
+ * Copyright 2011 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Date / time custom option. As stock, except: each select core renders
+ * (month, day, year, hour, minute, AM/PM) gets an accessible name ("Delivery
+ * date: Month"); stock leaves them unnamed and only the legend names the
+ * group. The x-magento-init validation config is dropped (no RequireJS on
+ * Zero pages).
+ *
+ * @var \Magento\Catalog\Block\Product\View\Options\Type\Date $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+use Magento\Catalog\Api\Data\ProductCustomOptionInterface;
+
+$_option = $block->getOption();
+$_optionId = $escaper->escapeHtmlAttr($_option->getId());
+$class = ($_option->getIsRequire()) ? ' required' : '';
+$title = (string) $_option->getTitle();
+$names = [
+    'month' => __('Month'),
+    'day' => __('Day'),
+    'year' => __('Year'),
+    'hour' => __('Hour'),
+    'minute' => __('Minute'),
+    'day_part' => __('AM/PM'),
+];
+$named = static function (string $html) use ($names, $title, $escaper): string {
+    return (string) preg_replace_callback(
+        '/<select\b(?=[^>]*\bid="options_\d+_(month|day|year|hour|minute|day_part)")/',
+        static fn (array $match): string => sprintf(
+            '<select aria-label="%s"',
+            $escaper->escapeHtmlAttr($title . ': ' . $names[$match[1]])
+        ),
+        $html
+    );
+};
+$type = $_option->getType();
+?>
+<div class="field date<?= /* @noEscape */ $class ?>">
+    <fieldset class="fieldset fieldset-product-options-inner<?= /* @noEscape */ $class ?>">
+        <legend class="legend">
+            <span><?= $escaper->escapeHtml($title) ?></span>
+            <?= /* @noEscape */ $block->getFormattedPrice() ?>
+        </legend>
+        <div class="control">
+            <?php if ($type == ProductCustomOptionInterface::OPTION_TYPE_DATE_TIME
+                || $type == ProductCustomOptionInterface::OPTION_TYPE_DATE): ?>
+                <?= /* @noEscape */ $named((string) $block->getDateHtml()) ?>
+            <?php endif; ?>
+
+            <?php if ($type == ProductCustomOptionInterface::OPTION_TYPE_DATE_TIME
+                || $type == ProductCustomOptionInterface::OPTION_TYPE_TIME): ?>
+                <?= /* @noEscape */ $named((string) $block->getTimeHtml()) ?>
+            <?php endif; ?>
+
+            <input type="hidden"
+                   name="validate_datetime_<?= /* @noEscape */ $_optionId ?>"
+                   class="validate-datetime-<?= /* @noEscape */ $_optionId ?>"
+                   value=""/>
+        </div>
+    </fieldset>
+</div>

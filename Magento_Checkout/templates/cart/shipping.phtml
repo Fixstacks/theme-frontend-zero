@@ -1,0 +1,35 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Cart "Estimate Shipping and Tax" box. Stock's inline script calls
+ * `require([...])` (a config object here, so it threw on every cart page) and
+ * the form is Knockout-only. Replaced with an informational line: checkout
+ * calculates real rates once an address is entered, so there's no separate
+ * estimator. The collapsible wrapper's dead widget reference is left as is.
+ *
+ * @var \Magento\Checkout\Block\Cart\Shipping $block
+ * @var \Magento\Framework\Escaper $escaper
+ */
+?>
+<div id="block-shipping" class="block shipping">
+    <div class="title" data-role="title">
+        <strong id="block-shipping-heading" role="heading" aria-level="2">
+            <?= $block->getQuote()->isVirtual()
+                ? $escaper->escapeHtml(__('Tax'))
+                : $escaper->escapeHtml(__('Shipping and Tax'))
+            ?>
+        </strong>
+    </div>
+    <div class="content" aria-labelledby="block-shipping-heading">
+        <p class="text-sm text-base-content/70">
+            <?= $block->getQuote()->isVirtual()
+                ? $escaper->escapeHtml(__('Tax is calculated at checkout, based on your address.'))
+                : $escaper->escapeHtml(__('Shipping and tax are calculated at checkout, based on your address.'))
+            ?>
+        </p>
+    </div>
+</div>

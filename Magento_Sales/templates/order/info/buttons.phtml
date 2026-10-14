@@ -1,0 +1,35 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Order action buttons for the guest order/invoice/shipment/creditmemo pages
+ * and the customer's invoice/shipment/creditmemo pages (the customer order
+ * view uses Magento_OrderCancellationUi::order/info/buttons.phtml).
+ *
+ * Reorder is a POST form (stock used data-post JS); getReorderUrl() already
+ * picks guest vs customer. Print is a plain link, as in stock.
+ *
+ * @var \Magento\Sales\Block\Order\Info\Buttons $block
+ */
+?>
+<div class="actions">
+    <?php $_order = $block->getOrder() ?>
+    <?php if ($this->helper(\Magento\Sales\Helper\Reorder::class)->canReorder($_order->getEntityId())) : ?>
+        <form method="post" action="<?= $block->escapeUrl($block->getReorderUrl($_order)) ?>">
+            <?= $block->getBlockHtml('formkey') ?>
+            <button type="submit" class="action order btn btn-primary hover:bg-neutral hover:text-neutral-content">
+                <span><?= $block->escapeHtml(__('Reorder')) ?></span>
+            </button>
+        </form>
+    <?php endif ?>
+    <a href="<?= $block->escapeUrl($block->getPrintUrl($_order)) ?>"
+       class="action print link link-neutral text-sm no-underline hover:underline"
+       target="_blank"
+       rel="noopener">
+        <span><?= $block->escapeHtml(__('Print Order')) ?></span>
+    </a>
+    <?= $block->getChildHtml() ?>
+</div>

@@ -1,0 +1,20 @@
+<?xml version="1.0"?>
+<!--
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Removes `product.tooltip` (Msrp\Block\Popup) from the shared msrp_popup
+ * handle, which stock adds to every page that can show a price. Its
+ * `text/x-magento-template` popup needs the Msrp RequireJS module, and the
+ * feature itself is covered by msrp.phtml's native <details> reveal.
+ */
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
+      xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="product.tooltip" remove="true"/>
+    </body>
+</page>

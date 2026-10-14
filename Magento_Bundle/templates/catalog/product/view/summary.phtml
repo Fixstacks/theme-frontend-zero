@@ -1,0 +1,60 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Bundle "Your Customization" box. The sticky and slide widgets are dropped.
+ * The live summary (selected options and total) is a small vanilla script
+ * below — it's client-only, pre-submission state, so no server round-trip.
+ *
+ * @var \Magento\Framework\View\Element\Template $block
+ */
+
+$_product = $block->getProduct();
+?>
+<?php if ($_product->isSaleable() && $block->hasOptions()) : ?>
+<div id="bundleSummary" class="block-bundle-summary">
+    <div class="title">
+        <strong><?= $block->escapeHtml(__('Your Customization')) ?></strong>
+    </div>
+    <div class="content">
+        <div class="bundle-info">
+            <?= $block->getImage($_product, 'bundled_product_customization_page')->toHtml() ?>
+            <div class="product-details">
+                <strong class="product name"><?= $block->escapeHtml($_product->getName()) ?></strong>
+                <?php if ($_product->getIsSalable()) : ?>
+                    <p class="available stock" title="<?= $block->escapeHtmlAttr(__('Availability')) ?>">
+                        <span><?= $block->escapeHtml(__('In stock')) ?></span>
+                    </p>
+                <?php else : ?>
+                    <p class="unavailable stock" title="<?= $block->escapeHtmlAttr(__('Availability')) ?>">
+                        <span><?= $block->escapeHtml(__('Out of stock')) ?></span>
+                    </p>
+                <?php endif; ?>
+                <?= $block->getChildHtml('', true) ?>
+            </div>
+        </div>
+        <div class="bundle-summary">
+            <strong class="subtitle"><?= $block->escapeHtml(__('Summary')) ?></strong>
+            <div id="bundle-summary" data-container="product-summary">
+                <ul class="bundle items flex flex-col gap-1 mt-2"></ul>
+                <div class="bundle-summary-total flex items-center justify-between gap-2 mt-2 pt-2 border-t border-base-300 text-sm">
+                    <strong><?= $block->escapeHtml(__('Your price')) ?></strong>
+                    <strong id="bundle-summary-total">&mdash;</strong>
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+<?php /*
+ * Prices come from the page itself (each choice's
+ * `.price-wrapper[data-price-amount]`). `closest('.field.choice')` scopes a
+ * price to its own input; a single-value required option has no
+ * `.field.choice` and falls back to `.nested.options-list`. The currency
+ * symbol is read from a rendered price. Verified with radio/checkbox/
+ * single-hidden inputs only; select/multiselect options are untested.
+ */ ?>
+<script src="<?= $block->escapeUrl($block->getViewFileUrl('js/product/bundle-summary.js')) ?>" defer></script>
+<?php endif; ?>
