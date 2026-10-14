@@ -3,20 +3,10 @@
  * Copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Template for core's `footer_links` (Html\Links renders a flat <ul> without
- * one): groups the links into headed columns.
- *
- * - Grouped by block name (getNameInLayout()), not label/href. Unknown links
- *   fall into "Help" rather than disappearing. Each stock child keeps its own
- *   visibility logic via renderLink().
- * - Adds About Us, Customer Service, My Account and My Wish List as plain links.
- * - `$linkClass` is also passed to the stock children via `attributes` in
- *   Magento_Theme/layout/default.xml. It must stay identical here: Tailwind only
- *   scans .phtml, so this copy is what gets the classes compiled.
- * - Column headings are <h2>s in full primary-content with a rule underneath.
- *
- * If a new template= override here ever doesn't render, suspect stale
- * var/cache first (seen once; a plain cache:flush wasn't enough).
+ * core's `footer_links` in headed columns, grouped by block name (unknown
+ * links go to "Help"), plus a few plain links. `$linkClass` must match the
+ * `attributes` in Magento_Theme/layout/default.xml: Tailwind scans only
+ * .phtml.
  *
  * @var \Magento\Framework\View\Element\Html\Links $block
  * @var \Magento\Framework\Escaper $escaper

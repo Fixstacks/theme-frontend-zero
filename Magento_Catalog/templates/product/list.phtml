@@ -10,6 +10,9 @@
  * init: the form is a plain POST; messages and the cart counter refresh via
  * the Zero_Core fragments. Each photo carries the product's "New" / "Sale"
  * badges (Zero_Core's zero.product.badges block, absent under other themes).
+ * With Zero_Core's `card_cache` argument each card comes from the block cache
+ * (ViewModel\ProductCardCache); Add to Cart's URL carries the current page, so
+ * it goes in as placeholders after the card is rendered or loaded.
  *
  * @var $block \Magento\Catalog\Block\Product\ListProduct
  * @var \Magento\Framework\Escaper $escaper
@@ -46,11 +49,23 @@ $_helper = $block->getData('outputHelper');
      */
     $pos = $block->getPositioned();
     ?>
-    <?php $badgesBlock = $block->getLayout()->getBlock('zero.product.badges'); ?>
-    <div class="products wrapper <?= /* @noEscape */ $viewMode ?> products-<?= /* @noEscape */ $viewMode ?>">
-        <ol class="products list items product-items">
-            <?php /** @var $_product \Magento\Catalog\Model\Product */ ?>
-            <?php foreach ($_productCollection as $_product): ?>
+    <?php
+    $badgesBlock = $block->getLayout()->getBlock('zero.product.badges');
+    /** @var \Zero\Core\ViewModel\ProductCardCache|null $cardCache */
+    $cardCache = $block->getData('card_cache');
+    $renderCard = function ($_product) use (
+        $block,
+        $escaper,
+        $_helper,
+        $viewMode,
+        $imageDisplayArea,
+        $showDescription,
+        $templateType,
+        $pos,
+        $badgesBlock
+    ): string {
+        ob_start();
+        ?>
             <li class="item product product-item">
                 <div class="product-item-info"
                      id="product-item-info_<?= /* @noEscape */ $_product->getId() ?>"
@@ -86,7 +101,6 @@ $_helper = $block->getData('outputHelper');
                             <div class="product actions product-item-actions"<?= ($pos && strpos($pos, $viewMode . '-actions')) ? ' style="' . $escaper->escapeHtmlAttr($position) . '"' : '' ?>>
                                 <div class="actions-primary"<?= ($pos && strpos($pos, $viewMode . '-primary')) ? ' style="' . $escaper->escapeHtmlAttr($position) . '"' : '' ?>>
                                     <?php if ($_product->isSaleable()):?>
-                                        <?php $postParams = $block->getAddToCartPostParams($_product); ?>
                                         <?php /*
                                          * The form id lets the card's swatch radios (rendered earlier by
                                          * Magento_Swatches::product/listing/renderer.phtml) join this form via
@@ -95,7 +109,7 @@ $_helper = $block->getData('outputHelper');
                                         <form data-role="tocart-form"
                                               id="tocart-form-<?= (int) $_product->getId() ?>"
                                               data-product-sku="<?= $escaper->escapeHtml($_product->getSku()) ?>"
-                                              action="<?= $escaper->escapeUrl($postParams['action']) ?>"
+                                              action="%%zero-tocart-action%%"
                                               method="post">
                                             <?php $options = $block->getData('viewModel')->getOptionsData($_product); ?>
                                             <?php foreach ($options as $optionItem): ?>
@@ -105,12 +119,10 @@ $_helper = $block->getData('outputHelper');
                                             <?php endforeach; ?>
                                             <input type="hidden"
                                                    name="product"
-                                                   value="<?= /* @noEscape */ $postParams['data']['product'] ?>">
+                                                   value="<?= (int) $_product->getId() ?>">
                                             <input type="hidden"
                                                    name="<?= /* @noEscape */ Action::PARAM_NAME_URL_ENCODED ?>"
-                                                   value="<?=
-                                                   /* @noEscape */ $postParams['data'][Action::PARAM_NAME_URL_ENCODED]
-                                                    ?>">
+                                                   value="%%zero-tocart-uenc%%">
                                             <?= $block->getBlockHtml('formkey') ?>
                                             <button type="submit"
                                                     title="<?= $escaper->escapeHtmlAttr(__('Add to Cart')) ?>"
@@ -150,6 +162,30 @@ $_helper = $block->getData('outputHelper');
                     </div>
                 </div>
             </li>
+        <?php
+        return (string) ob_get_clean();
+    };
+    ?>
+    <div class="products wrapper <?= /* @noEscape */ $viewMode ?> products-<?= /* @noEscape */ $viewMode ?>">
+        <ol class="products list items product-items">
+            <?php /** @var $_product \Magento\Catalog\Model\Product */ ?>
+            <?php foreach ($_productCollection as $_product): ?>
+                <?php
+                $postParams = $block->getAddToCartPostParams($_product);
+                $replace = [
+                    '%%zero-tocart-action%%' => $escaper->escapeUrl($postParams['action']),
+                    '%%zero-tocart-uenc%%' => $escaper->escapeHtmlAttr($postParams['data'][Action::PARAM_NAME_URL_ENCODED]),
+                ];
+                ?>
+                <?= /* @noEscape */ $cardCache
+                    ? $cardCache->render(
+                        $_product,
+                        $block,
+                        [$viewMode, $imageDisplayArea, $showDescription, $templateType, (string) $pos],
+                        fn () => $renderCard($_product),
+                        $replace
+                    )
+                    : strtr($renderCard($_product), $replace) ?>
             <?php endforeach; ?>
             <?php $badgesBlock?->unsetData('product'); ?>
         </ol>

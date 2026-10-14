@@ -5,19 +5,11 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Category menu. Desktop submenus open via CSS `:hover`/`:focus-within`; the
- * stock `menu` widget init is removed.
- *
- * The tree is walked from `$block->getMenu()` (not getHtml()'s flat string) so
- * every node with children gets a native <details class="menu-toggle">:
- * collapsed by default on mobile, forced open on desktop via
- * `::details-content` (components.css). The category <a> is a sibling of the
- * <details>, not inside <summary>: the label navigates, the chevron toggles.
- *
- * getHtml() is still called and its result discarded: Catalog's
- * Plugin\Block\Topmenu::beforeGetHtml() is what fills the menu tree.
- *
- * Stock's columnsLimit mega-menu split is not supported (nothing sets it).
+ * Category menu: desktop submenus open on `:hover`/`:focus-within`. Nodes
+ * with children get a <details class="menu-toggle"> (collapsed on mobile,
+ * forced open on desktop); the link is its sibling, so the label navigates
+ * and the chevron toggles. getHtml() is still called: Catalog's plugin on
+ * it fills the tree.
  *
  * @var \Magento\Theme\Block\Html\Topmenu $block
  * @var \Magento\Framework\Escaper $escaper

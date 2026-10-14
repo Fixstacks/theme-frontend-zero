@@ -5,20 +5,11 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Configurable product options on the product page (stock renders an empty div
- * for swatch-renderer JS, so options were invisible and unselectable).
- *
- * - Radio inputs named `super_attribute[ID]`, styled as color/image/text
- *   swatches from getJsonSwatchConfig() (1=color, 2=image, 0=text); cart/add
- *   resolves the child SKU. Attributes without swatch data use a <select>.
- * - Preselects getPreconfiguredValues() (cart/wishlist "Edit"), so changing
- *   only the qty doesn't fail the native `required` check.
- * - The script at the end (from getJsonConfig(), the data stock's
- *   SwatchRenderer uses) shows the chosen value next to each label ("Color:
- *   Purple"), disables values with no salable variant for the other choices,
- *   shows the variant's main image as the gallery's first image, and the
- *   variant's price once every attribute is chosen. Display only: cart/add
- *   resolves the child server-side.
+ * Configurable options on the product page (stock's are JS-filled): radios
+ * `super_attribute[ID]` as swatches, a <select> without swatch data;
+ * preconfigured values (cart "Edit") preselected. The script at the end
+ * shows the chosen value, disables unsalable combinations, and swaps the
+ * variant's image and price. Display only: cart/add resolves the variant.
  *
  * @var \Magento\Swatches\Block\Product\Renderer\Configurable $block
  * @var \Magento\Framework\Escaper $escaper

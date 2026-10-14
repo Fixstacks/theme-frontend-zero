@@ -5,11 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * RequireJS base URL, printed by the root template in <head> (the block must
- * keep its name `require.js`). Zero pages load no RequireJS, and this inline
- * script's CSP nonce doesn't survive the built-in page cache, so it prints
- * only where RequireJS runs: the stock checkout (checkout_index_index, never
- * cached). Elsewhere: nothing.
+ * RequireJS base URL (the root template prints the `require.js` block):
+ * only on the stock checkout, the one page with RequireJS and never cached
+ * (its nonce wouldn't survive the page cache).
  *
  * @var \Magento\Framework\View\Element\Template $block
  * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer

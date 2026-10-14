@@ -5,20 +5,10 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Category/search grid swatches (stock renders an empty div filled by
- * swatch-renderer JS). Data comes from getJsonSwatchConfig()/
- * getAllowAttributes(), like the product-page renderer.
- *
- * - Real radio inputs styled as swatches (same CSS as the product page).
- *   cart/add resolves the child SKU from `super_attribute[ID]`, so no
- *   client-side SKU matching is needed.
- * - The swatches sit outside the card's <form>, so `form="tocart-form-ID"`
- *   associates them. Radio groups are scoped by name + form owner, so cards
- *   don't interfere even with identical names.
- * - Nothing is preselected; an incomplete selection gets cart/add's "You need
- *   to choose options" redirect to the product page.
- * - Not rebuilt: live price swap on selection and the "show more" overflow;
- *   all swatches render.
+ * List card swatches (stock's are JS-filled): radios named
+ * `super_attribute[ID]` tied to the card's form by `form=`; cart/add resolves
+ * the variant, or redirects to the product page if options are missing. No
+ * live price swap or "show more".
  *
  * @var \Magento\Swatches\Block\Product\Renderer\Listing\Configurable $block
  * @var \Magento\Framework\Escaper $escaper

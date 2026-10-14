@@ -5,18 +5,10 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Header mini-cart (replaces the Knockout component and dropdownDialog).
- *
- * - Native Popover API for open/close (Escape and light-dismiss included); the
- *   same click also hx-gets the content. Anchored under the button with CSS
- *   Anchor Positioning; without support it uses the default popover placement.
- * - The count badge is a fragment refreshed on `cart:updated` (fired by
- *   Zero\Checkout Cart\Update, which handles qty/remove in the popover).
- * - hx-target is inherited: the badge sits inside the button, whose target is
- *   #minicart-content, so it sets `hx-target="this"`. Any nested hx-get here
- *   must do the same.
- * - Icon + badge only; the accessible name is the button's aria-label (plus an
- *   sr-only label).
+ * Header mini-cart: a native popover (anchor-positioned under the button)
+ * whose click also hx-gets the content; the badge refreshes on
+ * `cart:updated`. The badge sits inside the button, so it sets
+ * `hx-target="this"`: any nested hx-get here must too.
  *
  * @var \Magento\Checkout\Block\Cart\Sidebar $block
  * @var \Magento\Framework\Escaper $escaper

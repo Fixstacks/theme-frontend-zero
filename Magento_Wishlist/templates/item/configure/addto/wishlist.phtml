@@ -5,13 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * "Update Wish List" on the wishlist item configure page (the product page
- * layout reused). Stock used data-post JS.
- *
- * This block isn't inside #product_addtocart_form here, so the button and its
- * hidden `id` use form="product_addtocart_form" plus formaction/formmethod:
- * the item id and the form's product/qty/option fields post together.
- * UpdateItemOptions builds the buyRequest from all params.
+ * "Update Wish List" on the item configure page (stock used data-post JS):
+ * the button and hidden `id` use form="product_addtocart_form" +
+ * formaction, so the product's options post with them.
  *
  * @var \Magento\Wishlist\Block\Item\Configure $block
  * @var \Magento\Framework\Escaper $escaper

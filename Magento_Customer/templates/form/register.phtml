@@ -5,17 +5,10 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Registration form, also used by multishipping/checkout/register (which
- * turns on getShowAddressFields()).
- *
- * With address fields, stock hides both the empty region select and the text
- * fallback until directoryRegionUpdater JS runs, so a state couldn't be
- * entered. Same fix as address/edit.phtml: CountryRegionProvider
- * (customer_account_create.xml) plus the `zero/checkout/regions` hx-get
- * cascade, with the default country's regions rendered on load.
- *
- * Dead widgets dropped (client validation, password strength, show password,
- * DOB datepicker init); CreatePost validates server-side.
+ * Registration form (also multishipping's, with address fields). Stock hid
+ * the region fields until its JS ran; here the zero/checkout/regions hx-get
+ * cascade fills them, as in address/edit.phtml. No JS widgets; CreatePost
+ * validates.
  *
  * @var \Magento\Customer\Block\Form\Register $block
  * @var \Magento\Framework\Escaper $escaper

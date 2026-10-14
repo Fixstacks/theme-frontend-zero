@@ -5,16 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * "Shop By" filter sidebar. Filter links/state are the stock child blocks.
- *
- * - One "SHOP BY / REFINE YOUR EDIT" heading (the second line only when there
- *   are filterable attributes), plain uppercase rather than the display serif.
- * - Each attribute group is a native <details>, closed by default (open while
- *   it has a value chosen), styled as a bordered row with its own rotating
- *   chevron class.
- * - Mobile: the whole panel is wrapped in one more <details> ("SHOP BY" bar),
- *   closed by default. Desktop forces it open and hides the toggle via the
- *   `::details-content` override (as the mobile category nav does).
+ * "Shop By" sidebar: each attribute is a <details> (open while it has a
+ * value). On mobile the whole panel is one more <details>, closed; desktop
+ * forces it open via `::details-content`.
  *
  * @var \Magento\LayeredNavigation\Block\Navigation $block
  * @var \Magento\Framework\Escaper $escaper

@@ -10,7 +10,7 @@ There are three ways to make an extension work. Pick one per extension.
 
 | Situation | What to do |
 | --- | --- |
-| You write the extension, or it is small | Support Zero in the extension itself: add `view/frontend/zero/tailwind.css` (§1) |
+| You write the extension, or it is small | Support Zero in the extension itself: add `view/frontend/zero/tailwind.css` (§1); JavaScript and Zero_Core's building blocks in §4 |
 | A third-party extension, worth adapting | A **compat module** with Zero versions of its templates (§2) |
 | Not adapted yet, or rarely used pages | Render its pages with Luma: **Pages on Another Theme** (§3) |
 
@@ -172,6 +172,44 @@ Keep in mind:
 - Blocks rendered on every page (header, mini cart, footer) come from the
   fallback theme on these pages. So a block an extension adds to the header
   shows in its Luma style there and needs a compat template elsewhere.
+
+## 4. JavaScript and what Zero_Core gives a module
+
+**JavaScript.** HTML and CSS first, HTMX second, a script only where neither
+can do it (a payment SDK, a gallery zoom). A script is a static file in the
+module's `view/frontend/web/js/`, loaded from the template with
+`<script src="<?= $block->getViewFileUrl('Acme_Faq::js/faq.js') ?>" defer>`
+and wired by `data-` attributes, never by inline code or `onclick=""`:
+the storefront's Content Security Policy allows no inline scripts and no
+`eval`. Data goes in `data-` attributes or `<script type="application/json">`.
+Hosts a script talks to go in the module's `etc/csp_whitelist.xml`. The
+theme's `web/js/zero.js` shows the pattern (delegated listeners, so markup
+HTMX swaps in later works too).
+
+**Per-visitor content on cached pages.** Every page is served from the page
+cache, so anything that depends on the visitor is a fragment: a controller
+implementing `Zero\Core\Controller\PrivateFragmentActionInterface` (never
+cached, `Cache-Control: no-store`) rendered through its own layout handle,
+loaded by `hx-get`. Trigger it with `hx-trigger="zero:session-ready from:body"`
+so it runs once the visitor's session exists; an element with
+`data-zero-fragment="name"` is filled by the session request itself
+(`Zero\Core\Controller\Session\Bootstrap::FRAGMENTS`). Forms get the
+visitor's `form_key` from `session.js`; a cached `form_key` in the HTML is
+fine. Events the theme fires: `zero:session-ready`, `cart:updated`,
+`wishlist:updated`, `zero:consent`.
+
+**Building blocks** (see each class's docblock):
+
+| Need | Use |
+| --- | --- |
+| A CAPTCHA on a public form of a cached page | `Zero\Core\Block\Captcha\Field` as the form's `captcha` child (layout), `Zero\Core\Model\Captcha\Check::verify()` in the controller, the form id under `customer/captcha/frontend/areas` in `etc/config.xml` |
+| A store view at a path of the main domain (`/ua/`, `/ua/en/`), even from another website | `paths` argument of `Zero\Core\Plugin\Store\StorePathPrefix` in `etc/di.xml` |
+| Whole amounts for a currency (`4 800 ₴`) | `currencies` argument of `Zero\Core\Plugin\Directory\WholeAmounts` in `etc/frontend/di.xml` |
+| Product cards in a list of your own | `Magento_Catalog::product/list.phtml` with its `card_cache` argument (`Zero\Core\ViewModel\ProductCardCache`): one block cache entry per card |
+| Responsive product images (`<picture>`, WebP) | `Zero\Core\Model\Image\ProductPicture::getSrcsets()`; `bin/magento zero:images:warm` after an import |
+| Prices outside a price box (badges, analytics) | `Zero\Core\Model\Pricing\CachedPrices::get()` |
+| A storefront tracker that respects cookie consent | `Zero\Consent\Model\Trackers` (di.xml) and `window.zeroConsent.get()` |
+| Sending email, SES, the Email Log | nothing to do: `Zero_Mail` wraps Magento's transport |
 
 ## Ready-made compat modules
 

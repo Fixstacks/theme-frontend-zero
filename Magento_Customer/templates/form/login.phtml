@@ -5,13 +5,8 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Customer login form.
- *
- * - Dropped: validation/block-submit-on-send/show-password widgets and the
- *   empty Knockout "Show Password" placeholder; LoginPost validates.
- * - The password label's `for` now matches the input id (stock mismatch).
- * - `$buttonLockManager?->isDisabled(...)` is kept: a conditional ReCaptcha
- *   lock, not active here.
+ * Customer login form without JS widgets (LoginPost validates); the password
+ * label's `for` matches the input (stock's didn't).
  *
  * @var \Magento\Customer\Block\Form\Login $block
  * @var \Magento\Framework\View\Element\ButtonLockManager|null $buttonLockManager

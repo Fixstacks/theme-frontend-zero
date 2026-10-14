@@ -5,15 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Related/upsell/crosssell/new-products lists.
- *
- * - No inline `display:none` on items: stock relies on the related/upsell JS
- *   to reveal them. getItems() already returns the final set on CE.
- * - Composite products' "Add to Cart" is a plain link to the product page
- *   (stock used a redirectUrl widget).
- * - "Select all" for related checkboxes is the one small vanilla script.
- * - Each photo carries the "New" / "Sale" badges (Zero_Core's
- *   zero.product.badges block).
+ * Related/upsell/crosssell lists: no inline `display:none` (stock's JS
+ * revealed them); composite products link to their page; "Select all" for
+ * related checkboxes is a small script; photos carry the badges.
  *
  * @var $block \Magento\Catalog\Block\Product\AbstractProduct
  */

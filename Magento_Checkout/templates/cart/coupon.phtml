@@ -5,12 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Cart discount code box. Both buttons are type="submit" on the couponPost
- * form (stock's type="button" needed the discountCode widget). Only "Cancel
- * Coupon" carries name="remove" value="1"; Apply sends no `remove`, which
- * CouponPost treats as apply. The field's label is for screen readers (the
- * block heading and placeholder say the same); the button is an outline one,
- * so "Proceed to Checkout" stays the summary's only primary action.
+ * Cart discount code: both buttons submit couponPost (stock's needed a
+ * widget); only Cancel sends remove=1. An outline button, so Proceed to
+ * Checkout stays the only primary action.
  *
  * @var \Magento\Framework\View\Element\AbstractBlock $block
  * @var \Magento\Framework\Escaper $escaper

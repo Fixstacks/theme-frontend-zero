@@ -5,15 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Filter options: stock's plain links plus hx-get/hx-target/hx-select/
- * hx-swap/hx-push-url, refreshing #page-columns (filters, grid and pager) in
- * place. Same href without HTMX.
- *
- * With Zero_LayeredNavigation (its view model, zero_filters): options are
- * checkboxes, several at once (each link adds or takes out its value), the
- * ones past the first few under "Show more"; the price filter is a from/to
- * form in the store view's currency with a two-handle slider over the
- * products' prices.
+ * Filter options: stock's links with hx-get into #page-columns (same href
+ * without HTMX). With Zero_LayeredNavigation: multi-select checkboxes,
+ * "Show more", and a price from/to form with a two-handle slider.
  *
  * @var \Magento\LayeredNavigation\Block\Navigation\FilterRenderer $block
  * @var \Magento\Framework\Escaper $escaper

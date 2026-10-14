@@ -5,13 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Terms checkboxes on the multishipping review step (this template, not
- * multishipping_agreements.phtml, is what multishipping_checkout_overview.xml
- * uses). Stock renders a Knockout placeholder, so the required checkbox never
- * appeared and OverviewPost rejected every order.
- *
- * Renders getAgreements() directly: a checkbox `agreement[ID]` for manual
- * agreements, plain text for automatic ones.
+ * Terms checkboxes on the multishipping review step (stock's Knockout
+ * placeholder never showed them, so every order was rejected):
+ * `agreement[ID]` checkboxes for manual agreements, text for automatic ones.
  *
  * @var \Magento\CheckoutAgreements\Block\Agreements $block
  */

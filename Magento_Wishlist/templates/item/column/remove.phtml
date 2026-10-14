@@ -5,13 +5,8 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Replaces stock's
- * Magento_Wishlist::item/column/remove.phtml. Same `formaction` fix
- * as this theme's own item/column/cart.phtml — see that file's own
- * docblock for the full "one shared form, no nesting possible"
- * story. Magento\Wishlist\Controller\Index\Remove::execute() only
- * ever reads `item` and ignores every other field, so submitting the
- * whole shared bulk form to it is always safe.
+ * Wish list item "Remove" with formaction, like item/column/cart.phtml;
+ * Index\Remove reads only `item`, so posting the whole form is safe.
  *
  * @var \Magento\Wishlist\Block\Customer\Wishlist\Item\Column\Remove $block
  * @var \Magento\Framework\Escaper $escaper

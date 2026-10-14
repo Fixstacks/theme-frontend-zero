@@ -5,12 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * "Create an account" for guests on the order success page, in one step: a
- * password here, and Zero\Checkout\Controller\Checkout\CreateAccount makes
- * the account from the order (name, email, addresses), attaches the order
- * and signs the customer in. The block's toHtml() already decides whether to
- * show it (guest order, email without an account, registration allowed).
- * Posts with HTMX (errors come back in place); works as a plain form too.
+ * "Create an account" on the success page in one step: a password here,
+ * Checkout\CreateAccount does the rest (see there). toHtml() decides whether
+ * it shows. HTMX post, works as a plain form too.
  *
  * @var \Magento\Checkout\Block\Registration $block
  * @var \Magento\Framework\Escaper $escaper

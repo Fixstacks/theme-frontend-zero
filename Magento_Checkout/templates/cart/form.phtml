@@ -5,15 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Cart items form.
- *
- * - "Update Shopping Cart" is a plain submit to checkout/cart/updatePost; the
- *   AJAX-upgrade widgets (update-shopping-cart, ensure-subtotal-sync,
- *   shoppingCart) are dropped.
- * - "Clear Shopping Cart" (only shown when
- *   checkout/cart/enable_clear_shopping_cart is on) is type="submit" with
- *   update_cart_action=empty_cart, which UpdatePost handles. Stock's
- *   type="button" relied on JS. Untested, since the setting is off here.
+ * Cart items form: Update is a plain submit to updatePost (the AJAX widgets
+ * are dropped); Clear (when enable_clear_shopping_cart is on) submits
+ * update_cart_action=empty_cart.
  *
  * @var $block \Magento\Checkout\Block\Cart\Grid
  * @var \Magento\Framework\Escaper $escaper

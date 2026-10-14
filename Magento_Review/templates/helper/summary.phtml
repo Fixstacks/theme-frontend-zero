@@ -5,12 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Review summary (FULL_VIEW; product page, review list, "My Product Reviews").
- *
- * Adds the rating as "4.8 / 12 reviews" (round(summary / 100 * 5, 1)) to the
- * existing reviews link. The 5-star `.rating-result` bar and its schema.org
- * microdata are unchanged; CSS hides the bar only in the product page's
- * `.product-info-price` row, where a single star is shown instead.
+ * Review summary: adds "4.8 / 12 reviews" to the reviews link; the star bar
+ * and microdata are stock's (hidden by CSS in the product price row, where
+ * one star shows).
  *
  * @var \Magento\Review\Block\Product\ReviewRenderer $block
  * @var \Magento\Framework\View\Helper\SecureHtmlRenderer $secureRenderer

@@ -1,5 +1,5 @@
 {
-    "name": "vilmate/theme-frontend-zero",
+    "name": "fixstacks/theme-frontend-zero",
     "description": "Zero for Magento Open Source: a storefront theme on HTMX, Tailwind CSS and daisyUI, without RequireJS, jQuery or Knockout.",
     "type": "magento2-theme",
     "version": "1.0.0",
@@ -12,7 +12,7 @@
             "name": "Roman Pasichnyk"
         }
     ],
-    "homepage": "https://zero.fixstacks.com",
+    "homepage": "https://fixstacks.com/zero",
     "keywords": [
         "magento",
         "magento2",
@@ -27,11 +27,11 @@
         "php": "~8.2.0||~8.3.0||~8.4.0",
         "magento/framework": "103.0.*",
         "magento/theme-frontend-blank": "100.4.*",
-        "vilmate/module-zero-core": "^1.0",
-        "vilmate/module-zero-checkout": "^1.0"
+        "fixstacks/module-zero-core": "^1.0",
+        "fixstacks/module-zero-checkout": "^1.0"
     },
     "suggest": {
-        "vilmate/module-zero-banner": "Home page slider and banners managed in the admin"
+        "fixstacks/module-zero-banner": "Home page slider and banners managed in the admin"
     },
     "autoload": {
         "files": [

@@ -5,14 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Compare Products page.
- *
- * - Add to Cart without the hardcoded `disabled`.
- * - Remove Product and Add to Wish List are real POST forms (stock used
- *   data-post JS), using the same URLs; no confirm() dialog.
- * - Add to Wish List is icon-only with title/aria-label.
- * - "Print This Page" calls window.print() via data-print-page (web/js/zero.js)
- *   (CSP-safe inline listener).
+ * Compare Products: Add to Cart without the hardcoded `disabled`; Remove and
+ * Add to Wish List are real POST forms (stock used data-post JS); Print via
+ * data-print-page (web/js/zero.js).
  *
  * @var \Magento\Catalog\Block\Product\Compare\ListCompare $block
  * @var \Magento\Framework\Escaper $escaper

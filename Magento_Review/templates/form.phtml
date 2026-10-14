@@ -5,17 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * "Write Your Own Review" form.
- *
- * - Rating options render in reverse DOM order (5..1) so the CSS star picker
- *   works: with `row-reverse`, `:checked ~ label` / `label:hover ~ label`
- *   fill "this star and all below". Labels use each option's original
- *   1-based position.
- * - Posts to the stock controller (server-side validation); the review JS
- *   init script and its `data-role` hook are removed. Multipart: modules can
- *   add file fields (Zero_Reviews' photos) to form_additional_review_info.
- * - Layout is Tailwind utilities here; the star glyph (`::before` content),
- *   the checked/hover fill and the focus outline stay in CSS.
+ * "Write Your Own Review". Ratings render 5..1 so the CSS star picker works
+ * (`row-reverse` + `~` fills this star and those below). Posts to stock's
+ * controller, multipart (Zero_Reviews adds photos).
  *
  * @var \Magento\Review\Block\Form $block
  * @var \Magento\Framework\View\Element\ButtonLockManager|null $buttonLockManager

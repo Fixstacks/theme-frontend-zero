@@ -5,17 +5,10 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * "Allow remote shopping assistance" checkbox (account create/edit).
- *
- * Stock submits the real `assistance_allowed` field as an empty hidden input
- * that only its JS fills, so opting in and revoking both silently did
- * nothing. Here a hidden `assistance_allowed=DENIED` comes before the
- * checkbox named `assistance_allowed` with the ALLOWED value: PHP keeps the
- * last value, so the result is always explicit, as stock's JS did.
- *
- * The tooltip works through CSS :hover/:focus-within; dead data-toggle/mageInit
- * attributes and the opt-in init script are dropped, and so is stock's `toggle`
- * class (a JS hook only), which DaisyUI draws as a switch: a box around the "?".
+ * "Allow remote shopping assistance": stock's real field was an empty hidden
+ * input only its JS filled. Here a hidden `assistance_allowed=DENIED` comes
+ * before the checkbox with ALLOWED (PHP keeps the last value). No `toggle`
+ * class: DaisyUI draws it as a switch.
  *
  * @var \Magento\Framework\Escaper $escaper
  * @var \Magento\LoginAsCustomerAssistance\ViewModel\ShoppingAssistanceViewModel $viewModel

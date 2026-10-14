@@ -5,19 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Customer address add/edit form.
- *
- * - No `disabled` on Save: stock relies on addressValidation JS to enable it.
- *   Server-side validation in Address\FormPost is authoritative. A few
- *   obvious fields have native `required`.
- * - Country → region: the country select hx-gets `zero/checkout/regions`
- *   (Zero_Core, shared with checkout) and swaps in a populated region select
- *   or a text input. Data comes from CountryRegionProvider
- *   (customer_address_form.xml); stock's region_provider only offers JSON for
- *   the JS widget. The fragment carries checkout's DaisyUI classes — an
- *   accepted style seam.
- * - The addressValidation/directoryRegionUpdater init script is dropped (it
- *   even targeted a nonexistent `#country`).
+ * Address add/edit form: no `disabled` on Save (stock's JS enabled it;
+ * FormPost validates). The country select hx-gets zero/checkout/regions for
+ * the region field (CountryRegionProvider, shared with checkout).
  *
  * @var \Magento\Customer\Block\Address\Edit $block
  * @var \Magento\Customer\ViewModel\Address $viewModel

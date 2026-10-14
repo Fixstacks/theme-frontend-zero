@@ -5,36 +5,18 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Product gallery without JS. Stock renders one <img> and leaves the other
- * images in Fotorama's JSON, so alt/back photos were unreachable.
- *
- * - Every image renders in its own `#gallery-image-N` (N = media value_id);
- *   thumbnails link to those anchors and CSS `:target` shows the selected one.
- *   The main image (isMainImage()) is rendered first and shown by default;
- *   `.product-gallery:has(.gallery-full-image:target)` hides that default once
- *   another image is targeted.
- * - Each image carries its own prev/next links (wrapped neighbors), grouped in `.gallery-nav-group` (bottom-right corner).
- *   Always visible, since touch has no hover; thumbnails already act as the
- *   position indicator, so there are no dots.
- * - `scroll-mt-[9999px]` on each image stops fragment navigation from also
- *   scrolling the page: a huge scroll-margin clamps that vertical scroll to
- *   "stay put", while the horizontal snap still works.
- * - Fullscreen (web/js/product/gallery.js): a native <dialog> with the large
- *   images, prev/next, arrow keys, swipe, and click-to-zoom that follows the
- *   pointer. Opened by the expand button or a click on the image. Without
- *   JS the gallery above still works.
- * - Videos (Images and Videos > Add Video): YouTube and Vimeo play in place
- *   (ViewModel\Product\GalleryVideo gives the player URL; the frame is only
- *   created on Play), any other URL is a link. The Fotorama/video init
- *   scripts are dropped.
+ * Product gallery without JS (stock leaves all but one image in Fotorama's JSON).
+ * - Each image is `#gallery-image-N` (media value_id); thumbnails and prev/next
+ *   link to it and CSS `:target` shows it; the main image shows by default.
+ * - `scroll-mt-[9999px]` keeps the anchor jump from scrolling the page.
+ * - Fullscreen, zoom and swipe: web/js/product/gallery.js (<dialog>).
+ * - YouTube/Vimeo play in place (ViewModel\Product\GalleryVideo); other video
+ *   URLs are links.
+ * - Images are a <picture> (WebP, 700/1400 px, `zero_picture`); the first
+ *   loads at high priority (LCP), the rest lazily.
  *
  * @var \Magento\Catalog\Block\Product\View\Gallery $block
  * @var \Magento\Framework\Escaper $escaper
- *
- * Main images are a <picture> (WebP first, 700/1400 px wide copies from
- * Zero\Core\Model\Image\ProductPicture, given as the `zero_picture`
- * argument in catalog_product_view.xml). The first one is the page's largest
- * paint, so it loads at high priority; the others, hidden until picked, lazily.
  */
 $imageWidth = $block->getImageAttribute('product_page_image_medium', 'width');
 $imageHeight = $block->getImageAttribute('product_page_image_medium', 'height');
@@ -75,7 +57,7 @@ $sizes = '(min-width: 1024px) 50vw, 100vw';
                 ?>
                 <?php
                 $srcsets = $picture && $imageWidth && $imageHeight
-                    ? $picture->getSrcsets((string) $image->getData('medium_image_url'), (int) $imageWidth, (int) $imageHeight, [700, 1400])
+                    ? $picture->getSrcsets((string) $image->getData('medium_image_url'), (int) $imageWidth, (int) $imageHeight, \Zero\Core\Model\Image\ProductPicture::GALLERY_WIDTHS)
                     : null;
                 ?>
                 <?php

@@ -5,13 +5,8 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Replaces stock's
- * Magento_Wishlist::button/tocart.phtml ("Add All to Cart"). Same
- * `formaction` fix as this theme's own item/column/cart.phtml and
- * item/column/remove.phtml — Magento\Wishlist\Controller\Index\
- * Allcart processes every item already in the shared form's own qty[]
- * fields, so no extra per-button field is needed here, just the
- * redirected submission target.
+ * "Add All to Cart" with formaction, like item/column/cart.phtml; Allcart
+ * reads the form's qty[] fields.
  *
  * @var \Magento\Wishlist\Block\Customer\Wishlist\Button $block
  * @var \Magento\Framework\Escaper $escaper

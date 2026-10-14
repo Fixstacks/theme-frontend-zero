@@ -5,14 +5,10 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Product page "Add to Compare" (icon-only, aria-label; used only here).
- * Rendered again next to the wishlist icon by addtocart.phtml; the original
- * copy is hidden with CSS.
- *
- * Not a <form>: the addtocart.phtml copy sits inside #product_addtocart_form,
- * and a nested form's form_key leaked into Add to Cart's POST (the stale
- * second value won and failed CSRF). It uses form="product_addtocart_form" +
- * formaction (catalog/product_compare/add) instead, like the wishlist button.
+ * Product page "Add to Compare" (icon only), also rendered by
+ * addtocart.phtml inside #product_addtocart_form. Not a <form>: a nested
+ * form's form_key leaked into Add to Cart's POST. It uses
+ * form="product_addtocart_form" + formaction, like the wishlist button.
  *
  * @var \Magento\Catalog\Block\Product\View\Addto\Compare $block
  * @var \Magento\Framework\Escaper $escaper

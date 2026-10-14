@@ -4,30 +4,31 @@ A storefront theme built on the web platform: server-rendered HTML, HTMX for
 the parts that refresh, Tailwind CSS v4 and daisyUI for styles. No RequireJS,
 jQuery or Knockout on the storefront. Strict CSP, WCAG 2.2 AA, WebP images.
 
-Demo: https://zero.fixstacks.com
+Demo: https://zero.fixstacks.com. Documentation: https://fixstacks.com/zero/docs (and `docs/` here).
 
 The theme requires two modules, installed with it:
 
 | Package | What it does |
 | --- | --- |
-| `vilmate/module-zero-core` | HTMX endpoints for private content, view models for the templates |
-| `vilmate/module-zero-checkout` | One-page checkout without Knockout |
+| `fixstacks/module-zero-core` | HTMX endpoints for private content, view models for the templates |
+| `fixstacks/module-zero-checkout` | One-page checkout without Knockout |
 
-Optional: `vilmate/module-zero-banner` for the home page slider.
+Optional: `fixstacks/module-zero-banner` for the home page slider, or all of
+Zero at once with `composer require fixstacks/zero`.
 
 ## Install
 
 Requires Magento Open Source 2.4.7–2.4.9 and PHP 8.2–8.4.
 
 ```bash
-composer require vilmate/theme-frontend-zero
+composer require fixstacks/theme-frontend-zero
 bin/magento setup:upgrade
 bin/magento setup:di:compile           # production mode
 bin/magento setup:static-content:deploy # production mode
 bin/magento cache:flush
 ```
 
-Composer installs `vilmate/module-zero-core`, `vilmate/module-zero-checkout` with it.
+Composer installs `fixstacks/module-zero-core`, `fixstacks/module-zero-checkout` with it.
 
 Then choose the theme: Content > Design > Configuration > your store view >
 **Zero**. Its parent is Magento/blank, installed with Magento.
@@ -38,7 +39,7 @@ Then choose the theme: Content > Design > Configuration > your store view >
 module with storefront styles, or change the theme's templates:
 
 ```bash
-cd vendor/vilmate/theme-frontend-zero   # or your child theme's folder
+cd vendor/fixstacks/theme-frontend-zero   # or your child theme's folder
 npm ci && npm run build
 ```
 
@@ -49,4 +50,9 @@ Magento project. More: `docs/extensions.md`, `docs/child-themes.md`,
 
 ## License
 
-OSL-3.0 or AFL-3.0, see `NOTICE.md`.
+OSL-3.0 or AFL-3.0, your choice: see `NOTICE.md`.
+
+---
+
+Zero is made by [Fixstacks](https://fixstacks.com/zero) in partnership with [Vilmate](https://vilmate.com).
+Documentation: https://fixstacks.com/zero/docs. Demo store: https://zero.fixstacks.com.

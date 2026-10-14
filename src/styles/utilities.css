@@ -1,17 +1,10 @@
 /*
- * Structural styling for stock Luma/Blank markup this theme reuses
- * as-is (product grid, filter sidebar chrome, generic buttons, form
- * fields, data tables) — targets the stock class names directly, no
- * template overrides needed.
+ * Styles for stock Luma/Blank markup reused as is (product grid, filters,
+ * buttons, fields, tables), by stock class names.
  *
- * Lives in `@layer utilities`, not `@layer components`: DaisyUI
- * defines several single-word classes (`.list`, `.label`, `.status`,
- * `.block`, ...) across both its own utilities layer and a later
- * `@layer daisyui`. Cascade layers rank by layer order first —
- * specificity only breaks ties within the same layer — so a rule
- * here needs to sit in as late a layer as DaisyUI's own component
- * definitions, or use `!important` (which inverts layer order), to
- * reliably win against them.
+ * In `@layer utilities`, not components: DaisyUI defines classes like
+ * `.list`, `.label`, `.block` in late layers, and layer order beats
+ * specificity.
  */
 @layer utilities {
     /* Full-width header row for pages with no sidebar (order confirmation, generic page titles). */
@@ -203,16 +196,9 @@
     }
 
     /*
-     * Related/upsell/crosssell/new-products rows: a horizontal
-     * scroll-snap slider instead of the wrapping grid above, scoped
-     * through each block's own class so the main catalog grid (same
-     * `.products-grid` wrapper) is untouched. Prev/next controls use
-     * `::scroll-button()` (CSS Overflow Module 5) — a native
-     * mechanism, not the anchor-link technique the hero/gallery use,
-     * since those only work for a single "current slide" and this row
-     * shows several items at once. Progressive enhancement: an
-     * unsupported pseudo-element makes the whole rule inert, so the
-     * row stays natively swipe-scrollable everywhere regardless.
+     * Related/upsell/crosssell rows: a scroll-snap slider (only those blocks,
+     * not the catalog grid). Prev/next via `::scroll-button()` where
+     * supported; elsewhere the row still swipes.
      */
     :is(.block.related, .block.upsell, .block.crosssell, .block.widget.new)
         .products.list.items.product-items {
@@ -380,14 +366,8 @@
         display: flex;
         flex-direction: column;
         /*
-         * No explicit height here — the ancestor's own `align-items:
-         * stretch` (Grid and Flexbox's shared default) already gives
-         * this box the row's real stretched height. An explicit
-         * `height: 100%` looked equivalent but broke stretch in the
-         * carousel's flex-row context, where the track's own height is
-         * intrinsic (content-derived): a percentage that can't resolve
-         * against an indefinite container height suppresses the
-         * `auto`-triggered stretch instead of falling back to it.
+         * No explicit height: the parent's `align-items: stretch` sizes it;
+         * `height: 100%` against the carousel's intrinsic height broke that.
          */
     }
 

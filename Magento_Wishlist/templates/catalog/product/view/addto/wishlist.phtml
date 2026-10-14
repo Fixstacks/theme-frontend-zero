@@ -5,13 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Product page "Add to Wish List" (icon-only, aria-label; used only here).
- *
- * Submits #product_addtocart_form (form= + formaction=wishlist/index/add),
- * not a separate form: that form carries the selected `super_attribute[...]`,
- * which stock's JS used to copy into the data-post payload. Without it,
- * configurable products were saved without the chosen size/color.
- * Index\Add builds the buyRequest from all POST params.
+ * Product page "Add to Wish List" (icon only): submits the add-to-cart form
+ * with formaction, so the chosen `super_attribute[...]` goes along (stock's
+ * JS copied it; without it the size/color was lost).
  *
  * @var \Magento\Wishlist\Block\Catalog\Product\View\AddTo\Wishlist $block
  * @var \Magento\Framework\Escaper $escaper

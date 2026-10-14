@@ -5,16 +5,8 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * A shared wishlist (the page a share email links to).
- *
- * Add to Cart, Add to Wish List and Add All to Cart used data-post JS. They
- * sit inside the page's one form, so they are submit buttons with
- * formaction/formmethod="post", using the URLs/params behind the Wishlist
- * helper (wishlist/shared/cart + item, wishlist/index/add + product,
- * wishlist/shared/allcart). Shared\Cart takes the stored qty, so no qty field.
- *
- * "Add to Wish List" is icon-only with title/aria-label; Add to Cart keeps its
- * text.
+ * Shared wish list: Add to Cart, Add to Wish List and Add All are submit
+ * buttons with formaction (stock used data-post JS; they're inside one form).
  *
  * @var \Magento\Wishlist\Block\Share\Wishlist $block
  * @var \Magento\Framework\Escaper $escaper

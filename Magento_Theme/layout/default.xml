@@ -6,16 +6,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Gives the core "columns" container a stable id: every hypermedia control
- * (filters, sort, pager, limiter) targets and hx-selects it, so one request
- * refreshes filters, grid and pager together.
- *
- * Theme-only template= overrides (top.links, footer_links) live here, not in a
- * module's layout, which would apply to every theme.
- *
- * footer_links' children are core Html\Link\Current blocks; their class comes
- * from the `attributes` argument (array arguments merge per item, so
- * catalog-search-advanced-link keeps its data-action).
+ * The "columns" container gets a stable id: filters, sort, pager and limiter
+ * all hx-select it. Theme-only template= overrides live here, not in module
+ * layout. footer_links children get their class via `attributes`.
  * -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"
       xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
@@ -147,23 +140,11 @@
         -->
         <referenceBlock name="customer.section.config" remove="true"/>
         <!--
-            Dead `text/x-magento-init` blocks (no RequireJS), superseded by the
-            server-rendered HTMX fragments:
-            - form_key_provider / pageCache: client form_key and private-content refresh.
-            - authentication-popup: Knockout sign-in modal; Sign In links go to the page.
-            - customer.customer.data / customer.data.invalidation.rules: customer-data cache.
-            - frontend-storage-manager: client Recently Viewed/Compared sync.
-            - js_cookies / cookie-status-check: jQuery cookie config (the cookie banner
-              uses its own inline script).
-            - pagebuilder.widget.initializer: Page Builder widget registration.
-            - cookie_config: inline `window.cookiesConfig` for jQuery cookies,
-              not loaded here. It carries a CSP nonce, which the built-in
-              full-page cache drops from cached responses, so on a cache hit it
-              was blocked by the strict policy. The stock checkout re-adds it
-              (Zero_Core checkout_index_index.xml). The RequireJS base URL
-              (`require.js` block) can't be renamed like that: the root
-              template prints that block by name in <head>; its template is
-              overridden instead (Magento_Theme::page/js/require_js.phtml).
+            Dead `text/x-magento-init` blocks (no RequireJS), replaced by HTMX
+            fragments. cookie_config also carried a CSP nonce the built-in
+            page cache drops (blocked on cache hits); the stock checkout
+            re-adds it. The `require.js` block can't be renamed (the root
+            template prints it by name), so its template is overridden.
         -->
         <referenceBlock name="form_key_provider" remove="true"/>
         <referenceBlock name="pageCache" remove="true"/>

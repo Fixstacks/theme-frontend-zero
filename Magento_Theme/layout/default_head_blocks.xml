@@ -1,26 +1,12 @@
 <?xml version="1.0"?>
 <!--
-    Head assets: removes stock's legacy assets (mage/calendar.css, the
-    RequireJS loader, Blank's styles-m/styles-l/print.css) and adds the
-    compiled Tailwind CSS and htmx.min.js. Removing an asset name is permanent
-    for the whole page merge, so these names can never come back (the stock
-    checkout fallback re-adds them under new names).
-
-    - format-detection: stops iOS from auto-linking phone-number-like text
-      (Blank used to add it).
-    - uppy-custom.css (admin uploader, declared in the base area) is removed
-      on the frontend only.
-    - Fonts are self-hosted via @font-face in app.css; no Google Fonts asset.
-    - app.css stays a render-blocking <css>: a preload + onload swap was tried
-      and measured CLS = 1 on mobile (no fallback CSS underneath), so it was
-      reverted.
-    - js/zero.js: the theme's sitewide behaviours (data attributes, no inline
-      scripts). htmx-config allowEval:false: HTMX features that compile
-      strings to code (hx-on, trigger filters, js: values) stay off, as the
-      strict Content Security Policy forbids eval.
-    - requirejs-config is removed as a block: its insert "after" the removed
-      loader failed on most pages but succeeded on checkout success, where
-      `require.config()` then threw on every order.
+    Head assets: stock's legacy CSS and the RequireJS loader out (removed
+    names can never return; the stock checkout re-adds them renamed), the
+    Tailwind CSS, htmx.min.js and js/zero.js in.
+    - app.css stays render-blocking: a preload swap measured CLS = 1.
+    - htmx allowEval:false: the strict CSP forbids eval.
+    - requirejs-config is removed as a block: on checkout success its insert
+      worked and require.config() threw on every order.
 -->
 <page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
     <head>

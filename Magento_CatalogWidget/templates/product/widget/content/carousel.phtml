@@ -5,17 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Carousel variant of the Catalog Products List widget: the
- * `.zero-product-slider-track` slider with full category-grid cards
- * (swatches, Add to Cart, Wishlist, Compare), reusing grid.phtml's markup.
- *
- * Uses ProductsList (not NewWidget) because getDetailsRendererList() loads
- * its own catalog_widget_product_list layout, which already has the Swatches
- * renderer; getProductDetailsHtml() renders the swatches (empty for simple
- * products) via the unchanged listing renderer.
- *
- * Without a `condition` argument the widget matches all enabled/visible
- * products, newest first.
+ * Catalog Products List widget as a `.zero-product-slider-track` slider with
+ * grid.phtml's full cards. ProductsList's own layout has the Swatches
+ * renderer. Without a `condition`: all visible products, newest first.
  *
  * @var \Magento\CatalogWidget\Block\Product\ProductsList $block
  * @var \Magento\Framework\Escaper $escaper

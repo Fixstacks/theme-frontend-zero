@@ -5,14 +5,8 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * The mobile "Menu" group (navigation.sections). Stock uses JS tabs; this is a
- * native <details>: closed by default on mobile, its <summary> is the header's
- * hamburger button (SVG icon + text label that CSS shows only when open).
- * Desktop forces it open (components.css), where the nav is a plain bar.
- *
- * Otherwise stock logic (getGroupChildNames()/getChildData(), empty groups
- * skipped). The placeholder "Account" tab (store.links) is removed in
- * Magento_Theme/layout/default.xml; account links live in the header dropdown.
+ * The mobile "Menu" group as a native <details> (stock uses JS tabs): its
+ * <summary> is the hamburger; desktop forces it open (components.css).
  *
  * @var \Magento\Framework\View\Element\Template $block
  * @var \Magento\Framework\Escaper $escaper

@@ -5,16 +5,8 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Footer newsletter form.
- *
- * - Adds the form_key stock omits (it relied on JS to inject one; without it
- *   every subscribe failed CSRF).
- * - No `novalidate`, so the input's native `required`/`type="email"` actually
- *   validate. The validation/trim-input/block-submit-on-send widgets are
- *   dropped; the server validates too.
- * - The label stays, `sr-only`; placeholder-only fields aren't accessible.
- *   focus-visible outlines keep keyboard focus visible.
- * - Small text on the lime band uses primary-content/70+ (≥4.5:1).
+ * Footer newsletter: adds the form_key stock omits; native `required` and
+ * type="email" validate (no `novalidate`); an sr-only label.
  *
  * @var \Magento\Newsletter\Block\Subscribe $block
  * @var \Magento\Framework\Escaper $escaper

@@ -122,14 +122,9 @@
 
     @media (min-width: 64rem) {
         /*
-         * `:has(> .sidebar-main)` / `:has(> .sidebar-additional)` limit the
-         * two-column grid to pages that have a sidebar; otherwise single-column pages
-         * got squeezed into the 15rem track. `.sidebar-additional` counts only once
-         * its HTMX fragment has content (compare/wish list): an empty category
-         * or search kept a blank 15rem column beside its "no products" notice.
-         * `.sidebar-additional` (2columns-left
-         * pages) is placed explicitly under `.sidebar-main`. All placements stay
-         * inside this one `:has()` block.
+         * The two-column grid only on pages with a sidebar; `.sidebar-additional`
+         * counts only once its HTMX fragment has content (else empty pages kept
+         * a blank 15rem column). `.sidebar-additional` sits under `.sidebar-main`.
          */
         #page-columns:has(> .sidebar-main),
         #page-columns:has(> .sidebar-additional > * > *) {
@@ -277,10 +272,12 @@
         margin-inline-start: auto;
     }
 
-    /* Below desktop, search moves after the mini-cart/account pair in flex order so the hamburger/logo/cart/account all fit on one row above it. */
+    /* Below desktop, search takes its own full row after the mini-cart/account pair, so the hamburger/logo/cart/account row above it keeps the pair at the right edge. */
     @media (max-width: 63.99rem) {
         .block.block-search {
             order: 5;
+            flex-basis: 100%;
+            margin-inline-start: 0;
         }
     }
 
@@ -334,19 +331,10 @@
     }
 
     /*
-     * Search-suggestions dropdown, zero JS: `:focus-within` on
-     * `.control` (not the input) keeps it open while tabbing/clicking
-     * into its own links; `:not(:empty)` renders an empty HTMX
-     * response as nothing rather than a blank bordered box.
-     *
-     * `visibility`/`opacity` with an asymmetric `transition-delay`
-     * (instant to appear, delayed to disappear) instead of `display`
-     * — real mobile Safari blurs the input a few ms before finishing a
-     * tap on a link inside the dropdown, and `display: none` on blur
-     * removes the target from hit-testing before that click lands.
-     * The delay keeps it clickable through that race window;
-     * `visibility: hidden` (not `pointer-events: none`) is what stops
-     * it intercepting taps once the delay elapses.
+     * Search dropdown, no JS: `:focus-within` on `.control` keeps it open while
+     * focus is in its links; `:not(:empty)` hides an empty response. Hidden
+     * with visibility + a delayed transition, not `display`: mobile Safari
+     * blurs the input just before a tap on a link lands.
      */
     .form.minisearch .control #search_autocomplete {
         position: absolute;
@@ -397,6 +385,19 @@
         }
     }
 
+    /*
+     * The catalog toolbar's sort menu: DaisyUI's `dropdown-end` aligns it to
+     * the trigger's right edge, which on phones (the sorter sits at the left
+     * of its row) pushed the 14rem menu off the left edge of the screen.
+     * Below md it opens to the right of the trigger instead.
+     */
+    @media (max-width: 47.99rem) {
+        .toolbar-sorter.dropdown > .dropdown-content {
+            inset-inline-end: auto;
+            inset-inline-start: 0;
+        }
+    }
+
     /* `top.links` renders here (moved via layout XML) right after the mini-cart — needs an explicit `order` since its siblings already carry their own. */
     .header.content .account-toplinks-menu {
         order: 3;
@@ -404,19 +405,10 @@
     }
 
     /*
-     * `navigation.sections` (the category-menu `<details>`) renders
-     * inside `.header.content` instead of its old full-width `page.top`
-     * position. Two things make that work without any extra JS:
-     *
-     * 1. `sections.phtml` still wraps the real `<details class="nav-
-     *    sections-item">` in two plain template-owned `<div>`s —
-     *    `display: contents` drops both from the box tree so the
-     *    `<details>` itself becomes the real flex child here.
-     * 2. `flex-basis: 100%` forces a flex item onto its own new line
-     *    once its container allows wrapping (`.header.content` does,
-     *    at every width) — so `[open]` claims a full row below
-     *    everything (`order: 10`), while `:not([open])` instead sizes
-     *    to a small icon button and slots in left of the logo.
+     * The category-menu <details> inside `.header.content`: its two wrapper
+     * divs are `display: contents`, so the <details> is the flex item.
+     * `[open]` takes a full row below (`order: 10`, `flex-basis: 100%`);
+     * closed, it's an icon button left of the logo.
      */
     .header.content .nav-sections,
     .header.content .nav-sections-items {
@@ -495,10 +487,9 @@
     }
 
     /*
-     * Mobile: logo gets its own row (`flex-basis: 100%`, `order: -10`),
-     * with the hamburger/mini-cart/account trio on the row below —
-     * the hamburger's own `order: -2` above is overridden to `1` here
-     * to sit alongside them; search stays on its own separate row.
+     * Mobile: hamburger, logo, then the mini-cart/account pair pushed to the
+     * right edge, all on one row (the hamburger's `order: -2` and the logo's
+     * `order: -1` above); search wraps onto its own row below.
      */
     @media (max-width: 63.99rem) {
         .header.content {
@@ -506,12 +497,11 @@
         }
 
         .header.content .logo {
-            order: -10;
-            flex-basis: 100%;
+            min-width: 0;
         }
 
-        .header.content .nav-sections-item:not([open]) {
-            order: 1;
+        .header.content .logo img {
+            height: 2rem;
         }
     }
 
@@ -673,15 +663,9 @@
         }
 
         /*
-         * Forces the panel permanently open at desktop regardless of
-         * `<details>`'s own closed-by-default state. Chromium wraps
-         * everything but `<summary>` in an internal `::details-content`
-         * pseudo-element and hides IT via `content-visibility` — a
-         * plain `display` override on the content child alone doesn't
-         * reach that ancestor, so the override has to target
-         * `::details-content` directly. The `!important` `display`
-         * stays as a harmless fallback for engines using the simpler
-         * `display: none` UA rule instead.
+         * Forces the panel open on desktop: Chromium hides `::details-content`
+         * with content-visibility, so that pseudo-element is targeted; the
+         * `display` override is a fallback for other engines.
          */
         .nav-sections-item::details-content {
             content-visibility: visible;
@@ -849,14 +833,9 @@
         }
 
         /*
-         * Options shown "after the info column" (product attribute
-         * options_container = container2, e.g. downloadable links, custom
-         * options): the add-to-cart form is a direct child of `.column.main`,
-         * so it spanned both columns under the gallery and Add to Cart sat far
-         * below the price. It goes in the info column instead, under the
-         * price; the gallery spans both rows. `auto 1fr`: the extra height of
-         * the gallery goes to row 2, so the form starts right under the info.
-         * Bundles keep their own full-width section (.bundle-options-container).
+         * Options shown "after the info column" (container2): the add-to-cart
+         * form moves into the info column under the price instead of spanning
+         * both columns below the gallery. Bundles keep their own section.
          */
         body.catalog-product-view .column.main:has(> .product-add-form) {
             grid-template-rows: auto 1fr;
@@ -1433,85 +1412,6 @@
     }
 
     /*
-     * Braintree Hosted Fields: each `.braintree-hosted-field` is an
-     * empty `<div>` Braintree's own JS SDK injects a same-origin
-     * `<iframe>` into. DaisyUI's `input input-bordered` already gives
-     * it the right border/radius/background; this only adds a fixed
-     * height (an empty div has no text-line metrics to size from) and
-     * full-size sizing for the injected iframe.
-     */
-    .braintree-hosted-field {
-        display: block;
-        height: 2.75rem;
-        padding: 0;
-    }
-
-    .braintree-hosted-field iframe {
-        display: block;
-        width: 100%;
-        height: 100%;
-    }
-
-    /*
-     * Pure-CSS show/hide for the card-fields panel based on which
-     * payment method radio is checked. `#braintree-card-fields` is
-     * `#payment-methods`'s sibling, not its child, hence `~` rather
-     * than a descendant selector.
-     */
-    #braintree-card-fields {
-        display: none;
-    }
-
-    #payment-methods:has(input[value="braintree"]:checked) ~ #braintree-card-fields {
-        display: flex;
-    }
-
-    /* Stripe: same sibling `:has()` toggle as Braintree above, one container instead of three — the Payment Element is a single mounted iframe that manages its own internal layout. */
-    #stripe-payment-element {
-        display: none;
-    }
-
-    #payment-methods:has(input[value="zero_stripe"]:checked) ~ #stripe-payment-element {
-        display: block;
-    }
-
-    /* Defensive width rule for Stripe's mounted iframes — belt-and-suspenders against a reported (not locally reproduced) narrow-rendering issue on mobile. */
-    #stripe-element-mount iframe,
-    #stripe-express-checkout iframe {
-        width: 100% !important;
-    }
-
-    /*
-     * The Express Checkout Element's wrapper/mount divs need a width limit too
-     * (the iframe rule above only sizes the iframe), or the Google Pay button
-     * overflows the narrow checkout column.
-     */
-    #stripe-express-checkout-wrap,
-    #stripe-express-checkout {
-        width: 100%;
-        max-width: 100%;
-        overflow: hidden;
-    }
-
-    /* Authorize.Net: same sibling `:has()` toggle as the other two methods. No sizing rules needed — Accept.js's Custom Checkout Form mode tokenizes plain `<input>` values directly. */
-    #authorizenet-card-fields {
-        display: none;
-    }
-
-    #payment-methods:has(input[value="zero_authorizenet"]:checked) ~ #authorizenet-card-fields {
-        display: flex;
-    }
-
-    /* Purchase Order: same sibling `:has()` toggle, a single PO-number field. */
-    #purchaseorder-fields {
-        display: none;
-    }
-
-    #payment-methods:has(input[value="purchaseorder"]:checked) ~ #purchaseorder-fields {
-        display: block;
-    }
-
-    /*
      * Billing address fieldset: same real `:has()` toggle shape as the
      * three payment-method card-fields above, inverted — hidden by
      * default (the checkbox starts checked, "same as shipping"), and
@@ -1553,19 +1453,10 @@
     }
 
     /*
-     * Stock checkout fallback (Zero Checkout disabled): recolors Blank's
-     * orange/blue to the theme's palette. Colors/fonts only — no markup/JS
-     * changes, so it stays a stock checkout.
-     *
-     * `#checkout.checkout-container` only exists on the stock checkout (Zero's
-     * root is `#checkout-form`), so no config check is needed.
-     *
-     * `!important` throughout: css/vendor/styles-{m,l}.css (restored only on
-     * this handle, see Zero_Core checkout_index_index.xml) loads after this file.
-     *
-     * Root font size: Blank's `html{font-size:62.5%}` was removed from those
-     * vendored files and their rem values divided by 1.6, so they render at
-     * Blank's intended sizes against the 16px root without affecting this theme.
+     * Stock checkout fallback (only it has `#checkout.checkout-container`):
+     * Blank's colours recoloured to the theme's palette. `!important`: the
+     * vendored styles-{m,l}.css load after this file (their rems are divided
+     * by 1.6, since Blank's 62.5% root was removed).
      */
 
     #checkout.checkout-container {

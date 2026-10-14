@@ -5,16 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Product page title (catalog_product_view.xml only; other pages keep stock's
- * title.phtml).
- *
- * - Last word as an italic `.font-display` accent, only when the name doesn't
- *   look like a variant SKU name: no `-` followed by an uppercase letter or
- *   digit ("Tee-XS-Red"), no ™/®, last word longer than 2 characters.
- *   Otherwise the name renders plain.
- * - Category eyebrow above the title (ViewModel\ProductCategoryEyebrow);
- *   nothing when the product has no category.
- * - css_class/base attributes/getChildHtml() are as in stock.
+ * Product page title: the last word as an italic accent, unless the name
+ * looks like a variant ("Tee-XS-Red", ™/®, a last word of 1–2 characters);
+ * the category eyebrow above it.
  *
  * @var \Magento\Theme\Block\Html\Title $block
  * @var \Magento\Framework\Escaper $escaper

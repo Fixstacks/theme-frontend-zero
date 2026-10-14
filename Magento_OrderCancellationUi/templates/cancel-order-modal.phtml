@@ -5,20 +5,10 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Customer order cancellation dialog. Stock has no non-JS path for this (only
- * the GraphQL `cancelOrder` mutation), so this is a documented JS-required
- * feature: a native <dialog> plus a small vanilla script.
- *
- * - The parent templates (order/recent, order/history, order/info/buttons)
- *   render `<a data-role="cancel-order-trigger" data-target="#dialog-id">`
- *   next to this dialog.
- * - The script is printed once per order row but guarded by
- *   `window.__zeroCancelOrderInit`, so one delegated listener is attached.
- * - showModal() gives focus trapping and Escape; Close and backdrop click
- *   close it. Confirm POSTs `cancelOrder` with the selected reason's text
- *   (as stock does) to /graphql with the session cookie. A business error
- *   shows in the aria-live status region; success reloads the page.
- * - A trigger without a matching dialog does nothing.
+ * Order cancellation dialog. Stock has only the GraphQL `cancelOrder`
+ * mutation, so this needs JS: a <dialog> and one delegated listener
+ * (guarded by window.__zeroCancelOrderInit). Confirm posts the mutation with
+ * the reason; errors show in the status region, success reloads.
  *
  * @var \Magento\Framework\View\Element\Template $block
  * @var $escaper Magento\Framework\Escaper

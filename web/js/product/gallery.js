@@ -2,16 +2,9 @@
  * Copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Product gallery extras (Magento_Catalog/templates/product/view/gallery.phtml).
- * The gallery itself switches images with CSS :target; this adds:
- * - full screen: a <dialog> with the large image of the shown one, prev/next
- *   (buttons, arrow keys, swipe), opened by the expand button or a click on
- *   the image; on close the page gallery shows the last image viewed;
- * - zoom: in full screen, a click (or the Zoom button) magnifies the image,
- *   and the zoomed area follows the pointer or the mouse wheel;
- * - video: Play swaps the image for the player frame (YouTube/Vimeo, the URL
- *   comes from the server); in full screen a video item plays in the dialog.
- * Static file, no inline code: the storefront runs a strict CSP.
+ * Product gallery extras (the gallery itself switches with CSS :target):
+ * full screen in a <dialog> (prev/next, arrow keys, swipe), zoom that follows
+ * the pointer, and YouTube/Vimeo playback on Play.
  */
 (function () {
     'use strict';

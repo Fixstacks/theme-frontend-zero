@@ -3,17 +3,9 @@
  * Copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Header account menu (`top.links`). Cacheable shell: an icon-only <details>
- * button plus an empty <ul> that the personalized links replace, with the
- * other per-visitor fragments in one request (Zero_Core
- * Controller\Session\Bootstrap; the links depend on the session, so they
- * can't be in FPC-cached HTML).
- *
- * data-referer = currentUrlViewModel's encoded page URL, sent along as
- * `referer`, so "Sign In" returns here instead of to the fragment URL.
- *
- * The dropdown is `right-0` at every width (the button sits at the right edge).
- * The fragment replaces this <ul>, so keep its classes in sync with
+ * Header account menu: a cacheable <details> shell whose empty <ul> the
+ * session bootstrap replaces with the visitor's links. data-referer makes
+ * "Sign In" return here. Keep the <ul> classes in sync with
  * Zero_Core::customer/account-links.phtml.
  *
  * @var \Magento\Customer\Block\Account\Navigation $block

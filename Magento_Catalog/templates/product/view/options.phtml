@@ -5,16 +5,10 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Custom options on the product page. Stock markup, but stock's price update
- * is the RequireJS `priceOptions` widget, which this theme doesn't load: the
- * price stayed at the base price however many paid options were chosen (the
- * cart then showed the real, higher total).
- *
- * The script below does that update from the same data stock uses
- * (Options::getJsonConfig(): final price per option / per option value):
- * base price + every chosen value, filled text field, picked date/time or
- * attached file, written into the product's price box. Display only; the
- * cart prices the options server-side.
+ * Custom options, stock markup. Stock's live price is the RequireJS
+ * `priceOptions` widget (not loaded here); the script below adds chosen
+ * options to the price box from getJsonConfig(). Display only: the cart
+ * prices options on the server.
  *
  * @var \Magento\Catalog\Block\Product\View\Options $block
  * @var \Magento\Framework\Escaper $escaper

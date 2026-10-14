@@ -5,14 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Layered-nav swatch filters. The filter links work as in stock. Stock sets
- * each swatch's background with a small inline script; here it's a style
- * attribute, as the product page swatches do (no inline scripts: strict
- * CSP). The trailing `require([... swatch-renderer])` tooltip script is
- * dropped: there is no RequireJS here. Each swatch's aria-label still names
- * the option. Swatch links refresh #page-columns with HTMX, as the other
- * filters do; chosen swatches (several at once with Zero_LayeredNavigation)
- * are marked (aria-pressed, .is-chosen).
+ * Layered-nav swatch filters: stock's links, the colour as a style
+ * attribute (no inline scripts), HTMX refresh like other filters; chosen ones
+ * marked (aria-pressed, .is-chosen).
  *
  * @var \Magento\Swatches\Block\LayeredNavigation\RenderLayered $block
  * @var \Magento\Framework\Escaper $escaper

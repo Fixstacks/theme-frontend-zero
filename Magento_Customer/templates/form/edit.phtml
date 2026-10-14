@@ -5,14 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Account edit form: stock, minus the inline `require(["jquery","mage/mage"])`
- * validation setup (it threw on every load). EditPost validates.
- *
- * The email/password fieldset follows the two checkboxes through CSS `:has()`
- * (utilities.css), as stock's JS did: hidden until one is ticked, then only
- * the fields that change needs, under the matching legend. Hidden fields still
- * post, which is harmless: EditPost reads them only when its flag is set. The
- * static "Password Strength: No Password" label (its meter is JS) is dropped.
+ * Account edit form, without stock's inline require() validation (it threw).
+ * The email/password fields follow the two checkboxes via CSS `:has()`
+ * (utilities.css); hidden fields still post, and EditPost ignores them.
  *
  * @var \Magento\Customer\Block\Form\Edit $block
  * @var \Magento\Framework\View\Element\ButtonLockManager|null $buttonLockManager

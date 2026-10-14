@@ -5,14 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Contact Us form.
- *
- * - Adds the form_key stock omits (every submit failed CSRF).
- * - Dropped: validation/trim-input/block-submit-on-send widgets; Post
- *   validates server-side.
- * - `$buttonLockManager?->isDisabled(...)` is kept. If ReCaptcha is ever
- *   enabled for this form, the button would need ReCaptcha's JS unlock (not
- *   rebuilt here).
+ * Contact Us form: adds the form_key stock omits (every submit failed CSRF);
+ * no validation widgets, Post validates. With ReCaptcha on, the button would
+ * need ReCaptcha's JS unlock (not rebuilt).
  *
  * @var \Magento\Contact\Block\ContactForm $block
  * @var \Magento\Framework\View\Element\ButtonLockManager|null $buttonLockManager

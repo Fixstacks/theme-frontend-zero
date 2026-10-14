@@ -5,14 +5,8 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Replaces stock's
- * Magento_Cms::widget/static_block/default.phtml (the "CMS Static
- * Block" content widget). Already zero-JS, and there's nothing of
- * this widget's OWN to restyle — it's a thin pass-through wrapper
- * around whatever CMS block content an editor picked, which carries
- * its own markup/styling. Kept only as a real semantic wrapper
- * (`<div>`, not Luma's decorative `widget block block-static-block`
- * classes, which map to nothing in this theme's CSS).
+ * "CMS Static Block" widget: a plain <div> around the block's content,
+ * without Luma's widget classes.
  *
  * @var \Magento\Cms\Block\Widget\Block $block
  */

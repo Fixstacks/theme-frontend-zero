@@ -5,17 +5,11 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Header search box: a plain GET form.
- *
- * - Live suggestions: the input hx-gets Zero\Core Search\Suggest (debounced)
- *   into #search_autocomplete, replacing stock's quickSearch widget. CSS shows
- *   the dropdown on `:focus-within` + `:not(:empty)`. The first focus asks
- *   too, value unchanged, so the empty box offers popular searches
- *   (Zero_Search): `focusin once`, as htmx runs one handler per event.
- * - Suggestions are plain links (Tab reaches them; the dropdown stays open
- *   while focus is inside it), announced through aria-live. Not an ARIA
- *   combobox: that pattern promises arrow-key selection inside a listbox.
- * - Icon-only submit with an sr-only "Search" accessible name.
+ * Header search: a plain GET form. The input hx-gets suggestions (debounced)
+ * into #search_autocomplete, shown on `:focus-within` + `:not(:empty)`; the
+ * first focus asks too (`focusin once`), for popular searches. Suggestions
+ * are plain links announced via aria-live, not an ARIA combobox (no
+ * arrow-key selection).
  *
  * @var \Magento\Framework\View\Element\Template $block
  * @var \Magento\Framework\Escaper $escaper

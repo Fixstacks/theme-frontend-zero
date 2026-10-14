@@ -5,17 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Multishipping step 1 (assign items to addresses).
- *
- * - Adds the missing form_key field.
- * - "Remove item" is a submit button with formaction=getItemDeleteUrl() and
- *   formmethod=post: it sits inside the page's single form, so a nested
- *   <form> isn't possible (the URL already carries address/id).
- * - "Enter a New Address" is a plain link to getNewAddressUrl() (a GET action).
- * - "Go to Shipping Information" has name="continue" value="1": AddressesPost
- *   tells the two submit buttons apart by `continue`, which stock's JS set via
- *   the hidden #can_continue_flag. Only the clicked button's value is sent,
- *   and it overrides the hidden "0".
+ * Multishipping step 1: adds form_key; "Remove item" is a button with
+ * formaction (no nested form); "Go to Shipping Information" sends
+ * continue=1, which stock's JS set via #can_continue_flag.
  *
  * @var \Magento\Multishipping\Block\Checkout\Addresses $block
  */

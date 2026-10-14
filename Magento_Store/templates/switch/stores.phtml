@@ -5,13 +5,8 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Footer store switcher. Switches store VIEWS (getStores(), as stock's
- * switch/languages.phtml), not store groups (stock's getGroups()); there is
- * no separate currency switcher because each store view has a fixed currency.
- *
- * A native <select> whose option values are getTargetStoreRedirectUrl()
- * (SwitcherUrlProvider view model, keeps the current page); a small inline
- * `change` listener navigates.
+ * Footer store switcher: store views (each with a fixed currency, so no
+ * currency switcher) in a <select> of redirect URLs that keep the page.
  *
  * @var \Magento\Store\Block\Switcher $block
  * @var \Magento\Framework\Escaper $escaper

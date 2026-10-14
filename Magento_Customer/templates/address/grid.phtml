@@ -5,13 +5,8 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Address book "Additional Address Entries".
- *
- * - "Add New Address" is a link to getAddAddressUrl() (stock's button only
- *   worked through the addresses JS widget).
- * - "Delete" is a POST form per row with form_key: Address\Delete validates
- *   the form key and silently does nothing without it.
- * - The address widget init is dropped.
+ * Address book entries: "Add New Address" is a link; "Delete" is a POST form
+ * with form_key (Address\Delete silently ignores a request without one).
  *
  * @var \Magento\Customer\Block\Address\Grid $block
  * @var \Magento\Framework\Escaper $escaper

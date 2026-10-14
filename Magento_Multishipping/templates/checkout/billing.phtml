@@ -5,14 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Multishipping payment step.
- *
- * - Adds the missing form_key (Overview accepts POST).
- * - "Go to Review Your Order" is type="submit"; stock's type="button" needed
- *   Knockout to submit, so the flow dead-ended here. With a single active
- *   method its radio is pre-checked server-side.
- * - checkoutMessages and the require([...]) payment/validation/quote-seeding
- *   scripts are dropped.
+ * Multishipping payment step: adds form_key; "Go to Review Your Order" is a
+ * real submit (stock's needed Knockout, a dead end); a single method's radio
+ * is pre-checked.
  *
  * @var \Magento\Multishipping\Block\Checkout\Billing $block
  * @var \Magento\Framework\Escaper $escaper

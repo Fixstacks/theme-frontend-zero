@@ -5,13 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Bundle options fieldset.
- *
- * - priceBundle init dropped (live price + client validation); the options
- *   are native inputs posted with #product_addtocart_form, and the server
- *   enforces required selections. The live summary is summary.phtml's script.
- * - id="bundle-options-fieldset" is the anchor target of customize.phtml's
- *   "Customize and Add to Cart" link.
+ * Bundle options: native inputs posted with the add-to-cart form (no
+ * priceBundle widget; the server enforces required ones). The fieldset id is
+ * customize.phtml's link target.
  *
  * @var \Magento\Bundle\Block\Catalog\Product\View\Type\Bundle $block
  */

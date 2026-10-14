@@ -6,24 +6,11 @@
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
  * Product page Add to Cart.
- *
- * - No `disabled` on the button: stock relies on validate-product JS to remove
- *   it, so without RequireJS the button stayed disabled forever. Server-side
- *   validation in cart/add is authoritative.
- * - `btn-neutral` (dark) with lime hover; lime is reserved for marketing CTAs.
- * - Qty −/+ buttons call the input's native stepUp()/stepDown() via inline
- *   data-qty-step, wired in web/js/zero.js (no CSS-only way to increment). Without JS the input still works.
- * - The wishlist and compare icons are fetched with getLayout()->getBlock()
- *   rather than <move>: this template is used by two block instances
- *   (product.info.addtocart for products without options,
- *   product.info.addtocart.additional for those with), and a move only reaches
- *   one. Their original copies are hidden with CSS, not removed — removing
- *   deletes the block instance this lookup needs. Both icons share one wrapper
- *   so they wrap together on mobile.
- * - Single-consumer layout is Tailwind utilities here. What stays in CSS: the
- *   spin-button pseudo-elements, the qty field's margin (beats the shared
- *   `.fieldset .field` rule), and the PDP-only square icon sizing on the
- *   shared towishlist/tocompare classes.
+ * - No `disabled` on the button (stock's JS removed it); cart/add validates.
+ * - Qty −/+ call stepUp()/stepDown() via data-qty-step (web/js/zero.js).
+ * - Wishlist/compare icons are looked up with getBlock(), not <move>: two
+ *   block instances use this template and a move reaches one. The originals
+ *   are hidden with CSS, not removed (removing deletes what the lookup needs).
  *
  * @var $block \Magento\Catalog\Block\Product\View
  * @var \Magento\Framework\Escaper $escaper

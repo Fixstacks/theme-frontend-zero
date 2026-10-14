@@ -5,11 +5,9 @@
  * Modifications copyright © 2026 Roman Pasichnyk
  * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
  *
- * Product page breadcrumbs. Stock renders an empty div filled by JS; this
- * renders "Home > Product" in the same `.breadcrumbs > ul.items > li.item > a`
- * shape as html/breadcrumbs.phtml (which DaisyUI's `.breadcrumbs` styles).
- * The JS's referrer-aware category trail isn't reimplemented. Small uppercase
- * muted styling, like the generic breadcrumbs.
+ * Product breadcrumbs, server-rendered (stock fills an empty div by JS):
+ * "Home > Product" in html/breadcrumbs.phtml's markup. No referrer-aware
+ * category trail.
  *
  * @var \Magento\Theme\Block\Html\Breadcrumbs $block
  * @var \Magento\Framework\Escaper $escaper

@@ -1,4 +1,4 @@
-# vilmate/theme-frontend-zero — licensing
+# fixstacks/theme-frontend-zero — licensing
 
 Copyright © 2026 Roman Pasichnyk.
 
