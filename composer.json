@@ -2,7 +2,7 @@
     "name": "fixstacks/theme-frontend-zero",
     "description": "Zero for Magento Open Source: a storefront theme on HTMX, Tailwind CSS and daisyUI, without RequireJS, jQuery or Knockout.",
     "type": "magento2-theme",
-    "version": "1.0.1",
+    "version": "1.1.0",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
@@ -27,8 +27,8 @@
         "php": "~8.2.0||~8.3.0||~8.4.0",
         "magento/framework": "103.0.*",
         "magento/theme-frontend-blank": "100.4.*",
-        "fixstacks/module-zero-core": "^1.0",
-        "fixstacks/module-zero-checkout": "^1.0"
+        "fixstacks/module-zero-core": "^1.1",
+        "fixstacks/module-zero-checkout": "^1.1"
     },
     "suggest": {
         "fixstacks/module-zero-banner": "Home page slider and banners managed in the admin"
