@@ -1,0 +1,19 @@
+<?xml version="1.0"?>
+<!--
+    Copyright © 2026 Roman Pasichnyk
+    SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+
+    The category menu renders through Zero_MegaMenu's template (the theme's
+    markup plus panels and the menu's own links). In the theme, not the
+    module: a store view on another theme (Luma) keeps its own menu and the
+    menu widget its mobile toggle needs.
+-->
+<page xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xsi:noNamespaceSchemaLocation="urn:magento:framework:View/Layout/etc/page_configuration.xsd">
+    <body>
+        <referenceBlock name="catalog.topnav" template="Zero_MegaMenu::topmenu.phtml">
+            <arguments>
+                <argument name="megamenu" xsi:type="object">Zero\MegaMenu\ViewModel\Storefront</argument>
+            </arguments>
+        </referenceBlock>
+    </body>
+</page>

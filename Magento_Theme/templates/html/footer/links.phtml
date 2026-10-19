@@ -27,6 +27,7 @@ $categoryMap = [
     'contact-us-link' => 'help',
     'catalog-search-advanced-link' => 'help',
     'search-term-popular-link' => 'help',
+    'zero-store-locator-link' => 'company',
 ];
 
 $groups = ['company' => [], 'account' => [], 'help' => [], 'legal' => []];
@@ -46,6 +47,9 @@ foreach ($block->getLinks() as $link) {
                     <?= $escaper->escapeHtml(__('About Us')) ?>
                 </a>
             </li>
+            <?php foreach ($groups['company'] as $linkHtml): ?>
+                <?= /* @noEscape */ $linkHtml ?>
+            <?php endforeach; ?>
         </ul>
     </div>
     <div class="w-full">

@@ -1,20 +1,9 @@
-# Zero theme for Magento Open Source
+# Zero theme
 
-A storefront theme built on the web platform: server-rendered HTML, HTMX for
-the parts that refresh, Tailwind CSS v4 and daisyUI for styles. No RequireJS,
-jQuery or Knockout on the storefront. Strict CSP, WCAG 2.2 AA, WebP images.
-
-Demo: https://zero.fixstacks.com. Documentation: https://fixstacks.com/zero/docs (and `docs/` here).
-
-The theme requires two modules, installed with it:
-
-| Package | What it does |
-| --- | --- |
-| `fixstacks/module-zero-core` | HTMX endpoints for private content, view models for the templates |
-| `fixstacks/module-zero-checkout` | One-page checkout without Knockout |
-
-Optional: `fixstacks/module-zero-banner` for the home page slider, or all of
-Zero at once with `composer require fixstacks/zero`.
+The storefront theme of Zero for Magento Open Source: server-rendered
+templates, HTMX for the parts that refresh, Tailwind CSS v4 and daisyUI
+for the styles. No RequireJS, jQuery or Knockout on the storefront, and a
+strict Content Security Policy (no inline scripts or styles).
 
 ## Install
 
@@ -30,23 +19,42 @@ bin/magento cache:flush
 
 Composer installs `fixstacks/module-zero-core`, `fixstacks/module-zero-checkout` with it.
 
-Then choose the theme: Content > Design > Configuration > your store view >
-**Zero**. Its parent is Magento/blank, installed with Magento.
-
-## Styles
-
-`web/css/app.css` ships built. Rebuild it after you add, enable or disable a
-module with storefront styles, or change the theme's templates:
+## Build
 
 ```bash
-cd vendor/fixstacks/theme-frontend-zero   # or your child theme's folder
-npm ci && npm run build
+cd app/design/frontend/Zero/default
+npm ci
+npm run build          # web/css/app.css and web/js/htmx.min.js
+npm run dev:css        # Tailwind in watch mode while editing
 ```
 
-The build reads the enabled modules from `app/etc/config.php` and the
-Composer packages from `vendor/composer/installed.json`, so run it inside the
-Magento project. More: `docs/extensions.md`, `docs/child-themes.md`,
-`docs/components.md`.
+Rerun `npm run build:css` after changing a template, a style, or the set of
+enabled modules: the build reads the modules from `app/etc/config.php`.
+Everything about the pipeline, the files, when to rebuild and how the
+deploy does it: [docs/build.md](docs/build.md).
+
+## Docs
+
+- [build.md](docs/build.md): the CSS and JavaScript build, step by step.
+- [extensions.md](docs/extensions.md): how a module adds templates, styles
+  and HTMX fragments; compat modules for third-party extensions.
+- [child-themes.md](docs/child-themes.md): a store's own look on top of Zero.
+- [components.md](docs/components.md): the UI components and the JS rule.
+- [performance.md](docs/performance.md): what the PageSpeed score rests on, the budgets, what to keep to when adding a module, a theme or content, and how to check before a deploy.
+- [cms.md](docs/cms.md), [blog.md](docs/blog.md), [analytics.md](docs/analytics.md),
+  [social-login.md](docs/social-login.md): the modules with a storefront of their own.
+
+## Layout of the folder
+
+```
+Magento_*/            templates and layout overrides per core module
+src/styles/           app.css (Tailwind entry), base.css, components.css, utilities.css
+src/styles/generated/ modules.css, written by the build (not in git)
+web/css/app.css       the built stylesheet (not in git)
+web/js/               zero.js, product/*.js, cancel-order.js, htmx.min.js (built)
+scripts/              collect-module-styles.mjs, copy-htmx.mjs, minify-theme-css.mjs
+docs/                 the developer docs above
+```
 
 ## License
 

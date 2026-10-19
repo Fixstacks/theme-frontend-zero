@@ -118,12 +118,17 @@
  * Self-hosted fonts (no Google Fonts origin hop), latin subset only:
  * - DM Sans: one variable file (wght 100–1000) covers 400/500/600/700.
  * - Instrument Serif: italic 400 only, the one cut `.font-display` uses.
+ * Both are preloaded (default_head_blocks.xml), so they are usually in
+ * before the CSS; `font-display: optional` then paints the text once, in the
+ * right font. When a font is late (a slow first visit) the page keeps the
+ * fallback below, sized to the webfont's metrics, and never swaps mid-read;
+ * the next page has the font from the cache. See docs/child-themes.md, Fonts.
  */
 @font-face {
     font-family: "DM Sans";
     font-style: normal;
     font-weight: 100 1000;
-    font-display: swap;
+    font-display: optional;
     src: url("../fonts/dm-sans-latin-400-700.woff2") format("woff2");
 }
 
@@ -131,8 +136,31 @@
     font-family: "Instrument Serif";
     font-style: italic;
     font-weight: 400;
-    font-display: swap;
+    font-display: optional;
     src: url("../fonts/instrument-serif-italic-400.woff2") format("woff2");
+}
+
+/* Instrument Serif measured: average width 0.3622 em, ascent 0.990, descent 0.310; Georgia Italic scaled to it
+   (dev/tools/font-fallback.py), so text in the fallback takes the same room. */
+@font-face {
+    font-family: "Instrument Serif Fallback";
+    font-style: italic;
+    src: local("Georgia Italic"), local("Georgia"), local("Times New Roman");
+    size-adjust: 79.5%;
+    ascent-override: 124.5%;
+    descent-override: 39.0%;
+    line-gap-override: 0.0%;
+}
+
+/* DM Sans measured: average width 0.4781 em, ascent 0.992, descent 0.310; Arial scaled to it
+   (dev/tools/font-fallback.py), so text in the fallback takes the same room. Roboto on Android. */
+@font-face {
+    font-family: "DM Sans Fallback";
+    src: local("Arial"), local("Roboto"), local("Helvetica Neue");
+    size-adjust: 107.0%;
+    ascent-override: 92.7%;
+    descent-override: 29.0%;
+    line-gap-override: 0.0%;
 }
 
 /*
@@ -145,11 +173,11 @@
  * also becomes a utility class (text-2xs, text-label, text-page-title, …).
  */
 @theme {
-    --font-display: "Instrument Serif", ui-serif, Georgia, serif;
-    --font-sans: "DM Sans", ui-sans-serif, system-ui, sans-serif;
+    --font-display: "Instrument Serif", "Instrument Serif Fallback", ui-serif, Georgia, serif;
+    --font-sans: "DM Sans", "DM Sans Fallback", ui-sans-serif, system-ui, sans-serif;
 
     /* Scale steps between Tailwind's: eyebrows/badges, meta labels, body copy. */
-    --text-3xs: 0.625rem;
+    --text-3xs: 0.6875rem;
     --text-2xs: 0.6875rem;
     --text-label: 0.8125rem;
     --text-md: 0.9375rem;

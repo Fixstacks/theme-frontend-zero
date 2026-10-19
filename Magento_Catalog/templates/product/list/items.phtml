@@ -342,7 +342,7 @@ $_item = null;
                             </div>
                             </li>
                         <?php endforeach ?>
-                        <?php $badgesBlock?->unsetData('product'); ?>
+                        <?php if ($badgesBlock) { $badgesBlock->unsetData('product'); } ?>
                     </ol>
                 </div>
             </div>

@@ -75,6 +75,15 @@
                 <argument name="zero_video" xsi:type="object">Zero\Core\ViewModel\Product\GalleryVideo</argument>
             </arguments>
         </referenceBlock>
+        <!-- The sticky Add to Cart bar, once the form's button is scrolled past (Stores > Configuration > Zero > Theme > Product Page). -->
+        <referenceContainer name="before.body.end">
+            <block class="Magento\Catalog\Block\Product\View" name="zero.product.sticky.addtocart"
+                   template="Magento_Catalog::product/view/sticky-addtocart.phtml">
+                <arguments>
+                    <argument name="sticky" xsi:type="object">Zero\Core\ViewModel\StickyAddToCart</argument>
+                </arguments>
+            </block>
+        </referenceContainer>
         <referenceBlock name="product.info.addtocart.instantPurchase" remove="true"/>
         <referenceBlock name="product.info.addtocart.instantPurchase.additional" remove="true"/>
         <referenceBlock name="product_viewed_counter" remove="true"/>

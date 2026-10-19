@@ -48,7 +48,7 @@ foreach ($block->getAvailableOrders() as $_key => $_order) {
                 <?php endif; ?>
             </li>
         <?php endforeach; ?>
-        <li class="menu-title mt-1 border-t border-base-300 pt-1"></li>
+        <li class="sorter-separator" role="separator" aria-hidden="true"></li>
         <li class="item">
             <?php if ($currentDirection == 'desc') :?>
                 <a title="<?= $block->escapeHtmlAttr(__('Set Ascending Direction')) ?>"

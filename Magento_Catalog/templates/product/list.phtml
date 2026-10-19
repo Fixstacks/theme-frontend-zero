@@ -51,6 +51,8 @@ $_helper = $block->getData('outputHelper');
     ?>
     <?php
     $badgesBlock = $block->getLayout()->getBlock('zero.product.badges');
+    // Zero_QuickView's button, when the module is there (rendered per card, as the badges).
+    $quickViewBlock = $block->getLayout()->getBlock('zero.quickview.button');
     /** @var \Zero\Core\ViewModel\ProductCardCache|null $cardCache */
     $cardCache = $block->getData('card_cache');
     $renderCard = function ($_product) use (
@@ -62,7 +64,8 @@ $_helper = $block->getData('outputHelper');
         $showDescription,
         $templateType,
         $pos,
-        $badgesBlock
+        $badgesBlock,
+        $quickViewBlock
     ): string {
         ob_start();
         ?>
@@ -77,13 +80,16 @@ $_helper = $block->getData('outputHelper');
                             . 'top:' . $productImage->getHeight() . 'px;';
                     }
                     ?>
-                    <?php // Product Image ?>
-                    <a href="<?= $escaper->escapeUrl($_product->getProductUrl()) ?>"
-                       class="product photo product-item-photo"
-                       tabindex="-1">
-                        <?= $productImage->toHtml() ?>
-                        <?= $badgesBlock ? $badgesBlock->setProduct($_product)->toHtml() : '' ?>
-                    </a>
+                    <?php // Product Image, with the Quick View button over its bottom edge (badges at the top) ?>
+                    <div class="product-item-media relative">
+                        <a href="<?= $escaper->escapeUrl($_product->getProductUrl()) ?>"
+                           class="product photo product-item-photo"
+                           tabindex="-1">
+                            <?= $productImage->toHtml() ?>
+                            <?= $badgesBlock ? $badgesBlock->setProduct($_product)->toHtml() : '' ?>
+                        </a>
+                        <?= $quickViewBlock ? $quickViewBlock->setProduct($_product)->toHtml() : '' ?>
+                    </div>
                     <div class="product details product-item-details">
                         <?php $_productNameStripped = $block->stripTags($_product->getName(), null, true); ?>
                         <strong class="product name product-item-name">
@@ -187,7 +193,13 @@ $_helper = $block->getData('outputHelper');
                     )
                     : strtr($renderCard($_product), $replace) ?>
             <?php endforeach; ?>
-            <?php $badgesBlock?->unsetData('product'); ?>
+            <?php // getBlock() gives false, not null, when a module's block is missing.
+            if ($badgesBlock) {
+                $badgesBlock->unsetData('product');
+            }
+            if ($quickViewBlock) {
+                $quickViewBlock->unsetData('product');
+            } ?>
         </ol>
     </div>
     <?= $block->getChildBlock('toolbar')->setIsBottom(true)->toHtml() ?>

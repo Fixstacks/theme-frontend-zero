@@ -1,0 +1,65 @@
+<?php
+/**
+ * Copyright 2014 Adobe
+ * All Rights Reserved.
+ * Modifications copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * Tier prices on the product page as a small volume-pricing table (quantity,
+ * price each, saving). Stock's list carried an MSRP "click for price" popup
+ * and an addToCart init script; here an MSRP-on-gesture tier just says the
+ * price shows in the cart. The cart applies the tier price by itself.
+ *
+ * @var \Magento\Catalog\Pricing\Render\PriceBox $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Magento\Framework\Locale\LocaleFormatter $localeFormatter
+ */
+/** @var \Magento\Catalog\Pricing\Price\TierPrice $tierPriceModel */
+$tierPriceModel = $block->getPrice();
+$tierPrices = $tierPriceModel->getTierPriceList();
+if (!$tierPrices) {
+    return;
+}
+$product = $block->getSaleableItem();
+$msrpOnGesture = $block->getPriceType('msrp_price')->isShowPriceOnGesture();
+?>
+<div class="prices-tier mt-4 mb-5" data-tier-prices>
+    <span class="block text-2xs font-semibold uppercase tracking-widest text-base-content/60 mb-2">
+        <?= $escaper->escapeHtml(__('Volume pricing')) ?>
+    </span>
+    <table class="w-full max-w-sm text-sm">
+        <thead class="sr-only">
+            <tr>
+                <th scope="col"><?= $escaper->escapeHtml(__('Quantity')) ?></th>
+                <th scope="col"><?= $escaper->escapeHtml(__('Price each')) ?></th>
+                <th scope="col"><?= $escaper->escapeHtml(__('You save')) ?></th>
+            </tr>
+        </thead>
+        <tbody>
+            <?php foreach ($tierPrices as $index => $price) : ?>
+                <?php $qty = (float) $price['price_qty']; ?>
+                <tr class="item border-t border-base-300" data-tier-qty="<?= $escaper->escapeHtmlAttr((string) ($qty * 1)) ?>">
+                    <td class="py-1.5 pe-3 whitespace-nowrap tabular-nums">
+                        <?= $escaper->escapeHtml(__('Buy %1+', $localeFormatter->formatNumber($qty))) ?>
+                    </td>
+                    <td class="py-1.5 pe-3 whitespace-nowrap font-medium">
+                        <?php if ($msrpOnGesture && $price['price']->getValue() < $product->getMsrp()) : ?>
+                            <?= $escaper->escapeHtml(__('Price in the cart')) ?>
+                        <?php else : ?>
+                            <?= /* @noEscape */ $block->renderAmount($price['price'], [
+                                'price_id' => $index,
+                                'id_suffix' => '-' . $index,
+                                'include_container' => true,
+                                'zone' => \Magento\Framework\Pricing\Render::ZONE_ITEM_OPTION,
+                            ]) ?>
+                            <span class="text-base-content/60"><?= $escaper->escapeHtml(__('each')) ?></span>
+                        <?php endif; ?>
+                    </td>
+                    <td class="py-1.5 whitespace-nowrap text-success font-medium benefit">
+                        <?= $escaper->escapeHtml(__('Save %1%', $localeFormatter->formatNumber($block->formatPercent($tierPriceModel->getSavePercent($price['price']))))) ?>
+                    </td>
+                </tr>
+            <?php endforeach; ?>
+        </tbody>
+    </table>
+</div>

@@ -1,0 +1,40 @@
+<?php
+/**
+ * Copyright © 2026 Roman Pasichnyk
+ * SPDX-License-Identifier: OSL-3.0 OR AFL-3.0
+ *
+ * The product page's sticky Add to Cart bar (Zero\Core\ViewModel\
+ * StickyAddToCart). Its button submits the page's own Add to Cart form (the
+ * `form` attribute: same quantity, same options, same request); for a
+ * product with options it is a link back to them. web/js/product/
+ * sticky-addtocart.js shows the bar once the form's button is scrolled past
+ * and copies the current price into it; hidden without JavaScript.
+ *
+ * @var \Magento\Catalog\Block\Product\View $block
+ * @var \Magento\Framework\Escaper $escaper
+ * @var \Zero\Core\ViewModel\StickyAddToCart $sticky
+ */
+$product = $block->getProduct();
+$sticky = $block->getData('sticky');
+if (!$product || !$sticky || !$sticky->isEnabled($product)) {
+    return;
+}
+?>
+<div class="sticky-addtocart" data-sticky-addtocart hidden>
+    <div class="sticky-addtocart-inner">
+        <div class="sticky-addtocart-text">
+            <span class="sticky-addtocart-name"><?= $escaper->escapeHtml($product->getName()) ?></span>
+            <span class="sticky-addtocart-price" data-sticky-addtocart-price></span>
+        </div>
+        <?php if ($sticky->addsDirectly($product)): ?>
+            <button type="submit" form="product_addtocart_form" class="btn btn-primary sticky-addtocart-button">
+                <?= $escaper->escapeHtml(__('Add to Cart')) ?>
+            </button>
+        <?php else: ?>
+            <a href="#product_addtocart_form" class="btn btn-primary sticky-addtocart-button" data-sticky-addtocart-options>
+                <?= $escaper->escapeHtml(__('Choose options')) ?>
+            </a>
+        <?php endif; ?>
+    </div>
+</div>
+<script src="<?= $escaper->escapeUrl($block->getViewFileUrl('js/product/sticky-addtocart.js')) ?>" defer></script>

@@ -94,6 +94,16 @@
         }
     }
 
+    /* A table wider than the screen (the privacy policy's cookie table, CMS content) scrolls inside itself. */
+    @media (max-width: 47.99rem) {
+        .page-main table.data-table,
+        .cms-content table {
+            display: block;
+            max-width: 100%;
+            overflow-x: auto;
+        }
+    }
+
     #page-columns {
         display: grid;
         grid-template-columns: 1fr;
@@ -183,7 +193,17 @@
         clip: auto;
     }
 
+    /*
+     * Its own stacking layer above the page: the header's dropdowns (search
+     * suggestions, account, desktop submenus) are positioned inside it and
+     * must paint over content that is `position: relative` further down. A
+     * child theme that wants a frosted header puts the blur on a `::before`
+     * (backdrop-filter on the header itself would also make it the containing
+     * block of the mobile menu's `position: fixed` panel).
+     */
     .page-header {
+        position: relative;
+        z-index: 30;
         border-bottom: 1px solid var(--color-base-300);
         background: var(--color-base-100);
     }
@@ -395,6 +415,34 @@
         .toolbar-sorter.dropdown > .dropdown-content {
             inset-inline-end: auto;
             inset-inline-start: 0;
+        }
+    }
+
+    /*
+     * The account dropdown is positioned against the header row: on a phone it
+     * hangs from the row's end whatever wraps (at 320px the icon can drop to a
+     * line of its own, and a dropdown anchored to the icon went off screen);
+     * from 48rem it hangs from the icon.
+     */
+    .header.content {
+        position: relative;
+    }
+
+    .header.content .account-toplinks-menu {
+        position: static;
+    }
+
+    .header.content .account-toplinks-menu > .header.links {
+        margin-inline-end: 0.75rem;
+    }
+
+    @media (min-width: 48rem) {
+        .header.content .account-toplinks-menu {
+            position: relative;
+        }
+
+        .header.content .account-toplinks-menu > .header.links {
+            margin-inline-end: 0;
         }
     }
 
@@ -1301,9 +1349,12 @@
         color: var(--color-base-content);
     }
 
+    /* minmax(0, 1fr), not 1fr: a track is minmax(auto, 1fr), so a tall photo
+       stretched the stage past the screen and its lower part could not be reached. */
     .gallery-dialog[open] {
         display: grid;
-        grid-template-rows: auto 1fr;
+        grid-template-rows: auto minmax(0, 1fr);
+        overflow: hidden;
     }
 
     .gallery-dialog::backdrop {
@@ -1326,8 +1377,11 @@
 
     .gallery-dialog-stage {
         position: relative;
+        min-height: 0;
         overflow: hidden;
         display: grid;
+        /* One definite cell the size of the stage: the photo's max-height: 100% needs it (an auto row grows to the photo). */
+        grid-template: minmax(0, 1fr) / minmax(0, 1fr);
         place-items: center;
         touch-action: pan-y pinch-zoom;
     }
@@ -1533,3 +1587,74 @@
         font-family: var(--font-display) !important;
     }
 }
+
+/*
+ * Sticky Add to Cart (Magento_Catalog::product/view/sticky-addtocart.phtml):
+ * a bar along the bottom once the form's button is scrolled past, sliding up
+ * (no motion with prefers-reduced-motion). The options link lands the form
+ * below the sticky header.
+ */
+.sticky-addtocart {
+    position: fixed;
+    inset-inline: 0;
+    bottom: 0;
+    z-index: 40;
+    background: var(--color-base-100);
+    border-top: 1px solid var(--color-base-300);
+    box-shadow: 0 -0.5rem 1.5rem color-mix(in srgb, var(--color-base-content) 10%, transparent);
+    transform: translateY(110%);
+    /* Off screen and hidden while not shown (not just translated out of view). */
+    visibility: hidden;
+    transition: transform 0.25s ease, visibility 0s 0.25s;
+    padding-bottom: env(safe-area-inset-bottom);
+}
+
+.sticky-addtocart.is-visible {
+    transform: none;
+    visibility: visible;
+    transition-delay: 0s;
+}
+
+.sticky-addtocart-inner {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    max-width: 80rem;
+    margin-inline: auto;
+    padding: 0.625rem 1rem;
+}
+
+.sticky-addtocart-text {
+    display: flex;
+    flex-direction: column;
+    min-width: 0;
+    flex: 1;
+}
+
+.sticky-addtocart-name {
+    overflow: hidden;
+    text-overflow: ellipsis;
+    white-space: nowrap;
+    font-size: 0.875rem;
+    font-weight: 500;
+}
+
+.sticky-addtocart-price {
+    font-size: 0.9375rem;
+    font-weight: 600;
+}
+
+.sticky-addtocart-button {
+    flex: none;
+}
+
+#product_addtocart_form {
+    scroll-margin-top: 7rem;
+}
+
+@media (prefers-reduced-motion: reduce) {
+    .sticky-addtocart {
+        transition: none;
+    }
+}
+
