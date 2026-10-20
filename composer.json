@@ -2,7 +2,7 @@
     "name": "fixstacks/theme-frontend-zero",
     "description": "Zero for Magento Open Source: a storefront theme on HTMX, Tailwind CSS and daisyUI, without RequireJS, jQuery or Knockout.",
     "type": "magento2-theme",
-    "version": "1.3.1",
+    "version": "1.3.2",
     "license": [
         "OSL-3.0",
         "AFL-3.0"
