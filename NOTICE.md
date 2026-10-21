@@ -1,4 +1,4 @@
-# fixstacks/theme-frontend-zero — licensing
+# zerofront/theme-frontend-zero — licensing
 
 Copyright © 2026 Roman Pasichnyk.
 
